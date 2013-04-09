@@ -38,6 +38,16 @@ except ImportError:
         pass
 
 
+class ActionShortcut(object):
+    def __init__(self, ckan):
+        self._ckan = ckan
+
+    def __getattr__(self, name):
+        def action(**kwargs):
+            return self._ckan.call_action(name, **kwargs)
+        return action
+
+
 class LocalCKAN(object):
     def __init__(self, username=None, context=None):
         from ckan.logic import get_action
@@ -47,6 +57,7 @@ class LocalCKAN(object):
             username = self.get_site_username()
         self.username = username
         self.context = context
+        self.action = ActionShortcut(self)
 
     def get_site_username(self):
         user = self._get_action('get_site_user')({'ignore_auth': True}, ())
@@ -63,6 +74,7 @@ class RemoteCKAN(object):
     def __init__(self, address, api_key=None):
         self.address = address
         self.api_key = api_key
+        self.action = ActionShortcut(self)
 
     def call_action(self, action, data_dict=None):
         if not data_dict:
