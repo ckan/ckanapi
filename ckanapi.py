@@ -48,7 +48,7 @@ class ActionShortcut(object):
 
     def __getattr__(self, name):
         def action(**kwargs):
-            return self._ckan.call_action(name, **kwargs)
+            return self._ckan.call_action(name, kwargs)
         return action
 
 
