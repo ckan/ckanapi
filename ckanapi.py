@@ -2,10 +2,10 @@ import urllib2
 import json
 
 class CKANAPIError(Exception):
-    pass
+    def __str__(self):
+        return repr(self.args)
 
 try:
-    from ckan.lib.navl.dictization_functions import DataError
     from ckan.logic import (ParameterError, NotAuthorized, NotFound,
                             ValidationError)
     from ckan.search import SearchQueryError, SearchError
@@ -13,10 +13,6 @@ try:
 except ImportError:
     # Implement the minimum to be compatible with existing errors
     # without requiring CKAN
-
-    class DataError(CKANAPIError):
-        def __init__(self, error):
-            self.error = error
 
     class NotAuthorized(CKANAPIError):
         pass
@@ -104,7 +100,10 @@ def reverse_apicontroller_action(response, status):
         parsed = json.loads(response)
         if status == 200:
             return parsed
-        err = parsed.get('error', {})
+        if hasattr(parsed, 'get'):
+            err = parsed.get('error', {})
+        else:
+            err = {}
     except ValueError:
         err = {}
 
@@ -128,8 +127,6 @@ def reverse_apicontroller_action(response, status):
         raise e
     elif etype == 'Not Found Error':
         raise NotAuthorized()
-    elif status == 400:
-        raise DataError(response.split(': ')[-1].split(' - ', 1)[0])
 
     # don't recognize the error
     raise CKANAPIError(response, status)
