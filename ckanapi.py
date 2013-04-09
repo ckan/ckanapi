@@ -81,6 +81,8 @@ class RemoteCKAN(object):
             data_dict = {}
         data = json.dumps(data_dict)
         header = {'Content-Type': 'application/json'}
+        if self.api_key:
+            header['Authorization'] = self.api_key
         url = self.address + '/api/action/' + action
         req = urllib2.Request(url, data, headers=header)
         try:
