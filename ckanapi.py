@@ -17,15 +17,23 @@ except ImportError:
     class NotAuthorized(CKANAPIError):
         pass
 
-    class NotFound(CKANAPIError):
-        pass
-
     class ValidationError(CKANAPIError):
         def __init__(self, error_dict):
             self.error_dict = error_dict
+        def __str__(self):
+            return repr(self.error_dict)
+
+    class NotFound(CKANAPIError):
+        def __init__(self, extra_msg):
+            self.extra_msg = extra_msg
+        def __str__(self):
+            return self.extra_msg
 
     class ParameterError(CKANAPIError):
-        pass
+        def __init__(self, extra_msg):
+            self.extra_msg = extra_msg
+        def __str__(self):
+            return self.extra_msg
 
     class SearchQueryError(CKANAPIError):
         pass
@@ -116,15 +124,11 @@ def reverse_apicontroller_action(response, status):
         # I refuse to eval(emessage), even if it would be more correct
         raise SearchError(emessage) 
     elif etype == 'Parameter Error':
-        e = ParameterError()
-        e.extra_msg = emessage
-        raise e
+        raise ParameterError(emessage)
     elif etype == 'Validation Error':
         raise ValidationError(err)
     elif etype == 'Not Found Error':
-        e = NotFound()
-        e.extra_msg = emessage
-        raise e
+        raise NotFound(emessage)
     elif etype == 'Not Found Error':
         raise NotAuthorized()
 
