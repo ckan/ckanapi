@@ -131,7 +131,7 @@ def reverse_apicontroller_action(response, status):
         raise ValidationError(err)
     elif etype == 'Not Found Error':
         raise NotFound(emessage)
-    elif etype == 'Not Found Error':
+    elif etype == 'Authorization Error':
         raise NotAuthorized()
 
     # don't recognize the error
