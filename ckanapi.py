@@ -8,7 +8,7 @@ class CKANAPIError(Exception):
 try:
     from ckan.logic import (ParameterError, NotAuthorized, NotFound,
                             ValidationError)
-    from ckan.search import SearchQueryError, SearchError
+    from ckan.lib.search import SearchQueryError, SearchError
 
 except ImportError:
     # Implement the minimum to be compatible with existing errors
@@ -60,7 +60,7 @@ class LocalCKAN(object):
         if not username:
             username = self.get_site_username()
         self.username = username
-        self.context = dict(context, user=self.username)
+        self.context = dict(context or [], user=self.username)
         self.action = ActionShortcut(self)
 
     def get_site_username(self):
