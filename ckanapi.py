@@ -60,18 +60,20 @@ class LocalCKAN(object):
         if not username:
             username = self.get_site_username()
         self.username = username
-        self.context = context
+        self.context = dict(context, user=self.username)
         self.action = ActionShortcut(self)
 
     def get_site_username(self):
         user = self._get_action('get_site_user')({'ignore_auth': True}, ())
         return user['name']
 
-    def call_action(self, action, data_dict=None):
+    def call_action(self, action, data_dict=None, context=None):
         if not data_dict:
             data_dict = []
+        if context is None:
+            context = self.context
         # copy dicts because actions may modify the dicts they are passed
-        return self._get_action(action)(dict(self.context), dict(data_dict))
+        return self._get_action(action)(dict(context), dict(data_dict))
 
 
 class RemoteCKAN(object):
