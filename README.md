@@ -1,6 +1,6 @@
 ## ckanapi
 
-This module a thin wrapper around the CKAN's action API.
+A thin wrapper around the CKAN's action API.
 It may be used from within a plugin or separate from CKAN entirely.
 
 Making an API Request:
@@ -51,5 +51,5 @@ user with full access.
 import ckanapi
 
 registry = ckanapi.LocalCKAN()
-registry.action.create_package(name='my-dataset', title='this will work fine')
+registry.action.package_create(name='my-dataset', title='this will work fine')
 ```
