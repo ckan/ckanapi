@@ -3,9 +3,6 @@ ckanapi
 -------
 
 This module a thin wrapper around the CKAN's action API.
-
-It may be used from within a plugin or if only using RemoteCKAN
-it may be used separate from CKAN.
 """
 
 import urllib2
