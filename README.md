@@ -1,7 +1,8 @@
 ## ckanapi
 
-A thin wrapper around the CKAN's action API.
-It may be used from within a plugin or separate from CKAN entirely.
+A thin wrapper around CKAN's action API
+
+ckanapi may be used from within a plugin or separate from CKAN.
 
 Making an API Request:
 
