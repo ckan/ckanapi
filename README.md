@@ -5,9 +5,10 @@ It may be used from within a plugin or separate from CKAN entirely.
 
 Making an API Request:
 
-``` python
+```python
 import ckanapi
 import pprint
+
 demo = ckanapi.RemoteCKAN('http://demo.ckan.org')
 groups = demo.action.group_list(id='data-explorer')
 pprint.pprint(groups)
@@ -24,6 +25,31 @@ result:
  u'success': True}
 ```
 
+Failures are raised as exceptions just like when calling get_action from a plugin:
 
+```python
+import ckanapi
 
+demo = ckanapi.RemoteCKAN('http://demo.ckan.org', api_key='phony-key')
+try:
+    pkg = demo.action.package_create(name='my-dataset', title='not going to work')
+except ckanapi.NotAuthorized:
+    print 'denied'
+```
 
+result:
+
+```
+denied
+```
+
+A similar class is provided for accessing local CKAN instances from a plugin in
+the same way as remote CKAN instances.  This class defaults to using the site
+user with full access.
+
+```python
+import ckanapi
+
+registry = ckanapi.LocalCKAN()
+registry.action.create_package(name='my-dataset', title='this will work fine')
+```
