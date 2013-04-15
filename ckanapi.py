@@ -162,14 +162,8 @@ class RemoteCKAN(object):
         function will convert it back to an exception that matches the
         one the action function itself raised.
         """
-        if not data_dict:
-            data_dict = {}
-        data = json.dumps(data_dict)
-        header = {'Content-Type': 'application/json'}
-        if self.api_key:
-            header['Authorization'] = self.api_key
-        url = self.address + '/api/action/' + action
-        status, response = self._request_fn(url, data, header)
+        url, data, headers = prepare_action(action, data_dict, self.api_key)
+        status, response = self._request_fn(self.address + url, data, headers)
         return reverse_apicontroller_action(response, status)
 
     def _request_fn(self, url, data, headers):
@@ -206,15 +200,23 @@ def TestAppCKAN(object):
         function will convert it back to an exception that matches the
         one the action function itself raised.
         """
-        if not data_dict:
-            data_dict = {}
-        data = json.dumps(data_dict)
-        header = {'Content-Type': 'application/json'}
-        if self.api_key:
-            header['Authorization'] = self.api_key
-        url = '/api/action/' + action
-        r = self.test_app.post(url, data, header)
+        url, data, headers = prepare_action(action, data_dict, self.api_key)
+        r = self.test_app.post(url, data, headers)
         return reverse_apicontroller_action(r.status, r.text)
+
+
+def prepare_action(action, data_dict=None, api_key=None):
+    """
+    Return action_url, data_json, http_headers
+    """
+    if not data_dict:
+        data_dict = {}
+    data = json.dumps(data_dict)
+    headers = {'Content-Type': 'application/json'}
+    if api_key:
+        headers['Authorization'] = api_key
+    url = '/api/action/' + action
+    return url, data, headers
 
 
 def reverse_apicontroller_action(response, status):
