@@ -181,6 +181,42 @@ class RemoteCKAN(object):
             return e.code, e.read()
 
 
+def TestAppCKAN(object):
+    """
+    An interface to the the CKAN API actions on a paste TestApp
+
+    :param test_app: the paste.fixture.TestApp instance, stored as
+                    self.test_app
+    :param api_key: the API key to pass as an 'Authorization' header
+                    when actions are called, stored as self.api_key
+    """
+    def __init__(self, test_app, api_key=None):
+        self.test_app = test_app
+        self.api_key = api_key
+        self.action = ActionShortcut(self)
+
+    def call_action(self, action, data_dict=None):
+        """
+        :param action: the action name, e.g. 'package_create'
+        :param data_dict: the dict to pass to the action as JSON,
+                          defaults to {}
+
+        This function parses the response from the server as JSON and
+        returns the decoded value.  When an error is returned this
+        function will convert it back to an exception that matches the
+        one the action function itself raised.
+        """
+        if not data_dict:
+            data_dict = {}
+        data = json.dumps(data_dict)
+        header = {'Content-Type': 'application/json'}
+        if self.api_key:
+            header['Authorization'] = self.api_key
+        url = '/api/action/' + action
+        r = self.test_app.post(url, data, header)
+        return reverse_apicontroller_action(r.status, r.text)
+
+
 def reverse_apicontroller_action(response, status):
     """
     Make an API call look like a direct action call by reversing the
