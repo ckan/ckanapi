@@ -77,7 +77,7 @@ groups = demo.action.group_list(id='data-explorer')
 
 ### TestAppCKAN
 
-A class is provided for making action requests to a paster.fixture.TestApp
+A class is provided for making action requests to a paste.fixture.TestApp
 instance for use in CKAN tests:
 
 ```python
