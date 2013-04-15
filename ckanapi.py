@@ -168,7 +168,7 @@ class RemoteCKAN(object):
         """
         url, data, headers = prepare_action(action, data_dict, self.api_key)
         status, response = self._request_fn(self.address + url, data, headers)
-        return reverse_apicontroller_action(response, status)
+        return reverse_apicontroller_action(status, response)
 
     def _request_fn(self, url, data, headers):
         req = urllib2.Request(url, data, headers)
@@ -179,7 +179,7 @@ class RemoteCKAN(object):
             return e.code, e.read()
 
 
-def TestAppCKAN(object):
+class TestAppCKAN(object):
     """
     An interface to the the CKAN API actions on a paste TestApp
 
@@ -206,7 +206,7 @@ def TestAppCKAN(object):
         """
         url, data, headers = prepare_action(action, data_dict, self.api_key)
         r = self.test_app.post(url, data, headers)
-        return reverse_apicontroller_action(r.status, r.text)
+        return reverse_apicontroller_action(r.status, r.body)
 
 
 def prepare_action(action, data_dict=None, api_key=None):
@@ -223,7 +223,7 @@ def prepare_action(action, data_dict=None, api_key=None):
     return url, data, headers
 
 
-def reverse_apicontroller_action(response, status):
+def reverse_apicontroller_action(status, response):
     """
     Make an API call look like a direct action call by reversing the
     exception -> HTTP response translation that APIController.action does
