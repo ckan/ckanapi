@@ -77,16 +77,16 @@ groups = demo.action.group_list(id='data-explorer')
 
 or to mock the API call for testing:
 
+### TestAppCKAN
+
+A class is provided for making action requests to a paster.fixture.TestApp
+instance for use in CKAN tests:
+
 ```python
 import ckanapi
 import paste.fixture
 
-testapp = paste.fixture.TestApp(...)
-
-def testapp_request(url, data, headers):
-    r = testapp.post(url, data, headers)
-    return r.status, r.text
-
-demo = ckanapi.RemoteCKAN('http://demo.ckan.org', request_fn=testapp_request)
+test_app = paste.fixture.TestApp(...)
+demo = ckanapi.TestAppCKAN(test_app, api_key='my-test-key')
 groups = demo.action.group_list(id='data-explorer')
 ```
