@@ -66,7 +66,6 @@ allows using a different library for the request:
 ```python
 import ckanapi
 import requests
-import pprint
 
 def requests_ftw(url, data, headers):
     r = requests.post(url, data, headers=headers)
@@ -74,5 +73,20 @@ def requests_ftw(url, data, headers):
 
 demo = ckanapi.RemoteCKAN('http://demo.ckan.org', request_fn=requests_ftw)
 groups = demo.action.group_list(id='data-explorer')
-pprint.pprint(groups)
+```
+
+or to mock the API call for testing:
+
+```python
+import ckanapi
+import paste.fixture
+
+testapp = paste.fixture.TestApp(...)
+
+def testapp_request(url, data, headers):
+    r = testapp.post(url, data, headers)
+    return r.status, r.text
+
+demo = ckanapi.RemoteCKAN('http://demo.ckan.org', request_fn=testapp_request)
+groups = demo.action.group_list(id='data-explorer')
 ```
