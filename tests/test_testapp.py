@@ -13,6 +13,9 @@ def wsgi_app(environ, start_response):
         response = {'success': True, 'result': 'how are you?'}
     elif path == '/api/action/invalid':
         response = {'success': False, 'error': {'__type': 'Validation Error'}}
+    elif path == '/api/action/echo':
+        response = {'success': True, 'result':
+            json.loads(environ['wsgi.input'].read())['message']}
 
     start_response(status, headers)
     return [json.dumps(response)]
@@ -31,6 +34,10 @@ class TestTestAPPCKAN(unittest.TestCase):
         self.assertRaises(
             ckanapi.ValidationError,
             self.ckan.action.invalid)
+    def test_data(self):
+        self.assertEquals(
+            self.ckan.action.echo(message='for you')['result'],
+            'for you')
 
 
 if __name__ == '__main__':
