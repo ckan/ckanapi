@@ -75,8 +75,6 @@ demo = ckanapi.RemoteCKAN('http://demo.ckan.org', request_fn=requests_ftw)
 groups = demo.action.group_list(id='data-explorer')
 ```
 
-or to mock the API call for testing:
-
 ### TestAppCKAN
 
 A class is provided for making action requests to a paster.fixture.TestApp
