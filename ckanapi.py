@@ -131,11 +131,25 @@ class RemoteCKAN(object):
                     'http://demo.ckan.org', stored as self.address
     :param api_key: the API key to pass as an 'Authorization' header
                     when actions are called, stored as self.api_key
+    :param request_fn: a callable that will be used to make requests
+
+    The default implementation of request_fn is::
+
+      def request_fn(url, data, headers):
+          req = urllib2.Request(url, data, headers)
+          try:
+              r = urllib2.urlopen(req)
+              return r.getcode(), r.read()
+          except:
+              return e.code, e.read()
+
     """
-    def __init__(self, address, api_key=None):
+    def __init__(self, address, api_key=None, request_fn=None):
         self.address = address
         self.api_key = api_key
         self.action = ActionShortcut(self)
+        if request_fn:
+            self._request_fn = request_fn
 
     def call_action(self, action, data_dict=None):
         """
@@ -155,15 +169,16 @@ class RemoteCKAN(object):
         if self.api_key:
             header['Authorization'] = self.api_key
         url = self.address + '/api/action/' + action
-        req = urllib2.Request(url, data, headers=header)
+        status, response = self._request_fn(url, data, header)
+        return reverse_apicontroller_action(response, status)
+
+    def _request_fn(self, url, data, headers):
+        req = urllib2.Request(url, data, headers)
         try:
             r = urllib2.urlopen(req)
-            status = r.getcode()
-            response = r.read()
+            return r.getcode(), r.read()
         except urllib2.HTTPError, e:
-            status = e.code
-            response = e.read()
-        return reverse_apicontroller_action(response, status)
+            return e.code, e.read()
 
 
 def reverse_apicontroller_action(response, status):
@@ -186,10 +201,10 @@ def reverse_apicontroller_action(response, status):
     emessage = err.get('message', '').split(': ', 1)[-1]
     if etype == 'Search Query Error':
         # I refuse to eval(emessage), even if it would be more correct
-        raise SearchQueryError(emessage) 
+        raise SearchQueryError(emessage)
     elif etype == 'Search Error':
         # I refuse to eval(emessage), even if it would be more correct
-        raise SearchError(emessage) 
+        raise SearchError(emessage)
     elif etype == 'Parameter Error':
         raise ParameterError(emessage)
     elif etype == 'Validation Error':
