@@ -9,4 +9,5 @@ setup(name='ckanapi',
       author_email='ian@excess.org',
       url='https://github.com/open-data/ckanapi',
       py_modules=['ckanapi',],
+      test_suite='tests',
      )
