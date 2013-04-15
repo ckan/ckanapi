@@ -22,9 +22,7 @@ class CKANAPIError(Exception):
         return repr(self.args)
 
 try:
-    from ckan.logic import (ParameterError, NotAuthorized, NotFound,
-                            ValidationError)
-    from ckan.lib.search import SearchQueryError, SearchError
+    import ckan
 
 except ImportError:
     # Implement the minimum to be compatible with existing errors
@@ -56,6 +54,12 @@ except ImportError:
 
     class SearchError(CKANAPIError):
         pass
+
+else:
+    # import ckan worked, so these must not fail
+    from ckan.logic import (ParameterError, NotAuthorized, NotFound,
+                            ValidationError)
+    from ckan.lib.search import SearchQueryError, SearchError
 
 
 class ActionShortcut(object):
