@@ -205,7 +205,7 @@ class TestAppCKAN(object):
         one the action function itself raised.
         """
         url, data, headers = prepare_action(action, data_dict, self.api_key)
-        r = self.test_app.post(url, data, headers)
+        r = self.test_app.post(url, data, headers, expect_errors=True)
         return reverse_apicontroller_action(r.status, r.body)
 
 
