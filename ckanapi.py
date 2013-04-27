@@ -226,7 +226,7 @@ def prepare_action(action, data_dict=None, api_key=None):
 def reverse_apicontroller_action(status, response):
     """
     Make an API call look like a direct action call by reversing the
-    exception -> HTTP response translation that APIController.action does
+    exception -> HTTP response translation that ApiController.action does
     """
     try:
         parsed = json.loads(response)
