@@ -133,7 +133,7 @@ class RemoteCKAN(object):
 
     :param address: the web address of the CKAN instance, e.g.
                     'http://demo.ckan.org', stored as self.address
-    :param api_key: the API key to pass as an 'Authorization' header
+    :param api_key: the API key to pass as an 'X-CKAN-API-Key' header
                     when actions are called, stored as self.api_key
     :param request_fn: a callable that will be used to make requests
 
@@ -185,7 +185,7 @@ class TestAppCKAN(object):
 
     :param test_app: the paste.fixture.TestApp instance, stored as
                     self.test_app
-    :param api_key: the API key to pass as an 'Authorization' header
+    :param api_key: the API key to pass as an 'X-CKAN-API-Key' header
                     when actions are called, stored as self.api_key
     """
     def __init__(self, test_app, api_key=None):
@@ -218,7 +218,7 @@ def prepare_action(action, data_dict=None, api_key=None):
     data = json.dumps(data_dict)
     headers = {'Content-Type': 'application/json'}
     if api_key:
-        headers['Authorization'] = api_key
+        headers['X-CKAN-API-Key'] = api_key
     url = '/api/action/' + action
     return url, data, headers
 
