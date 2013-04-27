@@ -15,8 +15,9 @@ class CKANAPIError(Exception):
 
     If importing CKAN source fails then new versions of ParameterError,
     NotAuthorized, ValidationError, NotFound, ParameterError,
-    SearchQueryError and SearchError are created as subclasses of this
-    class so that they provide a helpful str() for tracebacks.
+    SearchQueryError, SearchError and SearchIndexError are created as
+    subclasses of this class so that they provide a helpful str() for
+    tracebacks.
     """
     def __str__(self):
         return repr(self.args)
@@ -55,11 +56,15 @@ except ImportError:
     class SearchError(CKANAPIError):
         pass
 
+    class SearchIndexError(CKANAPIError):
+        pass
+
 else:
     # import ckan worked, so these must not fail
     from ckan.logic import (ParameterError, NotAuthorized, NotFound,
                             ValidationError)
-    from ckan.lib.search import SearchQueryError, SearchError
+    from ckan.lib.search import (SearchQueryError, SearchError,
+                                 SearchIndexError)
 
 
 class ActionShortcut(object):
@@ -247,6 +252,8 @@ def reverse_apicontroller_action(status, response):
     elif etype == 'Search Error':
         # I refuse to eval(emessage), even if it would be more correct
         raise SearchError(emessage)
+    elif etype == 'Search Index Error':
+        raise SearchIndexError(emessage)
     elif etype == 'Parameter Error':
         raise ParameterError(emessage)
     elif etype == 'Validation Error':
