@@ -224,6 +224,7 @@ def prepare_action(action, data_dict=None, api_key=None):
     headers = {'Content-Type': 'application/json'}
     if api_key:
         headers['X-CKAN-API-Key'] = api_key
+        headers['Authorization'] = api_key
     url = '/api/action/' + action
     return url, data, headers
 
