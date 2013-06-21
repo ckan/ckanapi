@@ -28,16 +28,14 @@ class TestTestAPPCKAN(unittest.TestCase):
 
     def test_simple(self):
         self.assertEquals(
-            self.ckan.action.hello_world()['result'],
-            'how are you?')
+            self.ckan.action.hello_world(), 'how are you?')
     def test_invalid(self):
         self.assertRaises(
             ckanapi.ValidationError,
             self.ckan.action.invalid)
     def test_data(self):
         self.assertEquals(
-            self.ckan.action.echo(message='for you')['result'],
-            'for you')
+            self.ckan.action.echo(message='for you'), 'for you')
 
 
 if __name__ == '__main__':
