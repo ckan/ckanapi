@@ -262,7 +262,7 @@ def reverse_apicontroller_action(status, response):
     elif etype == 'Not Found Error':
         raise NotFound(emessage)
     elif etype == 'Authorization Error':
-        raise NotAuthorized()
+        raise NotAuthorized(err)
 
     # don't recognize the error
     raise CKANAPIError(response, status)
