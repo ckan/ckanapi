@@ -13,11 +13,10 @@ class CKANAPIError(Exception):
     The error raised from RemoteCKAN.call_action when no other error
     is recognized.
 
-    If importing CKAN source fails then new versions of ParameterError,
-    NotAuthorized, ValidationError, NotFound, ParameterError,
-    SearchQueryError, SearchError and SearchIndexError are created as
-    subclasses of this class so that they provide a helpful str() for
-    tracebacks.
+    If importing CKAN source fails then new versions of NotAuthorized,
+    ValidationError, NotFound, SearchQueryError, SearchError and
+    SearchIndexError are created as subclasses of this class so that they
+    provide a helpful str() for tracebacks.
     """
     def __str__(self):
         return repr(self.args)
@@ -44,12 +43,6 @@ except ImportError:
         def __str__(self):
             return self.extra_msg
 
-    class ParameterError(CKANAPIError):
-        def __init__(self, extra_msg):
-            self.extra_msg = extra_msg
-        def __str__(self):
-            return self.extra_msg
-
     class SearchQueryError(CKANAPIError):
         pass
 
@@ -61,8 +54,7 @@ except ImportError:
 
 else:
     # import ckan worked, so these must not fail
-    from ckan.logic import (ParameterError, NotAuthorized, NotFound,
-                            ValidationError)
+    from ckan.logic import (NotAuthorized, NotFound, ValidationError)
     from ckan.lib.search import (SearchQueryError, SearchError,
                                  SearchIndexError)
 
@@ -255,8 +247,6 @@ def reverse_apicontroller_action(status, response):
         raise SearchError(emessage)
     elif etype == 'Search Index Error':
         raise SearchIndexError(emessage)
-    elif etype == 'Parameter Error':
-        raise ParameterError(emessage)
     elif etype == 'Validation Error':
         raise ValidationError(err)
     elif etype == 'Not Found Error':
