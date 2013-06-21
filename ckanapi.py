@@ -13,11 +13,10 @@ class CKANAPIError(Exception):
     The error raised from RemoteCKAN.call_action when no other error
     is recognized.
 
-    If importing CKAN source fails then new versions of ParameterError,
-    NotAuthorized, ValidationError, NotFound, ParameterError,
-    SearchQueryError, SearchError and SearchIndexError are created as
-    subclasses of this class so that they provide a helpful str() for
-    tracebacks.
+    If importing CKAN source fails then new versions of NotAuthorized,
+    ValidationError, NotFound, SearchQueryError, SearchError and
+    SearchIndexError are created as subclasses of this class so that they
+    provide a helpful str() for tracebacks.
     """
     def __str__(self):
         return repr(self.args)
@@ -44,12 +43,6 @@ except ImportError:
         def __str__(self):
             return self.extra_msg
 
-    class ParameterError(CKANAPIError):
-        def __init__(self, extra_msg):
-            self.extra_msg = extra_msg
-        def __str__(self):
-            return self.extra_msg
-
     class SearchQueryError(CKANAPIError):
         pass
 
@@ -61,8 +54,7 @@ except ImportError:
 
 else:
     # import ckan worked, so these must not fail
-    from ckan.logic import (ParameterError, NotAuthorized, NotFound,
-                            ValidationError)
+    from ckan.logic import (NotAuthorized, NotFound, ValidationError)
     from ckan.lib.search import (SearchQueryError, SearchError,
                                  SearchIndexError)
 
@@ -88,8 +80,9 @@ class ActionShortcut(object):
         self._ckan = ckan
 
     def __getattr__(self, name):
-        def action(**kwargs):
-            return self._ckan.call_action(name, kwargs)
+        def action(apikey=None, **kwargs):
+            return self._ckan.call_action(name, data_dict=kwargs,
+                                          apikey=apikey)
         return action
 
 
@@ -138,8 +131,8 @@ class RemoteCKAN(object):
 
     :param address: the web address of the CKAN instance, e.g.
                     'http://demo.ckan.org', stored as self.address
-    :param api_key: the API key to pass as an 'X-CKAN-API-Key' header
-                    when actions are called, stored as self.api_key
+    :param apikey: the API key to pass as an 'X-CKAN-API-Key' header
+                    when actions are called, stored as self.apikey
     :param request_fn: a callable that will be used to make requests
 
     The default implementation of request_fn is::
@@ -153,14 +146,14 @@ class RemoteCKAN(object):
               return e.code, e.read()
 
     """
-    def __init__(self, address, api_key=None, request_fn=None):
+    def __init__(self, address, apikey=None, request_fn=None):
         self.address = address
-        self.api_key = api_key
+        self.apikey = apikey
         self.action = ActionShortcut(self)
         if request_fn:
             self._request_fn = request_fn
 
-    def call_action(self, action, data_dict=None):
+    def call_action(self, action, data_dict=None, apikey=None):
         """
         :param action: the action name, e.g. 'package_create'
         :param data_dict: the dict to pass to the action as JSON,
@@ -171,7 +164,8 @@ class RemoteCKAN(object):
         function will convert it back to an exception that matches the
         one the action function itself raised.
         """
-        url, data, headers = prepare_action(action, data_dict, self.api_key)
+        url, data, headers = prepare_action(action, data_dict,
+                                            apikey or self.apikey)
         status, response = self._request_fn(self.address + url, data, headers)
         return reverse_apicontroller_action(status, response)
 
@@ -190,15 +184,15 @@ class TestAppCKAN(object):
 
     :param test_app: the paste.fixture.TestApp instance, stored as
                     self.test_app
-    :param api_key: the API key to pass as an 'X-CKAN-API-Key' header
-                    when actions are called, stored as self.api_key
+    :param apikey: the API key to pass as an 'X-CKAN-API-Key' header
+                    when actions are called, stored as self.apikey
     """
-    def __init__(self, test_app, api_key=None):
+    def __init__(self, test_app, apikey=None):
         self.test_app = test_app
-        self.api_key = api_key
+        self.apikey = apikey
         self.action = ActionShortcut(self)
 
-    def call_action(self, action, data_dict=None):
+    def call_action(self, action, data_dict=None, apikey=None):
         """
         :param action: the action name, e.g. 'package_create'
         :param data_dict: the dict to pass to the action as JSON,
@@ -209,12 +203,13 @@ class TestAppCKAN(object):
         function will convert it back to an exception that matches the
         one the action function itself raised.
         """
-        url, data, headers = prepare_action(action, data_dict, self.api_key)
+        url, data, headers = prepare_action(action, data_dict,
+                                            apikey or self.apikey)
         r = self.test_app.post(url, data, headers, expect_errors=True)
         return reverse_apicontroller_action(r.status, r.body)
 
 
-def prepare_action(action, data_dict=None, api_key=None):
+def prepare_action(action, data_dict=None, apikey=None):
     """
     Return action_url, data_json, http_headers
     """
@@ -222,9 +217,10 @@ def prepare_action(action, data_dict=None, api_key=None):
         data_dict = {}
     data = json.dumps(data_dict)
     headers = {'Content-Type': 'application/json'}
-    if api_key:
-        headers['X-CKAN-API-Key'] = api_key
-        headers['Authorization'] = api_key
+    if apikey:
+        apikey = str(apikey)
+        headers['X-CKAN-API-Key'] = apikey
+        headers['Authorization'] = apikey
     url = '/api/action/' + action
     return url, data, headers
 
@@ -255,8 +251,6 @@ def reverse_apicontroller_action(status, response):
         raise SearchError(emessage)
     elif etype == 'Search Index Error':
         raise SearchIndexError(emessage)
-    elif etype == 'Parameter Error':
-        raise ParameterError(emessage)
     elif etype == 'Validation Error':
         raise ValidationError(err)
     elif etype == 'Not Found Error':
