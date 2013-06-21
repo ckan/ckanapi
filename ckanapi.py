@@ -237,7 +237,7 @@ def reverse_apicontroller_action(status, response):
     try:
         parsed = json.loads(response)
         if parsed.get('success'):
-            return parsed
+            return parsed['result']
         if hasattr(parsed, 'get'):
             err = parsed.get('error', {})
         else:
