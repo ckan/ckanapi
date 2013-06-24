@@ -18,12 +18,7 @@ pprint.pprint(groups)
 result:
 
 ```
-{u'help': u'Return a list of the names of the site\'s ...
- u'result': [u'data-explorer',
-             u'example-group',
-             u'geo-examples',
-             u'skeenawild'],
- u'success': True}
+[u'data-explorer', u'example-group', u'geo-examples', u'skeenawild']
 ```
 
 Failures are raised as exceptions just like when calling get_action from a plugin:
@@ -31,7 +26,7 @@ Failures are raised as exceptions just like when calling get_action from a plugi
 ```python
 import ckanapi
 
-demo = ckanapi.RemoteCKAN('http://demo.ckan.org', api_key='phony-key')
+demo = ckanapi.RemoteCKAN('http://demo.ckan.org', apikey='phony-key')
 try:
     pkg = demo.action.package_create(name='my-dataset', title='not going to work')
 except ckanapi.NotAuthorized:
@@ -85,6 +80,6 @@ import ckanapi
 import paste.fixture
 
 test_app = paste.fixture.TestApp(...)
-demo = ckanapi.TestAppCKAN(test_app, api_key='my-test-key')
+demo = ckanapi.TestAppCKAN(test_app, apikey='my-test-key')
 groups = demo.action.group_list(id='data-explorer')
 ```
