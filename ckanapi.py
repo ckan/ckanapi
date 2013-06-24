@@ -110,7 +110,7 @@ class LocalCKAN(object):
         user = self._get_action('get_site_user')({'ignore_auth': True}, ())
         return user['name']
 
-    def call_action(self, action, data_dict=None, context=None):
+    def call_action(self, action, data_dict=None, context=None, apikey=None):
         """
         :param action: the action name, e.g. 'package_create'
         :param data_dict: the dict to pass to the action, defaults to {}
