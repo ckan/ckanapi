@@ -153,7 +153,7 @@ class RemoteCKAN(object):
         if request_fn:
             self._request_fn = request_fn
 
-    def call_action(self, action, data_dict=None, apikey=None):
+    def call_action(self, action, data_dict=None, context=None, apikey=None):
         """
         :param action: the action name, e.g. 'package_create'
         :param data_dict: the dict to pass to the action as JSON,
@@ -192,7 +192,7 @@ class TestAppCKAN(object):
         self.apikey = apikey
         self.action = ActionShortcut(self)
 
-    def call_action(self, action, data_dict=None, apikey=None):
+    def call_action(self, action, data_dict=None, context=None, apikey=None):
         """
         :param action: the action name, e.g. 'package_create'
         :param data_dict: the dict to pass to the action as JSON,
