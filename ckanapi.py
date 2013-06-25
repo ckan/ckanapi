@@ -121,6 +121,10 @@ class LocalCKAN(object):
             data_dict = []
         if context is None:
             context = self.context
+        if context:
+            # FIXME: allow use of apikey to set a user in context?
+            raise CKANAPIError("LocalCKAN.call_action does not support "
+                "use of apikey parameter, use context['user'] instead")
         # copy dicts because actions may modify the dicts they are passed
         return self._get_action(action)(dict(context), dict(data_dict))
 
@@ -164,6 +168,9 @@ class RemoteCKAN(object):
         function will convert it back to an exception that matches the
         one the action function itself raised.
         """
+        if context:
+            raise CKANAPIError("RemoteCKAN.call_action does not support "
+                "use of context parameter, use apikey instead")
         url, data, headers = prepare_action(action, data_dict,
                                             apikey or self.apikey)
         status, response = self._request_fn(self.address + url, data, headers)
@@ -203,6 +210,9 @@ class TestAppCKAN(object):
         function will convert it back to an exception that matches the
         one the action function itself raised.
         """
+        if context:
+            raise CKANAPIError("TestAppCKAN.call_action does not support "
+                "use of context parameter, use apikey instead")
         url, data, headers = prepare_action(action, data_dict,
                                             apikey or self.apikey)
         r = self.test_app.post(url, data, headers, expect_errors=True)
