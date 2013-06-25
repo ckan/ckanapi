@@ -121,7 +121,7 @@ class LocalCKAN(object):
             data_dict = []
         if context is None:
             context = self.context
-        if context:
+        if apikey:
             # FIXME: allow use of apikey to set a user in context?
             raise CKANAPIError("LocalCKAN.call_action does not support "
                 "use of apikey parameter, use context['user'] instead")
