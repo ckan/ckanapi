@@ -6,6 +6,7 @@ This module a thin wrapper around the CKAN's action API.
 """
 
 import urllib2
+import urllib
 import json
 
 class CKANAPIError(Exception):
@@ -173,7 +174,8 @@ class RemoteCKAN(object):
                 "use of context parameter, use apikey instead")
         url, data, headers = prepare_action(action, data_dict,
                                             apikey or self.apikey)
-        status, response = self._request_fn(self.address + url, data, headers)
+        status, response = self._request_fn(
+            urllib.basejoin(self.address, url), data, headers)
         return reverse_apicontroller_action(status, response)
 
     def _request_fn(self, url, data, headers):
