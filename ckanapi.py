@@ -176,7 +176,7 @@ class RemoteCKAN(object):
                                             apikey or self.apikey)
         status, response = self._request_fn(
             urllib.basejoin(self.address, url), data, headers)
-        return reverse_apicontroller_action(status, response)
+        return reverse_apicontroller_action(url, status, response)
 
     def _request_fn(self, url, data, headers):
         req = urllib2.Request(url, data, headers)
@@ -218,7 +218,7 @@ class TestAppCKAN(object):
         url, data, headers = prepare_action(action, data_dict,
                                             apikey or self.apikey)
         r = self.test_app.post(url, data, headers, expect_errors=True)
-        return reverse_apicontroller_action(r.status, r.body)
+        return reverse_apicontroller_action(url, r.status, r.body)
 
 
 def prepare_action(action, data_dict=None, apikey=None):
@@ -237,7 +237,7 @@ def prepare_action(action, data_dict=None, apikey=None):
     return url, data, headers
 
 
-def reverse_apicontroller_action(status, response):
+def reverse_apicontroller_action(url, status, response):
     """
     Make an API call look like a direct action call by reversing the
     exception -> HTTP response translation that ApiController.action does
@@ -271,4 +271,4 @@ def reverse_apicontroller_action(status, response):
         raise NotAuthorized(err)
 
     # don't recognize the error
-    raise CKANAPIError(response, status)
+    raise CKANAPIError(url, status, response)
