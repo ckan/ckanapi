@@ -233,7 +233,7 @@ def prepare_action(action, data_dict=None, apikey=None):
         apikey = str(apikey)
         headers['X-CKAN-API-Key'] = apikey
         headers['Authorization'] = apikey
-    url = '/api/action/' + action
+    url = 'api/action/' + action
     return url, data, headers
 
 
