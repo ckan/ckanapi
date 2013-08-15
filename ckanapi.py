@@ -174,8 +174,8 @@ class RemoteCKAN(object):
                 "use of context parameter, use apikey instead")
         url, data, headers = prepare_action(action, data_dict,
                                             apikey or self.apikey)
-        status, response = self._request_fn(
-            urllib.basejoin(self.address, url), data, headers)
+        url = urllib.basejoin(self.address, url)
+        status, response = self._request_fn(url, data, headers)
         return reverse_apicontroller_action(url, status, response)
 
     def _request_fn(self, url, data, headers):
