@@ -9,5 +9,13 @@ setup(name='ckanapi',
       author_email='ian@excess.org',
       url='https://github.com/open-data/ckanapi',
       py_modules=['ckanapi',],
+      install_requires = [
+          'ckan',
+          'ckanapi',
+          'formencode',
+          'vdm',
+          'sqlalchemy == 0.7.0',
+          'paste',
+      ],
       test_suite='tests',
      )
