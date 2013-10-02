@@ -217,7 +217,7 @@ class TestAppCKAN(object):
                 "use of context parameter, use apikey instead")
         url, data, headers = prepare_action(action, data_dict,
                                             apikey or self.apikey)
-        r = self.test_app.post(url, data, headers, expect_errors=True)
+        r = self.test_app.post('/' + url, data, headers, expect_errors=True)
         return reverse_apicontroller_action(url, r.status, r.body)
 
 
