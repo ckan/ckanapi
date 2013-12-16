@@ -3,7 +3,7 @@
 from setuptools import setup
 
 setup(name='ckanapi',
-      version='2.1',
+      version='2.2',
       description='Thin wrapper around the CKAN Action API',
       author='Ian Ward',
       author_email='ian@excess.org',
