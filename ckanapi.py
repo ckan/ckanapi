@@ -204,11 +204,14 @@ class RemoteCKAN(object):
 
     def _request_fn(self, url, data, headers):
         req = Request(url, data, headers)
-        try:
-            r = urlopen(req)
-            return r.getcode(), r.read()
-        except HTTPError as e:
-            return e.code, e.read()
+        r = urlopen(req)
+        return _unpack_request(url_handler)
+
+def _unpack_request(url_handler):
+    try:
+        return url_handler.getcode(), url_handler.read()
+    except HTTPError as e:
+        return e.code, e.read()
 
 
 class TestAppCKAN(object):
