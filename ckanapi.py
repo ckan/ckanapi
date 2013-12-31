@@ -5,9 +5,28 @@ ckanapi
 This module a thin wrapper around the CKAN's action API.
 """
 
-import urllib2
-import urllib
 import json
+
+# Support Python 2.7 and Python 3.3
+try:
+    from urllib2 import HTTPError
+except ImportError:
+    from urllib.error import HTTPError
+
+try:
+    from urllib2 import urlopen
+except ImportError:
+    from urllib.request import urlopen
+
+try:
+    from urllib2 import Request
+except ImportError:
+    from urllib.request import Request
+
+try:
+    from urlparse import urljoin
+except ImportError:
+    from urllib.parse import urljoin
 
 class CKANAPIError(Exception):
     """
@@ -53,9 +72,14 @@ except ImportError:
     class SearchIndexError(CKANAPIError):
         pass
 
+
+    def get_action(action):
+        raise NotImplementedError('This needs to be extracted from the ckan package.')
+
 else:
     # import ckan worked, so these must not fail
-    from ckan.logic import (NotAuthorized, NotFound, ValidationError)
+    del(ckan)
+    from ckan.logic import (NotAuthorized, NotFound, ValidationError, get_action)
     from ckan.lib.search import (SearchQueryError, SearchError,
                                  SearchIndexError)
 
@@ -98,7 +122,6 @@ class LocalCKAN(object):
                     value
     """
     def __init__(self, username=None, context=None):
-        from ckan.logic import get_action
         self._get_action = get_action
 
         if not username:
@@ -150,6 +173,7 @@ class RemoteCKAN(object):
           except:
               return e.code, e.read()
 
+    (It's actually slightly different in order to support both Python 2 and Python 3.)
     """
     def __init__(self, address, apikey=None, request_fn=None):
         self.address = address
@@ -174,17 +198,20 @@ class RemoteCKAN(object):
                 "use of context parameter, use apikey instead")
         url, data, headers = prepare_action(action, data_dict,
                                             apikey or self.apikey)
-        url = urllib.basejoin(self.address, url)
+        url = urljoin(self.address, url)
         status, response = self._request_fn(url, data, headers)
         return reverse_apicontroller_action(url, status, response)
 
     def _request_fn(self, url, data, headers):
-        req = urllib2.Request(url, data, headers)
-        try:
-            r = urllib2.urlopen(req)
-            return r.getcode(), r.read()
-        except urllib2.HTTPError, e:
-            return e.code, e.read()
+        req = Request(url, data, headers)
+        url_handler = urlopen(req)
+        return _unpack_request(url_handler)
+
+def _unpack_request(url_handler):
+    try:
+        return url_handler.getcode(), url_handler.read().decode('ascii')
+    except HTTPError as e:
+        return e.code, e.read().decode('ascii')
 
 
 class TestAppCKAN(object):
@@ -227,7 +254,7 @@ def prepare_action(action, data_dict=None, apikey=None):
     """
     if not data_dict:
         data_dict = {}
-    data = json.dumps(data_dict)
+    data = json.dumps(data_dict).encode('ascii')
     headers = {'Content-Type': 'application/json'}
     if apikey:
         apikey = str(apikey)
