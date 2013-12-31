@@ -67,9 +67,14 @@ except ImportError:
     class SearchIndexError(CKANAPIError):
         pass
 
+
+    def get_action(action):
+        raise NotImplementedError('This needs to be extracted from the ckan package.')
+
 else:
     # import ckan worked, so these must not fail
-    from ckan.logic import (NotAuthorized, NotFound, ValidationError)
+    del(ckan)
+    from ckan.logic import (NotAuthorized, NotFound, ValidationError, get_action)
     from ckan.lib.search import (SearchQueryError, SearchError,
                                  SearchIndexError)
 
@@ -112,7 +117,6 @@ class LocalCKAN(object):
                     value
     """
     def __init__(self, username=None, context=None):
-        from ckan.logic import get_action
         self._get_action = get_action
 
         if not username:
