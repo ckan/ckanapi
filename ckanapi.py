@@ -204,7 +204,7 @@ class RemoteCKAN(object):
 
     def _request_fn(self, url, data, headers):
         req = Request(url, data, headers)
-        r = urlopen(req)
+        url_handler = urlopen(req)
         return _unpack_request(url_handler)
 
 def _unpack_request(url_handler):
