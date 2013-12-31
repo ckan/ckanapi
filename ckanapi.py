@@ -5,9 +5,23 @@ ckanapi
 This module a thin wrapper around the CKAN's action API.
 """
 
-import urllib2
-import urllib
 import json
+
+# Support Python 2.7 and Python 3.3
+try:
+    from urllib2 import HTTPError
+except ImportError:
+    from urllib.error import HTTPError
+
+try:
+    from urllib2 import urlopen
+except ImportError:
+    from urllib.request import urlopen
+
+try:
+    from urlparse import urljoin
+except ImportError:
+    from urllib.parse import urljoin
 
 class CKANAPIError(Exception):
     """
@@ -150,6 +164,7 @@ class RemoteCKAN(object):
           except:
               return e.code, e.read()
 
+    (It's actually slightly different in order to support both Python 2 and Python 3.)
     """
     def __init__(self, address, apikey=None, request_fn=None):
         self.address = address
@@ -174,16 +189,16 @@ class RemoteCKAN(object):
                 "use of context parameter, use apikey instead")
         url, data, headers = prepare_action(action, data_dict,
                                             apikey or self.apikey)
-        url = urllib.basejoin(self.address, url)
+        url = urljoin(self.address, url)
         status, response = self._request_fn(url, data, headers)
         return reverse_apicontroller_action(url, status, response)
 
     def _request_fn(self, url, data, headers):
-        req = urllib2.Request(url, data, headers)
+        req = Request(url, data, headers)
         try:
-            r = urllib2.urlopen(req)
+            r = urlopen(req)
             return r.getcode(), r.read()
-        except urllib2.HTTPError, e:
+        except HTTPError, e:
             return e.code, e.read()
 
 
