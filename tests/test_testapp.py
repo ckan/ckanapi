@@ -2,7 +2,10 @@
 import json
 import ckanapi
 import unittest
-import paste.fixture
+try:
+    import paste.fixture
+except ImportError:
+    import nose.tools
 
 def wsgi_app(environ, start_response):
     status = '200 OK'
@@ -21,6 +24,9 @@ def wsgi_app(environ, start_response):
     return [json.dumps(response)]
 
 
+# paste has not been ported to Python 3
+# https://github.com/Pylons/pyramid/wiki/Python-3-Porting
+@nose.tools.nottest
 class TestTestAPPCKAN(unittest.TestCase):
     def setUp(self):
         self.test_app = paste.fixture.TestApp(wsgi_app)
