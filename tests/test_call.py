@@ -1,6 +1,6 @@
+import sys
 import ckanapi
 import unittest
-
 
 class TestCallAction(unittest.TestCase):
     def test_local_fail(self):
@@ -24,7 +24,7 @@ class TestCallAction(unittest.TestCase):
 class TestPrepareAction(unittest.TestCase):
     def test_package_list(self):
         observed = ckanapi.prepare_action('package_list')
-        expected = ('api/action/package_list', '{}', {'Content-Type': 'application/json'})
+        expected = ('api/action/package_list', b'{}', {'Content-Type': 'application/json'})
         self.assertEqual(observed, expected)
 
 if __name__ == '__main__':
