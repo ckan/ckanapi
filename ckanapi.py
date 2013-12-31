@@ -209,9 +209,9 @@ class RemoteCKAN(object):
 
 def _unpack_request(url_handler):
     try:
-        return url_handler.getcode(), url_handler.read()
+        return url_handler.getcode(), url_handler.read().decode('ascii')
     except HTTPError as e:
-        return e.code, e.read()
+        return e.code, e.read().decode('ascii')
 
 
 class TestAppCKAN(object):
