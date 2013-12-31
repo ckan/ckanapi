@@ -198,7 +198,7 @@ class RemoteCKAN(object):
         try:
             r = urlopen(req)
             return r.getcode(), r.read()
-        except HTTPError, e:
+        except HTTPError as e:
             return e.code, e.read()
 
 
