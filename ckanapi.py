@@ -19,6 +19,11 @@ except ImportError:
     from urllib.request import urlopen
 
 try:
+    from urllib2 import Request
+except ImportError:
+    from urllib.request import Request
+
+try:
     from urlparse import urljoin
 except ImportError:
     from urllib.parse import urljoin
