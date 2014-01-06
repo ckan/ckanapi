@@ -8,6 +8,6 @@ setup(name='ckanapi',
       author='Ian Ward',
       author_email='ian@excess.org',
       url='https://github.com/open-data/ckanapi',
-      packages=['ckanapi',],
-      test_suite='tests',
+      packages=['ckanapi', 'ckanapi.tests'],
+      test_suite='ckanapi.tests',
      )
