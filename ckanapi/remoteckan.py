@@ -1,5 +1,8 @@
 import urllib
-import urllib2
+try:
+    import urllib2
+except ImportError: # python3
+    urllib2 = urllib
 
 from ckanapi.errors import CKANAPIError
 from ckanapi.common import (ActionShortcut, prepare_action,
@@ -58,7 +61,7 @@ class RemoteCKAN(object):
         try:
             r = urllib2.urlopen(req)
             return r.getcode(), r.read()
-        except urllib2.HTTPError, e:
+        except urllib2.HTTPError as e:
             return e.code, e.read()
 
 
