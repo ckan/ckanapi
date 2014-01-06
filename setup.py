@@ -10,4 +10,5 @@ setup(name='ckanapi',
       url='https://github.com/open-data/ckanapi',
       packages=['ckanapi', 'ckanapi.tests'],
       test_suite='ckanapi.tests',
+      zip_safe=False,
      )
