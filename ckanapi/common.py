@@ -40,7 +40,7 @@ def prepare_action(action, data_dict=None, apikey=None):
     """
     if not data_dict:
         data_dict = {}
-    data = json.dumps(data_dict)
+    data = json.dumps(data_dict).encode('ascii')
     headers = {'Content-Type': 'application/json'}
     if apikey:
         apikey = str(apikey)
@@ -56,7 +56,7 @@ def reverse_apicontroller_action(url, status, response):
     exception -> HTTP response translation that ApiController.action does
     """
     try:
-        parsed = json.loads(response)
+        parsed = json.loads(response.decode('utf-8'))
         if parsed.get('success'):
             return parsed['result']
         if hasattr(parsed, 'get'):

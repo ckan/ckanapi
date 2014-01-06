@@ -1,8 +1,7 @@
-import urllib
 try:
-    import urllib2
-except ImportError: # python3
-    urllib2 = urllib
+    from urllib2 import Request, urlopen, HTTPError
+except ImportError:
+    from urllib.request import Request, urlopen, HTTPError
 
 from ckanapi.errors import CKANAPIError
 from ckanapi.common import (ActionShortcut, prepare_action,
@@ -21,9 +20,9 @@ class RemoteCKAN(object):
     The default implementation of request_fn is::
 
       def request_fn(url, data, headers):
-          req = urllib2.Request(url, data, headers)
+          req = Request(url, data, headers)
           try:
-              r = urllib2.urlopen(req)
+              r = urlopen(req)
               return r.getcode(), r.read()
           except:
               return e.code, e.read()
@@ -52,16 +51,16 @@ class RemoteCKAN(object):
                 "use of context parameter, use apikey instead")
         url, data, headers = prepare_action(action, data_dict,
                                             apikey or self.apikey)
-        url = urllib.basejoin(self.address, url)
+        url = self.address.rstrip('/') + '/' + url
         status, response = self._request_fn(url, data, headers)
         return reverse_apicontroller_action(url, status, response)
 
     def _request_fn(self, url, data, headers):
-        req = urllib2.Request(url, data, headers)
+        req = Request(url, data, headers)
         try:
-            r = urllib2.urlopen(req)
+            r = urlopen(req)
             return r.getcode(), r.read()
-        except urllib2.HTTPError as e:
+        except HTTPError as e:
             return e.code, e.read()
 
 
