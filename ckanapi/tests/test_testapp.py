@@ -1,8 +1,8 @@
 
 import json
-import ckanapi
 import unittest
-import paste.fixture
+
+import ckanapi
 
 def wsgi_app(environ, start_response):
     status = '200 OK'
@@ -23,6 +23,10 @@ def wsgi_app(environ, start_response):
 
 class TestTestAPPCKAN(unittest.TestCase):
     def setUp(self):
+        try:
+            import paste.fixture
+        except ImportError:
+            raise unittest.SkipTest('paste not importable')
         self.test_app = paste.fixture.TestApp(wsgi_app)
         self.ckan = ckanapi.TestAppCKAN(self.test_app)
 
@@ -36,7 +40,3 @@ class TestTestAPPCKAN(unittest.TestCase):
     def test_data(self):
         self.assertEquals(
             self.ckan.action.echo(message='for you'), 'for you')
-
-
-if __name__ == '__main__':
-    unittest.main()

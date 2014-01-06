@@ -24,7 +24,3 @@ class TestCallAction(unittest.TestCase):
             ckanapi.CKANAPIError,
             ckanapi.TestAppCKAN('fake').call_action,
             'fake', {}, 'context not allowed')
-
-
-if __name__ == '__main__':
-    unittest.main()
