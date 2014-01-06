@@ -9,4 +9,4 @@ install:
   - "pip install --use-mirrors setuptools"
   - "[ \"$TRAVIS_PYTHON_VERSION\" != '2.6' ] || pip install --use-mirrors unittest2"
 script:
-  - "python setup.py test"
+  - "if [ \"$TRAVIS_PYTHON_VERSION\" != '2.6' ]; then python setup.py test; else unit2 discover; fi"
