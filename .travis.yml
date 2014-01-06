@@ -4,6 +4,6 @@ python:
   - "2.7"
   - "pypy"
 install:
-  - "pip install --use-mirrors setuptools"
+  - "pip install --use-mirrors setuptools unittest2"
 script:
   - "python setup.py test"
