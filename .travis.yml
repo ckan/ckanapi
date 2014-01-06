@@ -6,6 +6,7 @@ python:
   - "3.3"
   - "pypy"
 install:
-  - "pip install --use-mirrors setuptools unittest2"
+  - "pip install --use-mirrors setuptools"
+  - "[ \"$TRAVIS_PYTHON_VERSION\" != '2.6' ] || pip install --use-mirrors unittest2"
 script:
   - "python setup.py test"
