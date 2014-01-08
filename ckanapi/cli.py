@@ -1,13 +1,14 @@
 """ckanapi command line interface
 
 Usage:
-  ckanapi action ACTION_NAME [KEY=VALUE ...]
-            [-c CONFIG [-u USER] | -r SITE_URL [-a APIKEY]]
-  ckanapi (load-datasets | load-groups | load-organizations) [JSONL_INPUT]
-            [-c CONFIG [-u USER] | -r SITE_URL [-a APIKEY]] [-s START] [-m MAX]
-            [-p PROCESSES] [-l LOG_FILE] [-n | -o] [-qz]
-  ckanapi (dump-datasets | dump-groups | dump-organizations) [JSONL_OUTPUT]
-            [-c CONFIG [-u USER] | -r SITE_URL [-a APIKEY]] [-p PROCESSES] [-qz]
+  ckanapi action ACTION_NAME
+          [KEY=VALUE ...] [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
+  ckanapi (load-datasets | load-groups | load-organizations)
+          [JSONL_INPUT] [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
+          [-s START] [-m MAX] [-p PROCESSES] [-l LOG_FILE] [-n | -o] [-qz]
+  ckanapi (dump-datasets | dump-groups | dump-organizations)
+          [JSONL_OUTPUT] [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
+          [-p PROCESSES] [-qz]
   ckanapi (-h | --help)
   ckanapi --version
 
