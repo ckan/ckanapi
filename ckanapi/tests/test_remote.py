@@ -45,6 +45,17 @@ class TestRemoteAction(unittest.TestCase):
             self.ckan.action.organization_show,
             id='qqq')
 
+    def test_default_ua(self):
+        self.assertTrue(
+            self.ckan.action.test_echo_user_agent().startswith('ckanapi'))
+
+    def test_custom_ua(self):
+        ua = 'testckanapibot/1.0 (+https://github.com/open-data/ckanapi)'
+        ckan = ckanapi.RemoteCKAN('http://localhost:8901', user_agent=ua)
+
+        self.assertEqual(ckan.action.test_echo_user_agent(), ua)
+
+
     @classmethod
     def tearDownClass(cls):
         cls._mock_ckan.kill()

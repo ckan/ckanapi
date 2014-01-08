@@ -7,6 +7,8 @@ from ckanapi.errors import CKANAPIError
 from ckanapi.common import (ActionShortcut, prepare_action,
     reverse_apicontroller_action)
 
+import pkg_resources
+
 class RemoteCKAN(object):
     """
     An interface to the the CKAN API actions on a remote CKAN instance.
@@ -28,9 +30,15 @@ class RemoteCKAN(object):
               return e.code, e.read()
 
     """
-    def __init__(self, address, apikey=None, request_fn=None):
+    def __init__(self, address, apikey=None, request_fn=None, user_agent=None):
         self.address = address
         self.apikey = apikey
+        if not user_agent:
+            ckanapi_info = pkg_resources.require("ckanapi")[0]
+            user_agent = "ckanapi/{version} (+{url})".format(
+                version=ckanapi_info.version,
+                url='https://github.com/open-data/ckanapi')
+        self.user_agent = user_agent
         self.action = ActionShortcut(self)
         if request_fn:
             self._request_fn = request_fn
@@ -51,6 +59,7 @@ class RemoteCKAN(object):
                 "use of context parameter, use apikey instead")
         url, data, headers = prepare_action(action, data_dict,
                                             apikey or self.apikey)
+        headers['User-Agent'] = self.user_agent
         url = self.address.rstrip('/') + '/' + url
         status, response = self._request_fn(url, data, headers)
         return reverse_apicontroller_action(url, status, response)

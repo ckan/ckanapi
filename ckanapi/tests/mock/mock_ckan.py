@@ -14,6 +14,13 @@ def mock_ckan(environ, start_response):
             "success": True,
             "result": ["aa", "bb", "cc"]
             }).encode('utf-8')]
+    if environ['PATH_INFO'] == '/api/action/test_echo_user_agent':
+        start_response(status, headers)
+        return [json.dumps({
+            "help": "none",
+            "success": True,
+            "result": environ['HTTP_USER_AGENT']
+            }).encode('utf-8')]
     if environ['PATH_INFO'].startswith('/api/action/'):
         start_response(status, headers)
         return [json.dumps({
