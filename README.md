@@ -12,7 +12,8 @@ ckanapi may be used from within a plugin or separate from CKAN.
 import ckanapi
 import pprint
 
-demo = ckanapi.RemoteCKAN('http://demo.ckan.org')
+demo = ckanapi.RemoteCKAN('http://demo.ckan.org',
+    user_agent='foobot/1.0 (+http://example.com/my/website)')
 groups = demo.action.group_list(id='data-explorer')
 pprint.pprint(groups)
 ```
@@ -28,7 +29,8 @@ Failures are raised as exceptions just like when calling get_action from a plugi
 ```python
 import ckanapi
 
-demo = ckanapi.RemoteCKAN('http://demo.ckan.org', apikey='phony-key')
+demo = ckanapi.RemoteCKAN('http://demo.ckan.org', apikey='phony-key',
+    user_agent='foobot/1.0 (+http://example.com/my/website)')
 try:
     pkg = demo.action.package_create(name='my-dataset', title='not going to work')
 except ckanapi.NotAuthorized:
@@ -68,7 +70,8 @@ def requests_ftw(url, data, headers):
     r = requests.post(url, data, headers=headers)
     return r.status_code, r.text
 
-demo = ckanapi.RemoteCKAN('http://demo.ckan.org', request_fn=requests_ftw)
+demo = ckanapi.RemoteCKAN('http://demo.ckan.org', request_fn=requests_ftw,
+    user_agent='foobot/1.0 (+http://example.com/my/website)')
 groups = demo.action.group_list(id='data-explorer')
 ```
 
