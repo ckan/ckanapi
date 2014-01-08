@@ -1,5 +1,7 @@
 ## ckanapi
 
+[![Build Status](https://travis-ci.org/open-data/ckanapi.png?branch=master)](https://travis-ci.org/open-data/ckanapi)
+
 A thin wrapper around CKAN's action API
 
 ckanapi may be used from within a plugin or separate from CKAN.
