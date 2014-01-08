@@ -6,8 +6,7 @@ except ImportError:
 from ckanapi.errors import CKANAPIError
 from ckanapi.common import (ActionShortcut, prepare_action,
     reverse_apicontroller_action)
-
-import pkg_resources
+from ckanapi.version import __version__
 
 class RemoteCKAN(object):
     """
@@ -34,9 +33,8 @@ class RemoteCKAN(object):
         self.address = address
         self.apikey = apikey
         if not user_agent:
-            ckanapi_info = pkg_resources.require("ckanapi")[0]
             user_agent = "ckanapi/{version} (+{url})".format(
-                version=ckanapi_info.version,
+                version=__version__,
                 url='https://github.com/open-data/ckanapi')
         self.user_agent = user_agent
         self.action = ActionShortcut(self)
