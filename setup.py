@@ -15,5 +15,8 @@ setup(
     entry_points = """
         [console_scripts]
         ckanapi=ckanapi.cli:main
+
+        [paste.paster_command]
+        ckanapi=ckanapi.commands:CKANAPICommand
         """
     )
