@@ -39,15 +39,32 @@ from docopt import docopt
 from pkg_resources import load_entry_point
 
 from ckanapi.version import __version__
+from ckanapi.remoteckan import RemoteCKAN
+from ckanapi.localckan import LocalCKAN
 
 def main(running_with_paster=False):
     """
     ckanapi command line entry point
+
+    :param ckan: a LocalCKAN instance when launched from paster
     """
     arguments = parse_arguments()
     if not running_with_paster and not arguments['--remote']:
         return _switch_to_paster(arguments)
-    print arguments, running_with_paster
+
+    if arguments['--remote']:
+        ckan = RemoteCKAN(arguments['--remote'],
+            apikey=arguments['--apikey'],
+            user_agent="ckanapi-cli/{version} (+{url})".format(
+                version=__version__,
+                url='https://github.com/open-data/ckanapi'))
+    else:
+        ckan = LocalCKAN(username=arguments['--ckan-user'])
+
+
+
+    print arguments, ckan
+
 
 
 def parse_arguments():

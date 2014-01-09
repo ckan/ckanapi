@@ -3,7 +3,7 @@ from ckan.lib.cli import CkanCommand
 
 from ckanapi import cli
 
-class _IgnoredOptions(object):
+class _Options(object):
     pass
 
 class _DelegateParsing(object):
@@ -13,8 +13,8 @@ class _DelegateParsing(object):
         assert sys.argv[1] == 'ckanapi', sys.argv
         del sys.argv[1]
         arguments = cli.parse_arguments()
-        options = _IgnoredOptions()
         cfg = arguments['--config']
+        options = _Options()
         options.config = cfg if cfg is not None else './development.ini'
         return options, []
 
