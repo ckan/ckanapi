@@ -4,7 +4,9 @@ implementation of load-(things) cli commands
 
 import sys
 import gzip
+from datetime import datetime
 
+from ckanapi.errors import NotFound, NotAuthorized
 from ckanapi.cli.workers import worker_pool
 from ckanapi.cli.utils import completion_stats, compact_json, quiet_int_pipe
 
@@ -82,11 +84,9 @@ def load_things_worker(ckan, command, arguments):
     which are the responses from each action call.
     """
     supported_things = ('dataset', 'group', 'organization')
-    assert thing in supported_things, thing
-    thing_number = supported_things.index(thing)
+    thing_number = supported_things.index(command[5:])
 
-    localckan = LocalCKAN(self.options.ckan_user, {'return_id_only':True})
-    a = localckan.action
+    a = ckan.action
     thing_show, thing_create, thing_update = [
         (a.package_show, a.package_create, a.package_update),
         (a.group_show, a.group_create, a.group_update),
@@ -97,11 +97,12 @@ def load_things_worker(ckan, command, arguments):
         """
         format messages to be sent back to parent process
         """
-        sys.stdout.write(json.dumps([
+        sys.stdout.write(compact_json([
             datetime.now().isoformat(),
             action,
             error,
             response]) + '\n')
+        sys.stdout.flush()
 
     for line in iter(sys.stdin.readline, ''):
         try:
@@ -109,10 +110,11 @@ def load_things_worker(ckan, command, arguments):
         except UnicodeDecodeError, e:
             obj = None
             reply('read', 'UnicodeDecodeError', unicode(e))
+            continue
 
         if obj:
             existing = None
-            if not self.options.create_only:
+            if not arguments['--create-only']:
                 # use either id or name to locate existing records
                 name = obj.get('id')
                 if name:
@@ -120,6 +122,9 @@ def load_things_worker(ckan, command, arguments):
                         existing = thing_show(id=name)
                     except NotFound:
                         pass
+                    except NotAuthorized as e:
+                        reply('show', 'NotAuthorized', unicode(e))
+                        continue
                 name = obj.get('name')
                 if not existing and name:
                     try:
@@ -128,18 +133,30 @@ def load_things_worker(ckan, command, arguments):
                         obj['id'] = existing['id']
                     except NotFound:
                         pass
+                    except NotAuthorized as e:
+                        reply('show', 'NotAuthorized', unicode(e))
+                        continue
+
                 # FIXME: compare and reply when 'unchanged'?
+
+            if not existing and arguments['--update-only']:
+                reply('show', 'NotFound', [obj.get('id'), obj.get('name')])
+                continue
 
             act = 'update' if existing else 'create'
             try:
-                r = (thing_update if existing else thing_create)(**obj)
-            except ValidationError, e:
+                if existing:
+                    r = thing_update(**obj)
+                else:
+                    r = thing_create(**obj)
+            except ValidationError as e:
                 reply(act, 'ValidationError', e.error_dict)
-            except SearchIndexError, e:
+            except SearchIndexError as e:
                 reply(act, 'SearchIndexError', unicode(e))
+            except NotAuthorized as e:
+                reply(act, 'NotAuthorized', unicode(e))
             else:
                 reply(act, None, r['name'])
-        sys.stdout.flush()
 
 
 def _worker_command_line(command, arguments):
