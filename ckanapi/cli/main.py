@@ -44,7 +44,8 @@ from pkg_resources import load_entry_point
 from ckanapi.version import __version__
 from ckanapi.remoteckan import RemoteCKAN
 from ckanapi.localckan import LocalCKAN
-from ckanapi.utils import compact_json, simple_json
+from ckanapi.cli.load import load_things
+from ckanapi.cli.action import action
 
 
 def parse_arguments():
@@ -87,52 +88,9 @@ def main(running_with_paster=False):
     assert 0, arguments # we shouldn't be here
 
 
-def action(ckan, arguments):
-    """
-    call an action with KEY=VALUE args, send the result to stdout
-    """
-    action_args = {}
-    for kv in arguments['KEY=VALUE']:
-        key, p, value = kv.partition('=')
-        action_args[key] = value
-    result = ckan.call_action(arguments['ACTION_NAME'], action_args)
-
-    if arguments['--jsonl']:
-        if isinstance(result, list):
-            for r in result:
-                sys.stdout.write(compact_json(r) + '\n')
-        else:
-            sys.stdout.write(compact_json(result) + '\n')
-    else:
-        sys.stdout.write(pretty_json(result) + '\n')
-
-
 def _switch_to_paster(arguments):
     """
     With --config we switch to the paster command version of the cli
     """
     sys.argv[1:1] = ["ckanapi"]
     sys.exit(load_entry_point('PasteScript', 'console_scripts', 'paster')())
-
-
-def _worker_command_line(command, arguments):
-    """
-    Create a worker command line suitable for Popen with only the
-    options the worker process requires
-    """
-    def a(name):
-        "options with values"
-        return [name, arguments[name]] * (arguments[name] is not None)
-    def b(name):
-        "boolean options"
-        return [name] * bool(arguments[name])
-    cmd = (
-        ['ckanapi', command, '--worker']
-        + a('--config')
-        + a('--user')
-        + a('--remote')
-        + a('--apikey')
-        + b('--create-only')
-        + b('--update-only')
-        )
-

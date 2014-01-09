@@ -9,14 +9,14 @@ setup(
     author='Ian Ward',
     author_email='ian@excess.org',
     url='https://github.com/open-data/ckanapi',
-    packages=['ckanapi', 'ckanapi.tests'],
+    packages=['ckanapi', 'ckanapi.tests', 'ckanapi.cli'],
     test_suite='ckanapi.tests',
     zip_safe=False,
     entry_points = """
         [console_scripts]
-        ckanapi=ckanapi.cli:main
+        ckanapi=ckanapi.cli.main:main
 
         [paste.paster_command]
-        ckanapi=ckanapi.commands:CKANAPICommand
+        ckanapi=ckanapi.cli.paster:CKANAPICommand
         """
     )

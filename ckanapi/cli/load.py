@@ -1,0 +1,165 @@
+"""
+implementation of load-(things) cli commands
+"""
+
+import sys
+import gzip
+
+from ckanapi.cli.workers import worker_pool
+from ckanapi.cli.utils import completion_stats, compact_json, quiet_int_pipe
+
+
+def load_things(ckan, command, arguments):
+    """
+    create and update datasets, groups and orgs
+
+    The parent process creates a pool of worker processes and hands
+    out jsonl lines to each worker as they finish a task. Status of
+    last record completed and records being processed is displayed
+    on stderr.
+    """
+    if arguments['--worker']:
+        return load_things_worker(ckan, command, arguments)
+
+    log = None
+    if arguments['--log']:
+        log = open(arguments['--log'], 'a')
+
+    jsonl_input = sys.stdin
+    if arguments['JSONL_INPUT']
+        jsonl_input = open(arguments['JSONL_INPUT'], 'rb')
+    if arguments['--gzip']:
+        jsonl_input = gzip.GzipFile(fileobj=jsonl_input)
+
+    def line_reader():
+        """
+        generate stripped records from jsonl
+        handles start-record and max-records options
+        """
+        start_record = int(arguments['--start-record'])
+        max_records = arguments['--max-records']
+        if max_records is not None:
+            max_records = int(max_records)
+        for num, line in enumerate(jsonl_input, 1): # records start from 1
+            if num < start_record:
+                continue
+            if max_records is not None and num >= start_record + max_records:
+                break
+            yield num, line.strip()
+
+    cmd = _worker_command_line(command, arguments)
+    processes = int(arguments['--processes'])
+    stats = completion_stats(processes)
+    pool = worker_pool(cmd, processes, line_reader())
+
+    with _quiet_int_pipe():
+        for job_ids, finished, result in pool:
+            timestamp, action, error, response = json.loads(result)
+
+            if not arguments['--quiet']:
+                sys.stderr.write('{0} {1} {2} {3} {4}\n'.format(
+                    finished,
+                    job_ids,
+                    stats.next(),
+                    action,
+                    _compact_json(response) if response else ''))
+
+            if log:
+                log.write(_compact_json([
+                    timestamp,
+                    finished,
+                    action,
+                    error,
+                    response,
+                    ]) + '\n')
+                log.flush()
+
+
+def load_things_worker(ckan, command, arguments):
+    """
+    a process that accepts lines of json on stdin which is parsed and
+    passed to the {thing}_create/update actions.  it produces lines of json
+    which are the responses from each action call.
+    """
+    supported_things = ('dataset', 'group', 'organization')
+    assert thing in supported_things, thing
+    thing_number = supported_things.index(thing)
+
+    localckan = LocalCKAN(self.options.ckan_user, {'return_id_only':True})
+    a = localckan.action
+    thing_show, thing_create, thing_update = [
+        (a.package_show, a.package_create, a.package_update),
+        (a.group_show, a.group_create, a.group_update),
+        (a.organization_show, a.organization_create, a.organization_update),
+        ][thing_number]
+
+    def reply(action, error, response):
+        """
+        format messages to be sent back to parent process
+        """
+        sys.stdout.write(json.dumps([
+            datetime.now().isoformat(),
+            action,
+            error,
+            response]) + '\n')
+
+    for line in iter(sys.stdin.readline, ''):
+        try:
+            obj = json.loads(line.decode('utf-8'))
+        except UnicodeDecodeError, e:
+            obj = None
+            reply('read', 'UnicodeDecodeError', unicode(e))
+
+        if obj:
+            existing = None
+            if not self.options.create_only:
+                # use either id or name to locate existing records
+                name = obj.get('id')
+                if name:
+                    try:
+                        existing = thing_show(id=name)
+                    except NotFound:
+                        pass
+                name = obj.get('name')
+                if not existing and name:
+                    try:
+                        existing = thing_show(id=name)
+                        # matching id required for *_update
+                        obj['id'] = existing['id']
+                    except NotFound:
+                        pass
+                # FIXME: compare and reply when 'unchanged'?
+
+            act = 'update' if existing else 'create'
+            try:
+                r = (thing_update if existing else thing_create)(**obj)
+            except ValidationError, e:
+                reply(act, 'ValidationError', e.error_dict)
+            except SearchIndexError, e:
+                reply(act, 'SearchIndexError', unicode(e))
+            else:
+                reply(act, None, r['name'])
+        sys.stdout.flush()
+
+
+def _worker_command_line(command, arguments):
+    """
+    Create a worker command line suitable for Popen with only the
+    options the worker process requires
+    """
+    def a(name):
+        "options with values"
+        return [name, arguments[name]] * (arguments[name] is not None)
+    def b(name):
+        "boolean options"
+        return [name] * bool(arguments[name])
+    cmd = (
+        ['ckanapi', command, '--worker']
+        + a('--config')
+        + a('--user')
+        + a('--remote')
+        + a('--apikey')
+        + b('--create-only')
+        + b('--update-only')
+        )
+
