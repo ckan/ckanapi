@@ -44,10 +44,15 @@ def main(running_with_paster=False):
     """
     ckanapi command line entry point
     """
-    arguments = docopt(__doc__, version=__version__)
+    arguments = parse_arguments()
     if not running_with_paster and not arguments['--remote']:
         return _switch_to_paster(arguments)
     print arguments, running_with_paster
+
+
+def parse_arguments():
+    return docopt(__doc__, version=__version__)
+
 
 def _switch_to_paster(arguments):
     """
