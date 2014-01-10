@@ -51,6 +51,9 @@ def load_things(ckan, command, arguments):
 
     cmd = _worker_command_line(command, arguments)
     processes = int(arguments['--processes'])
+    if hasattr(ckan, limit_parallel):
+        # add your sites to ckanapi.remoteckan.MY_SITES instead of removing
+        processes = max(processes, ckan.parallel_limit)
     stats = completion_stats(processes)
     pool = worker_pool(cmd, processes, line_reader())
 

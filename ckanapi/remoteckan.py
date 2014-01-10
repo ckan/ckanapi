@@ -1,12 +1,21 @@
 try:
     from urllib2 import Request, urlopen, HTTPError
+    from urlparse import urlparse
 except ImportError:
     from urllib.request import Request, urlopen, HTTPError
+    from urllib.parse import urlparse
 
 from ckanapi.errors import CKANAPIError
 from ckanapi.common import (ActionShortcut, prepare_action,
     reverse_apicontroller_action)
 from ckanapi.version import __version__
+
+# add your sites here to remove parallel limits on ckanapi cli
+MY_SITES = ['localhost', '127.0.0.1', '[::1]']
+
+# add your site above instead of changing this
+PARALLEL_LIMIT = 3
+
 
 class RemoteCKAN(object):
     """
@@ -40,6 +49,15 @@ class RemoteCKAN(object):
         self.action = ActionShortcut(self)
         if request_fn:
             self._request_fn = request_fn
+
+        net_loc = urlparse(address)
+        if ']' in net_loc:
+            net_loc = net_loc[:net_loc.index(']') + 1]
+        elif ':' in net_loc:
+            net_loc = net_loc[:net_loc.index(':')]
+        if net_loc not in MY_SITES:
+            # add your sites to MY_SITES above instead of removing this
+            self.parallel_limit = PARALLEL_LIMIT
 
     def call_action(self, action, data_dict=None, context=None, apikey=None):
         """
