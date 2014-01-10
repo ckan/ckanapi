@@ -4,10 +4,10 @@ Usage:
   ckanapi action ACTION_NAME
           [KEY=VALUE ...] [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
           [-jz]
-  ckanapi (load-datasets | load-groups | load-organizations)
+  ckanapi load (datasets | groups | organizations)
           [JSONL_INPUT] [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
           [-s START] [-m MAX] [-p PROCESSES] [-l LOG_FILE] [-n | -o] [-qwz]
-  ckanapi (dump-datasets | dump-groups | dump-organizations)
+  ckanapi dump (datasets | groups | organizations)
           [JSONL_OUTPUT] [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
           [-p PROCESSES] [-qwz]
   ckanapi (-h | --help)
@@ -32,8 +32,8 @@ Options:
                             record is number 1 [default: 1]
   -u --ckan-user=USER       perform actions as user with this name, uses the
                             site sysadmin user when not specified
-  -w --worker               launch worker process, used internally by load-
-                            and dump- commands
+  -w --worker               launch worker process, used internally by load
+                            and dump commands
   -z --gzip                 read/write gzipped data
 """
 
@@ -73,17 +73,15 @@ def main(running_with_paster=False):
     if arguments['action']:
         return action(ckan, arguments)
 
-    load_commands = ['load-datasets', 'load-groups', 'load-organizations']
-    command = [x for x in load_commands if arguments[x]]
-    if command:
-        assert len(command) == 1, command
-        return load_things(ckan, command[0], arguments)
+    things = ['datasets', 'groups', 'organizations']
+    thing = [x for x in things if arguments[x]]
+    if arguments['load']:
+        assert len(thing) == 1, thing
+        return load_things(ckan, thing[0], arguments)
 
-    dump_commands = ['dump-datasets', 'dump-groups', 'dump-organizations']
-    command = [x for x in dump_commands if arguments[x]]
-    if command:
-        assert len(command) == 1, command
-        return dump_things(ckan, command[0], arguments)
+    if arguments['dump']:
+        assert len(thing) == 1, thing
+        return dump_things(ckan, thing[0], arguments)
 
     assert 0, arguments # we shouldn't be here
 

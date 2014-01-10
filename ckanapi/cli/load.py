@@ -11,7 +11,7 @@ from ckanapi.cli.workers import worker_pool
 from ckanapi.cli.utils import completion_stats, compact_json, quiet_int_pipe
 
 
-def load_things(ckan, command, arguments):
+def load_things(ckan, thing, arguments):
     """
     create and update datasets, groups and orgs
 
@@ -21,7 +21,7 @@ def load_things(ckan, command, arguments):
     on stderr.
     """
     if arguments['--worker']:
-        return load_things_worker(ckan, command, arguments)
+        return load_things_worker(ckan, thing, arguments)
 
     log = None
     if arguments['--log']:
@@ -49,7 +49,7 @@ def load_things(ckan, command, arguments):
                 break
             yield num, line.strip()
 
-    cmd = _worker_command_line(command, arguments)
+    cmd = _worker_command_line(thing, arguments)
     processes = int(arguments['--processes'])
     if hasattr(ckan, limit_parallel):
         # add your sites to ckanapi.remoteckan.MY_SITES instead of removing
@@ -80,14 +80,14 @@ def load_things(ckan, command, arguments):
                 log.flush()
 
 
-def load_things_worker(ckan, command, arguments):
+def load_things_worker(ckan, thing, arguments):
     """
     a process that accepts lines of json on stdin which is parsed and
     passed to the {thing}_create/update actions.  it produces lines of json
     which are the responses from each action call.
     """
     supported_things = ('dataset', 'group', 'organization')
-    thing_number = supported_things.index(command[5:])
+    thing_number = supported_things.index(thing)
 
     a = ckan.action
     thing_show, thing_create, thing_update = [
@@ -162,7 +162,7 @@ def load_things_worker(ckan, command, arguments):
                 reply(act, None, r['name'])
 
 
-def _worker_command_line(command, arguments):
+def _worker_command_line(thing, arguments):
     """
     Create a worker command line suitable for Popen with only the
     options the worker process requires
@@ -174,7 +174,7 @@ def _worker_command_line(command, arguments):
         "boolean options"
         return [name] * bool(arguments[name])
     cmd = (
-        ['ckanapi', command, '--worker']
+        ['ckanapi', 'load', thing, '--worker']
         + a('--config')
         + a('--user')
         + a('--remote')
