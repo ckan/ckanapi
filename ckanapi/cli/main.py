@@ -90,5 +90,5 @@ def _switch_to_paster(arguments):
     """
     With --config we switch to the paster command version of the cli
     """
-    sys.argv[1:1] = ["ckanapi"]
+    sys.argv[1:1] = ["--plugin=ckanapi", "ckanapi"]
     sys.exit(load_entry_point('PasteScript', 'console_scripts', 'paster')())

@@ -4,9 +4,11 @@ implementation of load-(things) cli commands
 
 import sys
 import gzip
+import json
 from datetime import datetime
 
-from ckanapi.errors import NotFound, NotAuthorized
+from ckanapi.errors import (NotFound, NotAuthorized, ValidationError,
+    SearchIndexError)
 from ckanapi.cli.workers import worker_pool
 from ckanapi.cli.utils import completion_stats, compact_json, quiet_int_pipe
 
@@ -28,7 +30,7 @@ def load_things(ckan, thing, arguments):
         log = open(arguments['--log'], 'a')
 
     jsonl_input = sys.stdin
-    if arguments['JSONL_INPUT']
+    if arguments['JSONL_INPUT']:
         jsonl_input = open(arguments['JSONL_INPUT'], 'rb')
     if arguments['--gzip']:
         jsonl_input = gzip.GzipFile(fileobj=jsonl_input)
@@ -51,13 +53,13 @@ def load_things(ckan, thing, arguments):
 
     cmd = _worker_command_line(thing, arguments)
     processes = int(arguments['--processes'])
-    if hasattr(ckan, limit_parallel):
+    if hasattr(ckan, 'limit_parallel'):
         # add your sites to ckanapi.remoteckan.MY_SITES instead of removing
         processes = max(processes, ckan.parallel_limit)
     stats = completion_stats(processes)
     pool = worker_pool(cmd, processes, line_reader())
 
-    with _quiet_int_pipe():
+    with quiet_int_pipe():
         for job_ids, finished, result in pool:
             timestamp, action, error, response = json.loads(result)
 
@@ -67,10 +69,10 @@ def load_things(ckan, thing, arguments):
                     job_ids,
                     stats.next(),
                     action,
-                    _compact_json(response) if response else ''))
+                    compact_json(response) if response else ''))
 
             if log:
-                log.write(_compact_json([
+                log.write(compact_json([
                     timestamp,
                     finished,
                     action,
@@ -86,7 +88,7 @@ def load_things_worker(ckan, thing, arguments):
     passed to the {thing}_create/update actions.  it produces lines of json
     which are the responses from each action call.
     """
-    supported_things = ('dataset', 'group', 'organization')
+    supported_things = ('datasets', 'groups', 'organizations')
     thing_number = supported_things.index(thing)
 
     a = ckan.action
@@ -173,10 +175,10 @@ def _worker_command_line(thing, arguments):
     def b(name):
         "boolean options"
         return [name] * bool(arguments[name])
-    cmd = (
+    return (
         ['ckanapi', 'load', thing, '--worker']
         + a('--config')
-        + a('--user')
+        + a('--ckan-user')
         + a('--remote')
         + a('--apikey')
         + b('--create-only')
