@@ -7,6 +7,9 @@ def mock_ckan(environ, start_response):
     headers = [
         ('Content-type', 'application/json;charset=utf-8'),
         ]
+    if environ['PATH_INFO'] == '/api/action/site_read':
+        start_response(status, headers)
+        return [json.dumps(True).encode('utf-8')]
     if environ['PATH_INFO'] == '/api/action/organization_list':
         start_response(status, headers)
         return [json.dumps({

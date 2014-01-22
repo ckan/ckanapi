@@ -25,10 +25,11 @@ class TestRemoteAction(unittest.TestCase):
             stdout=DEVNULL, stderr=DEVNULL)
         while True: # wait for the server to start
             try:
-                urlopen('http://localhost:8901')
-            except URLError as e:
-                if hasattr(e, 'getcode') and e.getcode() == 404:
+                r = urlopen('http://localhost:8901/api/action/site_read')
+                if r.getcode() == 200:
                     break
+            except URLError as e:
+                pass
             time.sleep(0.1)
 
     def setUp(self):
