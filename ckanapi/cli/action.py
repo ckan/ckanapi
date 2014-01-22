@@ -7,7 +7,7 @@ from ckanapi.cli.utils import compact_json, pretty_json
 
 def action(ckan, arguments):
     """
-    call an action with KEY=VALUE args, return the result
+    call an action with KEY=VALUE args, yield the result
     """
     action_args = {}
     for kv in arguments['KEY=VALUE']:
@@ -18,11 +18,8 @@ def action(ckan, arguments):
     if arguments['--jsonl']:
         if isinstance(result, list):
             for r in result:
-                return compact_json(r) + '\n'
+                yield compact_json(r) + '\n'
         else:
-            return compact_json(result) + '\n'
+            yield compact_json(result) + '\n'
     else:
-        return pretty_json(result) + '\n'
-
-
-
+        yield pretty_json(result) + '\n'
