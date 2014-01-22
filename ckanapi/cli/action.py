@@ -2,14 +2,12 @@
 implementation of the action cli command
 """
 
-import sys
-
 from ckanapi.cli.utils import compact_json, pretty_json
 
 
 def action(ckan, arguments):
     """
-    call an action with KEY=VALUE args, send the result to stdout
+    call an action with KEY=VALUE args, return the result
     """
     action_args = {}
     for kv in arguments['KEY=VALUE']:
@@ -20,11 +18,11 @@ def action(ckan, arguments):
     if arguments['--jsonl']:
         if isinstance(result, list):
             for r in result:
-                sys.stdout.write(compact_json(r) + '\n')
+                return compact_json(r) + '\n'
         else:
-            sys.stdout.write(compact_json(result) + '\n')
+            return compact_json(result) + '\n'
     else:
-        sys.stdout.write(pretty_json(result) + '\n')
+        return pretty_json(result) + '\n'
 
 
 

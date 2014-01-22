@@ -71,7 +71,8 @@ def main(running_with_paster=False):
         ckan = LocalCKAN(username=arguments['--ckan-user'])
 
     if arguments['action']:
-        return action(ckan, arguments)
+        sys.stdout.write(action(ckan, arguments))
+        return
 
     things = ['datasets', 'groups', 'organizations']
     thing = [x for x in things if arguments[x]]
