@@ -161,6 +161,8 @@ def load_things_worker(ckan, thing, arguments):
                 reply(act, 'SearchIndexError', unicode(e))
             except NotAuthorized as e:
                 reply(act, 'NotAuthorized', unicode(e))
+            except NotFound:
+                reply(act, 'NotFound', obj)
             else:
                 reply(act, None, r['name'])
 
