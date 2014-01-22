@@ -3,7 +3,10 @@ useful bits of code not tied to ckanapi in any way
 """
 
 import time
-import simplejson
+try:
+    import simplejson as json
+except ImportError:
+    import json
 from contextlib import contextmanager
 
 
@@ -32,7 +35,7 @@ def quiet_int_pipe():
         yield
     except KeyboardInterrupt:
         pass
-    except IOError, e:
+    except IOError as e:
         if e.errno != 32:
             raise
 
@@ -41,14 +44,14 @@ def compact_json(r):
     """
     JSON as small as we can make it, with UTF-8
     """
-    return simplejson.dumps(r, ensure_ascii=False, separators=(',', ':'))
+    return json.dumps(r, ensure_ascii=False, separators=(',', ':'))
 
 
 def pretty_json(r):
     """
     legible sorted JSON, with UTF-8
     """
-    return simplejson.dumps(r, ensure_ascii=False, separators=(',', ': '),
+    return json.dumps(r, ensure_ascii=False, separators=(',', ': '),
         indent=2, sort_keys=True)
 
 
