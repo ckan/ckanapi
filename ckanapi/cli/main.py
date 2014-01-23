@@ -3,13 +3,16 @@
 Usage:
   ckanapi action ACTION_NAME
           [KEY=VALUE ...] [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
-          [-jz]
+          [-j | -J] [-z]
   ckanapi load (datasets | groups | organizations)
-          [JSONL_INPUT] [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
-          [-s START] [-m MAX] [-p PROCESSES] [-l LOG_FILE] [-n | -o] [-qwz]
+          [JSONL_INPUT] [-s START] [-m MAX] [-p PROCESSES] [-l LOG_FILE]
+          [-n | -o] [-qwz] [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
   ckanapi dump (datasets | groups | organizations)
-          [JSONL_OUTPUT] [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
-          [-p PROCESSES] [-qwz]
+          [ID ... | -i | --all] [-O JSONL_OUTPUT] [-p PROCESSES] [-qwz]
+          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
+  ckanapi delete (datasets | groups | organizations)
+          [ID ... | -i | --all] [-p PROCESSES] [-qw]
+          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
   ckanapi (-h | --help)
   ckanapi --version
 
@@ -17,14 +20,19 @@ Options:
   -h --help                 show this screen
   --version                 show version
   -a --apikey=APIKEY        API key to use for remote actions
+  --all                     all the things
   -c --config=CONFIG        CKAN configuration file for local actions,
                             defaults to ./development.ini if that file exists
-  -j --jsonl                format list response as jsonl instead of default
+  -i --stdin-ids            read names/ids from stdin jsonl or one string per
+                            line
+  -j --plain-json           plain json instead of pretty-printed json
+  -J --jsonl                format list response as jsonl instead of default
                             pretty-printed json format
   -l --log=LOG_FILE         append messages generated to LOG_FILE
   -m --max-records=MAX      exit after processing MAX records
   -n --create-only          create new records, don't update existing records
   -o --update-only          update existing records, don't create new records
+  -O --output=JSONL_OUTPUT  output to file instead of stdout
   -p --processes=PROCESSES  set the number of worker processes [default: 1]
   -q --quiet                don't display progress messages
   -r --remote=URL           URL of CKAN server for remote actions
