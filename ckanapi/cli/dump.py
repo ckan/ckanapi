@@ -48,7 +48,7 @@ def dump_things(ckan, thing, arguments):
         processes = min(processes, ckan.parallel_limit)
     stats = completion_stats(processes)
     pool = worker_pool(cmd, processes,
-        enumerate(compact_json(n) + '\n' for n in names))
+        enumerate(compact_json(n) + b'\n' for n in names))
 
     results = {}
     expecting_number = 0
@@ -72,7 +72,7 @@ def dump_things(ckan, thing, arguments):
                     finished,
                     error,
                     record['name'] if record else None,
-                    ]) + '\n')
+                    ]) + b'\n')
 
             # keep the output in the same order as names
             while expecting_number in results:
@@ -80,7 +80,7 @@ def dump_things(ckan, thing, arguments):
                 if record:
                     # sort keys so we can diff output
                     jsonl_output.write(compact_json(record,
-                        sort_keys=True) + '\n')
+                        sort_keys=True) + b'\n')
                 expecting_number += 1
 
 

@@ -79,7 +79,7 @@ def load_things(ckan, thing, arguments):
                     action,
                     error,
                     response,
-                    ]) + '\n')
+                    ]) + b'\n')
                 log.flush()
 
 
@@ -107,7 +107,7 @@ def load_things_worker(ckan, thing, arguments):
             datetime.now().isoformat(),
             action,
             error,
-            response]) + '\n')
+            response]) + b'\n')
         sys.stdout.flush()
 
     for line in iter(sys.stdin.readline, ''):
