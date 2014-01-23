@@ -49,6 +49,7 @@ from ckanapi.version import __version__
 from ckanapi.remoteckan import RemoteCKAN
 from ckanapi.localckan import LocalCKAN
 from ckanapi.cli.load import load_things
+from ckanapi.cli.dump import dump_things
 from ckanapi.cli.action import action
 
 

@@ -1,5 +1,5 @@
 """
-implementation of load-(things) cli commands
+implementation of load cli command
 """
 
 import sys
@@ -18,7 +18,7 @@ def load_things(ckan, thing, arguments):
     create and update datasets, groups and orgs
 
     The parent process creates a pool of worker processes and hands
-    out jsonl lines to each worker as they finish a task. Status of
+    out json lines to each worker as they finish a task. Status of
     last record completed and records being processed is displayed
     on stderr.
     """
@@ -55,7 +55,7 @@ def load_things(ckan, thing, arguments):
     processes = int(arguments['--processes'])
     if hasattr(ckan, 'limit_parallel'):
         # add your sites to ckanapi.remoteckan.MY_SITES instead of removing
-        processes = max(processes, ckan.parallel_limit)
+        processes = min(processes, ckan.parallel_limit)
     stats = completion_stats(processes)
     pool = worker_pool(cmd, processes, line_reader())
 

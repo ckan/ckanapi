@@ -43,11 +43,12 @@ def quiet_int_pipe():
             raise
 
 
-def compact_json(r):
+def compact_json(r, sort_keys=False):
     """
     JSON as small as we can make it, with UTF-8
     """
-    return json.dumps(r, ensure_ascii=False, separators=(',', ':'))
+    return json.dumps(r, ensure_ascii=False, separators=(',', ':'),
+        sort_keys=sort_keys)
 
 
 def pretty_json(r):
