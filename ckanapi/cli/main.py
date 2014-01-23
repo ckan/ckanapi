@@ -20,15 +20,15 @@ Options:
   --all                     all the things
   -c --config=CONFIG        CKAN configuration file for local actions,
                             defaults to ./development.ini if that file exists
-  -I --input=JSONL_INPUT    input file instead of stdin
+  -I --input=JSONL_INPUT    input from json lines file instead of stdin
   -j --plain-json           plain json instead of pretty-printed json
-  -J --jsonl                format list response as jsonl instead of default
-                            pretty-printed json format
+  -J --jsonl                format list response as json lines instead of
+                            default pretty-printed json format
   -l --log=LOG_FILE         append messages generated to LOG_FILE
   -m --max-records=MAX      exit after processing MAX records
   -n --create-only          create new records, don't update existing records
   -o --update-only          update existing records, don't create new records
-  -O --output=JSONL_OUTPUT  output to file instead of stdout
+  -O --output=JSONL_OUTPUT  output to json lines file instead of stdout
   -p --processes=PROCESSES  set the number of worker processes [default: 1]
   -q --quiet                don't display progress messages
   -r --remote=URL           URL of CKAN server for remote actions
