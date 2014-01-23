@@ -7,6 +7,8 @@ from ckanapi.errors import CKANAPIError
 from ckanapi.common import (ActionShortcut, prepare_action,
     reverse_apicontroller_action)
 
+import requests
+
 import pkg_resources
 
 class RemoteCKAN(object):
@@ -43,11 +45,15 @@ class RemoteCKAN(object):
         if request_fn:
             self._request_fn = request_fn
 
-    def call_action(self, action, data_dict=None, context=None, apikey=None):
+    def call_action(self, action, data_dict=None, context=None, apikey=None,
+            files=None):
         """
         :param action: the action name, e.g. 'package_create'
         :param data_dict: the dict to pass to the action as JSON,
                           defaults to {}
+        :param context: always set to None for RemoteCKAN
+        :param apikey: API key for authentication
+        :param files: None or dict of {field-name: file to be sent}
 
         This function parses the response from the server as JSON and
         returns the decoded value.  When an error is returned this
@@ -61,15 +67,11 @@ class RemoteCKAN(object):
                                             apikey or self.apikey)
         headers['User-Agent'] = self.user_agent
         url = self.address.rstrip('/') + '/' + url
-        status, response = self._request_fn(url, data, headers)
+        status, response = self._request_fn(url, data, headers, files)
         return reverse_apicontroller_action(url, status, response)
 
-    def _request_fn(self, url, data, headers):
-        req = Request(url, data, headers)
-        try:
-            r = urlopen(req)
-            return r.getcode(), r.read()
-        except HTTPError as e:
-            return e.code, e.read()
+    def _request_fn(self, url, data, headers, files):
+        r = requests.post(url, data, headers=headers, files=files)
+        return r.status_code, r.text
 
 

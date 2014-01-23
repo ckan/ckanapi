@@ -57,24 +57,6 @@ except ckanapi.ValidationError:
     print 'unless my-dataset already exists'
 ```
 
-### Customizing RemoteCKAN
-
-The RemoteCKAN class may be passed a callable to use for making requests.  This
-allows using a different library for the request:
-
-```python
-import ckanapi
-import requests
-
-def requests_ftw(url, data, headers):
-    r = requests.post(url, data, headers=headers)
-    return r.status_code, r.text
-
-demo = ckanapi.RemoteCKAN('http://demo.ckan.org', request_fn=requests_ftw,
-    user_agent='foobot/1.0 (+http://example.com/my/website)')
-groups = demo.action.group_list(id='data-explorer')
-```
-
 ### TestAppCKAN
 
 A class is provided for making action requests to a paste.fixture.TestApp
