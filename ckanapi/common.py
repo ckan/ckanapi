@@ -40,14 +40,13 @@ def prepare_action(action, data_dict=None, apikey=None):
     """
     if not data_dict:
         data_dict = {}
-    data = json.dumps(data_dict).encode('ascii')
-    headers = {'Content-Type': 'application/json'}
+    headers = {}
     if apikey:
         apikey = str(apikey)
         headers['X-CKAN-API-Key'] = apikey
         headers['Authorization'] = apikey
     url = 'api/action/' + action
-    return url, data, headers
+    return url, data_dict, headers
 
 
 def reverse_apicontroller_action(url, status, response):
