@@ -21,5 +21,7 @@ def action(ckan, arguments):
                 yield compact_json(r) + '\n'
         else:
             yield compact_json(result) + '\n'
+    elif arguments['--plain-json']:
+        yield compact_json(result) + '\n'
     else:
         yield pretty_json(result) + '\n'

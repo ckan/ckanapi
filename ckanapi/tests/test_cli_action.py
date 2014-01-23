@@ -28,6 +28,7 @@ class TestCLIAction(unittest.TestCase):
         rval = action(ckan, {
             'ACTION_NAME': 'shake_it',
             'KEY=VALUE': ['who=baby'],
+            '--plain-json': False,
             '--jsonl': False,
             })
         self.assertEqual(''.join(rval), """
@@ -40,10 +41,21 @@ class TestCLIAction(unittest.TestCase):
 """.lstrip())
 
     def test_compact(self):
+        ckan = MockCKAN('shake_it', {'who': 'baby'}, ["right", "on"])
+        rval = action(ckan, {
+            'ACTION_NAME': 'shake_it',
+            'KEY=VALUE': ['who=baby'],
+            '--plain-json': True,
+            '--jsonl': False,
+            })
+        self.assertEqual(''.join(rval), '["right","on"]\n')
+
+    def test_compact_fallback(self):
         ckan = MockCKAN('shake_it', {'who': 'baby'}, {"oh": ["right", "on"]})
         rval = action(ckan, {
             'ACTION_NAME': 'shake_it',
             'KEY=VALUE': ['who=baby'],
+            '--plain-json': False,
             '--jsonl': True,
             })
         self.assertEqual(''.join(rval), '{"oh":["right","on"]}\n')
@@ -53,6 +65,7 @@ class TestCLIAction(unittest.TestCase):
         rval = action(ckan, {
             'ACTION_NAME': 'shake_it',
             'KEY=VALUE': ['who=baby'],
+            '--plain-json': False,
             '--jsonl': True,
             })
         self.assertEqual(''.join(rval), '99\n98\n97\n')
