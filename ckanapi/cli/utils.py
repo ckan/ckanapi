@@ -3,9 +3,12 @@ useful bits of code not tied to ckanapi in any way
 """
 
 import time
-try:
+
+PYTHON2 = str is bytes
+if PYTHON2:
+    # we need indent= and sort_keys=
     import simplejson as json
-except ImportError:
+else:
     import json
 from contextlib import contextmanager
 
