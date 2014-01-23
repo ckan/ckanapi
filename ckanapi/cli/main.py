@@ -2,16 +2,13 @@
 
 Usage:
   ckanapi action ACTION_NAME
-          [KEY=VALUE ...] [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
-          [-j | -J] [-z]
+          [KEY=VALUE ...] [-j | -J]
+          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
   ckanapi load (datasets | groups | organizations)
-          [JSONL_INPUT] [-s START] [-m MAX] [-p PROCESSES] [-l LOG_FILE]
+          [-I JSONL_INPUT] [-s START] [-m MAX] [-p PROCESSES] [-l LOG_FILE]
           [-n | -o] [-qwz] [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
   ckanapi dump (datasets | groups | organizations)
-          [ID ... | -i | --all] [-O JSONL_OUTPUT] [-p PROCESSES] [-qwz]
-          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
-  ckanapi delete (datasets | groups | organizations)
-          [ID ... | -i | --all] [-p PROCESSES] [-qw]
+          (ID ... | --all) [-O JSONL_OUTPUT] [-p PROCESSES] [-qwz]
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
   ckanapi (-h | --help)
   ckanapi --version
@@ -23,8 +20,7 @@ Options:
   --all                     all the things
   -c --config=CONFIG        CKAN configuration file for local actions,
                             defaults to ./development.ini if that file exists
-  -i --stdin-ids            read names/ids from stdin jsonl or one string per
-                            line
+  -I --input=JSONL_INPUT    input file instead of stdin
   -j --plain-json           plain json instead of pretty-printed json
   -J --jsonl                format list response as jsonl instead of default
                             pretty-printed json format
