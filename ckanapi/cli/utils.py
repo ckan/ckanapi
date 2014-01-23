@@ -48,7 +48,7 @@ def compact_json(r, sort_keys=False):
     JSON as small as we can make it, with UTF-8
     """
     return json.dumps(r, ensure_ascii=False, separators=(',', ':'),
-        sort_keys=sort_keys)
+        sort_keys=sort_keys).encode('utf-8')
 
 
 def pretty_json(r):
@@ -56,6 +56,6 @@ def pretty_json(r):
     legible sorted JSON, with UTF-8
     """
     return json.dumps(r, ensure_ascii=False, separators=(',', ': '),
-        indent=2, sort_keys=True)
+        indent=2, sort_keys=True).encode('utf-8')
 
 

@@ -29,8 +29,8 @@ def dump_things(ckan, thing, arguments):
         log = open(arguments['--log'], 'a')
 
     jsonl_output = sys.stdout
-    if arguments['JSONL_OUTPUT']:
-        jsonl_output = open(arguments['JSONL_OUTPUT'], 'wb')
+    if arguments['--output']:
+        jsonl_output = open(arguments['--output'], 'wb')
     if arguments['--gzip']:
         jsonl_output = gzip.GzipFile(fileobj=jsonl_output)
 
@@ -39,7 +39,7 @@ def dump_things(ckan, thing, arguments):
         'groups': ckan.action.group_list,
         'organizations': ckan.action.organization_list,
         }[thing]
-    names = ckan.get_thing_list()
+    names = get_thing_list()
 
     cmd = _worker_command_line(thing, arguments)
     processes = int(arguments['--processes'])
@@ -90,10 +90,7 @@ def dump_things_worker(ckan, thing, arguments):
     passed to the {thing}_show actions.  it produces lines of json
     which are the responses from each action call.
     """
-    supported_things = ('datasets', 'groups', 'organizations')
-    thing_number = supported_things.index(thing)
-
-    show_thing = {
+    thing_show = {
         'datasets': ckan.action.package_show,
         'groups': ckan.action.group_show,
         'organizations': ckan.action.organization_show,
@@ -106,7 +103,7 @@ def dump_things_worker(ckan, thing, arguments):
         sys.stdout.write(compact_json([
             datetime.now().isoformat(),
             error,
-            record]) + '\n')
+            record]) + b'\n')
         sys.stdout.flush()
 
     for line in iter(sys.stdin.readline, ''):
