@@ -10,12 +10,11 @@ ckanapi may be used from within a plugin or separate from CKAN.
 
 ```python
 import ckanapi
-import pprint
 
 demo = ckanapi.RemoteCKAN('http://demo.ckan.org',
     user_agent='ckanapiexample/1.0 (+http://example.com/my/website)')
 groups = demo.action.group_list(id='data-explorer')
-pprint.pprint(groups)
+print groups
 ```
 
 result:
