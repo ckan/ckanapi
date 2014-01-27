@@ -1,6 +1,7 @@
 import subprocess
 import time
 import os
+import atexit
 
 import ckanapi
 try:
@@ -15,14 +16,30 @@ try:
     from urllib2 import urlopen, URLError
 except ImportError:
     from urllib.request import urlopen, URLError
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from io import StringIO
 
+NUMBER_THING_CSV = """
+Number,Thing
+5,sasquach
+""".lstrip()
 
 class TestRemoteAction(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         script = os.path.join(os.path.dirname(__file__), 'mock/mock_ckan.py')
-        cls._mock_ckan = subprocess.Popen(['python', script],
+        _mock_ckan = subprocess.Popen(['python2', script],
             stdout=DEVNULL, stderr=DEVNULL)
+        def kill_child():
+            try:
+                _mock_ckan.kill()
+                _mock_ckan.wait()
+            except OSError:
+                pass  # alread cleaned up from tearDownClass
+        atexit.register(kill_child)
+        cls._mock_ckan = _mock_ckan
         while True: # wait for the server to start
             try:
                 r = urlopen('http://localhost:8901/api/action/site_read')
@@ -56,6 +73,17 @@ class TestRemoteAction(unittest.TestCase):
 
         self.assertEqual(ckan.action.test_echo_user_agent(), ua)
 
+    def test_resource_upload(self):
+        res = self.ckan.call_action('test_upload',
+            {'option': "42"},
+            files={'upload': StringIO(NUMBER_THING_CSV)})
+        self.assertEqual(res.get('last_row'), ['5', 'sasquach'])
+
+    def test_resource_upload_extra_param(self):
+        res = self.ckan.call_action('test_upload',
+            {'option': "42"},
+            files={'upload': StringIO(NUMBER_THING_CSV)})
+        self.assertEqual(res.get('option'), "42")
 
     @classmethod
     def tearDownClass(cls):

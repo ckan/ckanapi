@@ -17,8 +17,9 @@ def wsgi_app(environ, start_response):
     elif path == '/api/action/invalid':
         response = {'success': False, 'error': {'__type': 'Validation Error'}}
     elif path == '/api/action/echo':
+        content = environ['wsgi.input'].read()
         response = {'success': True, 'result':
-            json.loads(environ['wsgi.input'].read())['message']}
+            json.loads(content)['message']}
 
     start_response(status, headers)
     return [json.dumps(response)]

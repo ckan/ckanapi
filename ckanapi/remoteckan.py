@@ -16,6 +16,8 @@ MY_SITES = ['localhost', '127.0.0.1', '[::1]']
 # add your site above instead of changing this
 PARALLEL_LIMIT = 3
 
+import requests
+
 
 class RemoteCKAN(object):
     """
@@ -59,11 +61,15 @@ class RemoteCKAN(object):
             # add your sites to MY_SITES above instead of removing this
             self.parallel_limit = PARALLEL_LIMIT
 
-    def call_action(self, action, data_dict=None, context=None, apikey=None):
+    def call_action(self, action, data_dict=None, context=None, apikey=None,
+            files=None):
         """
         :param action: the action name, e.g. 'package_create'
         :param data_dict: the dict to pass to the action as JSON,
                           defaults to {}
+        :param context: always set to None for RemoteCKAN
+        :param apikey: API key for authentication
+        :param files: None or {field-name: file-to-be-sent, ...}
 
         This function parses the response from the server as JSON and
         returns the decoded value.  When an error is returned this
@@ -73,19 +79,15 @@ class RemoteCKAN(object):
         if context:
             raise CKANAPIError("RemoteCKAN.call_action does not support "
                 "use of context parameter, use apikey instead")
-        url, data, headers = prepare_action(action, data_dict,
-                                            apikey or self.apikey)
+        url, data, headers = prepare_action(
+            action, data_dict, apikey or self.apikey, files)
         headers['User-Agent'] = self.user_agent
         url = self.address.rstrip('/') + '/' + url
-        status, response = self._request_fn(url, data, headers)
+        status, response = self._request_fn(url, data, headers, files)
         return reverse_apicontroller_action(url, status, response)
 
-    def _request_fn(self, url, data, headers):
-        req = Request(url, data, headers)
-        try:
-            r = urlopen(req)
-            return r.getcode(), r.read()
-        except HTTPError as e:
-            return e.code, e.read()
+    def _request_fn(self, url, data, headers, files):
+        r = requests.post(url, data=data, headers=headers, files=files)
+        return r.status_code, r.text
 
 

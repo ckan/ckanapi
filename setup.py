@@ -6,6 +6,7 @@ setup(
     name='ckanapi',
     version='3.0-dev',
     description='Thin wrapper around the CKAN Action API',
+    license='BSD',
     author='Ian Ward',
     author_email='ian@excess.org',
     url='https://github.com/open-data/ckanapi',

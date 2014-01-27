@@ -1,6 +1,6 @@
 ## ckanapi
 
-[![Build Status](https://travis-ci.org/open-data/ckanapi.png?branch=master)](https://travis-ci.org/open-data/ckanapi)
+[![Build Status](https://travis-ci.org/open-data/ckanapi.png?branch=master)](https://travis-ci.org/open-data/ckanapi) tested under Python 2.6, 2.7, 3.2, 3.3 and pypy
 
 A thin wrapper around CKAN's action API
 
@@ -10,12 +10,11 @@ ckanapi may be used from within a plugin or separate from CKAN.
 
 ```python
 import ckanapi
-import pprint
 
 demo = ckanapi.RemoteCKAN('http://demo.ckan.org',
-    user_agent='foobot/1.0 (+http://example.com/my/website)')
+    user_agent='ckanapiexample/1.0 (+http://example.com/my/website)')
 groups = demo.action.group_list(id='data-explorer')
-pprint.pprint(groups)
+print groups
 ```
 
 result:
@@ -30,7 +29,7 @@ Failures are raised as exceptions just like when calling get_action from a plugi
 import ckanapi
 
 demo = ckanapi.RemoteCKAN('http://demo.ckan.org', apikey='phony-key',
-    user_agent='foobot/1.0 (+http://example.com/my/website)')
+    user_agent='ckanapiexample/1.0 (+http://example.com/my/website)')
 try:
     pkg = demo.action.package_create(name='my-dataset', title='not going to work')
 except ckanapi.NotAuthorized:
@@ -42,6 +41,20 @@ result:
 ```
 denied
 ```
+
+File uploads are supported by the call_action method:
+
+```python
+import ckanapi
+
+mysite = ckanapi.RemoteCKAN('http://myckan.example.com', apikey='real-key',
+    user_agent='ckanapiexample/1.0 (+http://example.com/my/website)')
+mysite.call_action('resource_create',
+    {'package_id': 'my-dataset-with-files'},
+    files={'upload': open('/path/to/file/to/upload.csv')})
+```
+
+### LocalCKAN
 
 A similar class is provided for accessing local CKAN instances from a plugin in
 the same way as remote CKAN instances.  This class defaults to using the site
@@ -55,24 +68,6 @@ try:
     registry.action.package_create(name='my-dataset', title='this will work fine')
 except ckanapi.ValidationError:
     print 'unless my-dataset already exists'
-```
-
-### Customizing RemoteCKAN
-
-The RemoteCKAN class may be passed a callable to use for making requests.  This
-allows using a different library for the request:
-
-```python
-import ckanapi
-import requests
-
-def requests_ftw(url, data, headers):
-    r = requests.post(url, data, headers=headers)
-    return r.status_code, r.text
-
-demo = ckanapi.RemoteCKAN('http://demo.ckan.org', request_fn=requests_ftw,
-    user_agent='foobot/1.0 (+http://example.com/my/website)')
-groups = demo.action.group_list(id='data-explorer')
 ```
 
 ### TestAppCKAN
