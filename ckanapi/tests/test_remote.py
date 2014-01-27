@@ -21,10 +21,10 @@ try:
 except ImportError:
     from io import StringIO
 
-NUMBER_THING_CSV = StringIO("""
+NUMBER_THING_CSV = """
 Number,Thing
 5,sasquach
-""".lstrip())
+""".lstrip()
 
 class TestRemoteAction(unittest.TestCase):
     @classmethod
@@ -75,14 +75,13 @@ class TestRemoteAction(unittest.TestCase):
     def test_resource_upload(self):
         res = self.ckan.call_action('test_upload',
             {'option': "42"},
-            files=[('upload', open(NUMBER_THING_CSV))])
+            files=[('upload', StringIO(NUMBER_THING_CSV))])
         self.assertEqual(res.get('last_row'), ['5', 'sasquach'])
 
     def test_resource_upload_extra_param(self):
         res = self.ckan.call_action('test_upload',
             {'option': "42"},
-            files=[('upload', open(
-                os.path.join(os.path.dirname(__file__), 'sample.csv'), 'rb'))])
+            files=[('upload', StringIO(NUMBER_THING_CSV))])
         self.assertEqual(res.get('option'), "42")
 
     @classmethod
