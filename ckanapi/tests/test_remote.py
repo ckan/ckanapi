@@ -16,7 +16,15 @@ try:
     from urllib2 import urlopen, URLError
 except ImportError:
     from urllib.request import urlopen, URLError
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from io import StringIO
 
+NUMBER_THING_CSV = StringIO("""
+Number,Thing
+5,sasquach
+""".lstrip())
 
 class TestRemoteAction(unittest.TestCase):
     @classmethod
@@ -67,8 +75,7 @@ class TestRemoteAction(unittest.TestCase):
     def test_resource_upload(self):
         res = self.ckan.call_action('test_upload',
             {'option': "42"},
-            files=[('upload', open(
-                os.path.join(os.path.dirname(__file__), 'sample.csv'), 'rb'))])
+            files=[('upload', open(NUMBER_THING_CSV))])
         self.assertEqual(res.get('last_row'), ['5', 'sasquach'])
 
     def test_resource_upload_extra_param(self):
