@@ -35,6 +35,7 @@ def mock_ckan(environ, start_response):
             "help": "none",
             "success": True,
             "result": {
+                'option': fs.getvalue('option'),
                 'last_row': records[-1],
                 },
             }).encode('utf-8')]

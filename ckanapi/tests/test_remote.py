@@ -66,10 +66,17 @@ class TestRemoteAction(unittest.TestCase):
 
     def test_resource_upload(self):
         res = self.ckan.call_action('test_upload',
-            {'package_id': "42"},
+            {'option': "42"},
             files=[('upload', open(
                 os.path.join(os.path.dirname(__file__), 'sample.csv'), 'rb'))])
-        self.assertEqual(res, {'last_row': ['5', 'sasquach']})
+        self.assertEqual(res.get('last_row'), ['5', 'sasquach'])
+
+    def test_resource_upload_extra_param(self):
+        res = self.ckan.call_action('test_upload',
+            {'option': "42"},
+            files=[('upload', open(
+                os.path.join(os.path.dirname(__file__), 'sample.csv'), 'rb'))])
+        self.assertEqual(res.get('option'), "42")
 
     @classmethod
     def tearDownClass(cls):
