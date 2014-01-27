@@ -75,13 +75,13 @@ class TestRemoteAction(unittest.TestCase):
     def test_resource_upload(self):
         res = self.ckan.call_action('test_upload',
             {'option': "42"},
-            files=[('upload', StringIO(NUMBER_THING_CSV))])
+            files={'upload': StringIO(NUMBER_THING_CSV)})
         self.assertEqual(res.get('last_row'), ['5', 'sasquach'])
 
     def test_resource_upload_extra_param(self):
         res = self.ckan.call_action('test_upload',
             {'option': "42"},
-            files=[('upload', StringIO(NUMBER_THING_CSV))])
+            files={'upload': StringIO(NUMBER_THING_CSV)})
         self.assertEqual(res.get('option'), "42")
 
     @classmethod
