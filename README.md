@@ -1,12 +1,19 @@
 ## ckanapi
 
+A Python module and command line interface for accessing the
+[CKAN Action API](http://docs.ckan.org/en/latest/api.html)
+
 [![Build Status](https://travis-ci.org/open-data/ckanapi.png?branch=master)](https://travis-ci.org/open-data/ckanapi) tested under Python 2.6, 2.7, 3.2, 3.3 and pypy
 
-A thin wrapper around CKAN's action API
+The ckanapi Python module may be used from within a
+[CKAN extension](http://docs.ckan.org/en/latest/extensions/index.html)
+or in a Python 2 or Python 3 application separate from CKAN.
 
-ckanapi may be used from within a plugin or separate from CKAN.
+## ckanapi Python Module
 
-### Making an API Request
+### RemoteCKAN
+
+Making a request:
 
 ```python
 import ckanapi
