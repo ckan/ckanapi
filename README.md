@@ -44,7 +44,7 @@ denied
 
 File uploads are supported by the call_action method:
 
-```
+```python
 import ckanapi
 
 mysite = ckanapi.RemoteCKAN('http://myckan.example.com', apikey='real-key',
