@@ -10,7 +10,12 @@ setup(
     author='Ian Ward',
     author_email='ian@excess.org',
     url='https://github.com/open-data/ckanapi',
-    packages=['ckanapi', 'ckanapi.tests', 'ckanapi.cli'],
+    packages=[
+        'ckanapi',
+        'ckanapi.tests',
+        'ckanapi.tests.mock',
+        'ckanapi.cli',
+        ],
     test_suite='ckanapi.tests',
     zip_safe=False,
     entry_points = """
