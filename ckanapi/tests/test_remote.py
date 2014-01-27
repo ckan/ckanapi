@@ -1,6 +1,7 @@
 import subprocess
 import time
 import os
+import atexit
 
 import ckanapi
 try:
@@ -21,8 +22,16 @@ class TestRemoteAction(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         script = os.path.join(os.path.dirname(__file__), 'mock/mock_ckan.py')
-        cls._mock_ckan = subprocess.Popen(['python', script],
+        _mock_ckan = subprocess.Popen(['python', script],
             stdout=DEVNULL, stderr=DEVNULL)
+        def kill_child():
+            try:
+                _mock_ckan.kill()
+                _mock_ckan.wait()
+            except OSError:
+                pass  # alread cleaned up from tearDownClass
+        atexit.register(kill_child)
+        cls._mock_ckan = _mock_ckan
         while True: # wait for the server to start
             try:
                 urlopen('http://localhost:8901')
