@@ -13,7 +13,7 @@ import ckanapi
 import pprint
 
 demo = ckanapi.RemoteCKAN('http://demo.ckan.org',
-    user_agent='foobot/1.0 (+http://example.com/my/website)')
+    user_agent='ckanapiexample/1.0 (+http://example.com/my/website)')
 groups = demo.action.group_list(id='data-explorer')
 pprint.pprint(groups)
 ```
@@ -30,7 +30,7 @@ Failures are raised as exceptions just like when calling get_action from a plugi
 import ckanapi
 
 demo = ckanapi.RemoteCKAN('http://demo.ckan.org', apikey='phony-key',
-    user_agent='foobot/1.0 (+http://example.com/my/website)')
+    user_agent='ckanapiexample/1.0 (+http://example.com/my/website)')
 try:
     pkg = demo.action.package_create(name='my-dataset', title='not going to work')
 except ckanapi.NotAuthorized:
@@ -42,6 +42,20 @@ result:
 ```
 denied
 ```
+
+File uploads are supported by the call_action method:
+
+```
+import ckanapi
+
+mysite = ckanapi.RemoteCKAN('http://myckan.example.com', apikey='real-key',
+    user_agent='ckanapiexample/1.0 (+http://example.com/my/website)')
+mysite.call_action('resource_create',
+    {'package_id': 'my-dataset-with-files'},
+    files={'upload': open('/path/to/file/to/upload.csv')})
+```
+
+### LocalCKAN
 
 A similar class is provided for accessing local CKAN instances from a plugin in
 the same way as remote CKAN instances.  This class defaults to using the site
