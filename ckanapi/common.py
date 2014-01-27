@@ -58,7 +58,7 @@ def reverse_apicontroller_action(url, status, response):
     exception -> HTTP response translation that ApiController.action does
     """
     try:
-        parsed = json.loads(response.decode('utf-8'))
+        parsed = json.loads(response)
         if parsed.get('success'):
             return parsed['result']
         if hasattr(parsed, 'get'):
