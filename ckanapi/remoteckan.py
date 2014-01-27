@@ -64,8 +64,8 @@ class RemoteCKAN(object):
         if context:
             raise CKANAPIError("RemoteCKAN.call_action does not support "
                 "use of context parameter, use apikey instead")
-        url, data, headers = prepare_action(action, data_dict,
-                                            apikey or self.apikey)
+        url, data, headers = prepare_action(
+            action, data_dict, apikey or self.apikey, files)
         headers['User-Agent'] = self.user_agent
         url = self.address.rstrip('/') + '/' + url
         status, response = self._request_fn(url, data, headers, files)

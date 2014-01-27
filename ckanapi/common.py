@@ -34,13 +34,16 @@ class ActionShortcut(object):
         return action
 
 
-def prepare_action(action, data_dict=None, apikey=None):
+def prepare_action(action, data_dict=None, apikey=None, files=None):
     """
     Return action_url, data_json, http_headers
     """
     if not data_dict:
         data_dict = {}
     headers = {}
+    if not files:
+        data_dict = json.dumps(data_dict).encode('ascii')
+        headers['Content-Type'] = 'application/json'
     if apikey:
         apikey = str(apikey)
         headers['X-CKAN-API-Key'] = apikey
