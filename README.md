@@ -1,6 +1,6 @@
 ## ckanapi
 
-[![Build Status](https://travis-ci.org/open-data/ckanapi.png?branch=master)](https://travis-ci.org/open-data/ckanapi) tested under Python 2.6, 2.7, 3.2, 3.3 and pypy
+[![Build Status](https://travis-ci.org/ckan/ckanapi.png?branch=master)](https://travis-ci.org/open-data/ckanapi) tested under Python 2.6, 2.7, 3.2, 3.3 and pypy
 
 A thin wrapper around CKAN's action API
 

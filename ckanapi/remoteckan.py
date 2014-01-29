@@ -39,7 +39,7 @@ class RemoteCKAN(object):
             ckanapi_info = pkg_resources.require("ckanapi")[0]
             user_agent = "ckanapi/{version} (+{url})".format(
                 version=ckanapi_info.version,
-                url='https://github.com/open-data/ckanapi')
+                url='https://github.com/ckan/ckanapi')
         self.user_agent = user_agent
         self.action = ActionShortcut(self)
         if request_fn:
