@@ -65,7 +65,7 @@ def reverse_apicontroller_action(url, status, response):
             err = parsed.get('error', {})
         else:
             err = {}
-    except ValueError:
+    except (AttributeError, ValueError):
         err = {}
 
     etype = err.get('__type')
