@@ -9,7 +9,7 @@ setup(name='ckanapi',
       author='Ian Ward',
       author_email='ian@excess.org',
       url='https://github.com/ckan/ckanapi',
-      packages=['ckanapi', 'ckanapi.tests'],
+      packages=['ckanapi', 'ckanapi.tests', 'ckanapi.tests.mock'],
       test_suite='ckanapi.tests',
       zip_safe=False,
      )
