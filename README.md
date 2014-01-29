@@ -42,7 +42,7 @@ result:
 denied
 ```
 
-File uploads are supported by the call_action method:
+File uploads for CKAN 2.2+ are supported by the call_action method:
 
 ```python
 import ckanapi
