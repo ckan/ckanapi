@@ -72,6 +72,10 @@ class TestRemoteAction(unittest.TestCase):
 
         self.assertEqual(ckan.action.test_echo_user_agent(), ua)
 
+    def test_default_content_type(self):
+        self.assertEqual(self.ckan.action.test_echo_content_type(),
+            "application/json")
+
     def test_resource_upload(self):
         res = self.ckan.call_action('test_upload',
             {'option': "42"},
