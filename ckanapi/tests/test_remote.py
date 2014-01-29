@@ -84,6 +84,12 @@ class TestRemoteAction(unittest.TestCase):
             files={'upload': StringIO(NUMBER_THING_CSV)})
         self.assertEqual(res.get('option'), "42")
 
+    def test_resource_upload_content_type(self):
+        res = self.ckan.call_action('test_echo_content_type',
+            {'option': "42"},
+            files={'upload': StringIO(NUMBER_THING_CSV)})
+        self.assertEqual(res.split(';')[0], "multipart/form-data")
+
     @classmethod
     def tearDownClass(cls):
         cls._mock_ckan.kill()

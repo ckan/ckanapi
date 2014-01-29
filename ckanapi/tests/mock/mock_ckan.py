@@ -23,6 +23,13 @@ def mock_ckan(environ, start_response):
             "success": True,
             "result": environ['HTTP_USER_AGENT']
             }).encode('utf-8')]
+    if environ['PATH_INFO'] == '/api/action/test_echo_content_type':
+        start_response(status, headers)
+        return [json.dumps({
+            "help": "none",
+            "success": True,
+            "result": environ['CONTENT_TYPE']
+            }).encode('utf-8')]
     if environ['PATH_INFO'] == '/api/action/test_upload':
         fs = cgi.FieldStorage(
             fp=environ['wsgi.input'],
