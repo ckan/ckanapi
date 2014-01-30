@@ -23,12 +23,33 @@ class ActionShortcut(object):
         demo = RemoteCKAN('http://demo.ckan.org')
         pkg = demo.call_action('package_show', {'id':'adur_district_spending'})
 
+    file-like values (objects with a 'read' attribute) are
+    sent as file-uploads::
+
+        demo = RemoteCKAN('http://demo.ckan.org', apikey='mykey')
+        pkg = demo.action.resource_update(package_id='foo', upload=open(..))
+
+    becomes::
+
+        demo = RemoteCKAN('http://demo.ckan.org', apikey='mykey')
+        pkg = demo.call_action('resource_update',
+            {'package_id': 'foo'}, files={'upload': open(..)})
+
     """
     def __init__(self, ckan):
         self._ckan = ckan
 
     def __getattr__(self, name):
         def action(apikey=None, **kwargs):
+            files = {}
+            for k, v in kwargs.items():
+                if hasattr(v, 'read'):
+                    files[k] = v
+            if files:
+                nonfiles = dict((k, v) for k, v in kwargs.items()
+                    if k not in files)
+                return self._ckan.call_action(name, data_dict=nonfiles,
+                    apikey=apikey, files=files)
             return self._ckan.call_action(name, data_dict=kwargs,
                                           apikey=apikey)
         return action

@@ -42,16 +42,15 @@ result:
 denied
 ```
 
-File uploads for CKAN 2.2+ are supported by the call_action method:
+File uploads for CKAN 2.2+ are supported by passing file-like objects:
 
 ```python
 import ckanapi
 
 mysite = ckanapi.RemoteCKAN('http://myckan.example.com', apikey='real-key',
     user_agent='ckanapiexample/1.0 (+http://example.com/my/website)')
-mysite.call_action('resource_create',
-    {'package_id': 'my-dataset-with-files'},
-    files={'upload': open('/path/to/file/to/upload.csv')})
+mysite.action.resource_create(package_id='my-dataset-with-files',
+    upload=open('/path/to/file/to/upload.csv'))
 ```
 
 ### LocalCKAN
