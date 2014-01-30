@@ -28,7 +28,8 @@ Failures are raised as exceptions just like when calling get_action from a plugi
 ```python
 import ckanapi
 
-demo = ckanapi.RemoteCKAN('http://demo.ckan.org', apikey='phony-key',
+demo = ckanapi.RemoteCKAN('http://demo.ckan.org',
+    apikey='phony-key',
     user_agent='ckanapiexample/1.0 (+http://example.com/my/website)')
 try:
     pkg = demo.action.package_create(name='my-dataset', title='not going to work')
@@ -47,9 +48,11 @@ File uploads for CKAN 2.2+ are supported by passing file-like objects:
 ```python
 import ckanapi
 
-mysite = ckanapi.RemoteCKAN('http://myckan.example.com', apikey='real-key',
+mysite = ckanapi.RemoteCKAN('http://myckan.example.com',
+    apikey='real-key',
     user_agent='ckanapiexample/1.0 (+http://example.com/my/website)')
-mysite.action.resource_create(package_id='my-dataset-with-files',
+mysite.action.resource_create(
+    package_id='my-dataset-with-files',
     upload=open('/path/to/file/to/upload.csv'))
 ```
 
