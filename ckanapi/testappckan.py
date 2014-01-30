@@ -16,7 +16,8 @@ class TestAppCKAN(object):
         self.apikey = apikey
         self.action = ActionShortcut(self)
 
-    def call_action(self, action, data_dict=None, context=None, apikey=None):
+    def call_action(self, action, data_dict=None, context=None, apikey=None,
+            files=None):
         """
         :param action: the action name, e.g. 'package_create'
         :param data_dict: the dict to pass to the action as JSON,
@@ -30,6 +31,9 @@ class TestAppCKAN(object):
         if context:
             raise CKANAPIError("TestAppCKAN.call_action does not support "
                 "use of context parameter, use apikey instead")
+        if files:
+            raise CKANAPIError("TestAppCKAN.call_action does not support "
+                "file uploads, consider contributing it if you need it")
         url, data, headers = prepare_action(action, data_dict,
                                             apikey or self.apikey)
         r = self.test_app.post('/' + url, data, headers, expect_errors=True)

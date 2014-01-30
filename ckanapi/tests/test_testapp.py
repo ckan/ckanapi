@@ -37,10 +37,20 @@ class TestTestAPPCKAN(unittest.TestCase):
     def test_simple(self):
         self.assertEquals(
             self.ckan.action.hello_world(), 'how are you?')
+
     def test_invalid(self):
         self.assertRaises(
             ckanapi.ValidationError,
             self.ckan.action.invalid)
+
     def test_data(self):
         self.assertEquals(
             self.ckan.action.echo(message='for you'), 'for you')
+
+    def test_upload_action(self):
+        class FileLike(object):
+            def read(x=None):
+                return ""
+        self.assertRaises(ckanapi.CKANAPIError,
+            self.ckan.action.upload, package_id='42', f=FileLike())
+
