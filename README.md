@@ -1,6 +1,6 @@
 ## ckanapi
 
-A Python module and command line interface for accessing the
+A command line interface and Python module for accessing the
 [CKAN Action API](http://docs.ckan.org/en/latest/api.html)
 
 [![Build Status](https://travis-ci.org/ckan/ckanapi.png?branch=master)](https://travis-ci.org/open-data/ckanapi) tested under Python 2.6, 2.7, 3.2, 3.3 and pypy
@@ -8,6 +8,50 @@ A Python module and command line interface for accessing the
 The ckanapi Python module may be used from within a
 [CKAN extension](http://docs.ckan.org/en/latest/extensions/index.html)
 or in a Python 2 or Python 3 application separate from CKAN.
+
+## ckanapi CLI
+
+```
+Usage:
+  ckanapi action ACTION_NAME
+          [KEY=VALUE ...] [-j | -J]
+          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
+  ckanapi load (datasets | groups | organizations)
+          [-I JSONL_INPUT] [-s START] [-m MAX] [-p PROCESSES] [-l LOG_FILE]
+          [-n | -o] [-qwz] [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
+  ckanapi dump (datasets | groups | organizations)
+          (ID ... | --all | -w) [-O JSONL_OUTPUT] [-p PROCESSES] [-qz]
+          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
+  ckanapi (-h | --help)
+  ckanapi --version
+
+Options:
+  -h --help                 show this screen
+  --version                 show version
+  -a --apikey=APIKEY        API key to use for remote actions
+  --all                     all the things
+  -c --config=CONFIG        CKAN configuration file for local actions,
+                            defaults to ./development.ini if that file exists
+  -I --input=JSONL_INPUT    input from json lines file instead of stdin
+  -j --plain-json           plain json instead of pretty-printed json
+  -J --jsonl                format list response as json lines instead of
+                            default pretty-printed json format
+  -l --log=LOG_FILE         append messages generated to LOG_FILE
+  -m --max-records=MAX      exit after processing MAX records
+  -n --create-only          create new records, don't update existing records
+  -o --update-only          update existing records, don't create new records
+  -O --output=JSONL_OUTPUT  output to json lines file instead of stdout
+  -p --processes=PROCESSES  set the number of worker processes [default: 1]
+  -q --quiet                don't display progress messages
+  -r --remote=URL           URL of CKAN server for remote actions
+  -s --start-record=START   start from record number START, where the first
+                            record is number 1 [default: 1]
+  -u --ckan-user=USER       perform actions as user with this name, uses the
+                            site sysadmin user when not specified
+  -w --worker               launch worker process, used internally by load
+                            and dump commands
+  -z --gzip                 read/write gzipped data
+```
 
 ## ckanapi Python Module
 
