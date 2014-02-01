@@ -18,10 +18,10 @@ def action(ckan, arguments):
     if arguments['--jsonl']:
         if isinstance(result, list):
             for r in result:
-                yield compact_json(r) + '\n'
+                yield compact_json(r) + b'\n'
         else:
-            yield compact_json(result) + '\n'
+            yield compact_json(result) + b'\n'
     elif arguments['--plain-json']:
-        yield compact_json(result) + '\n'
+        yield compact_json(result) + b'\n'
     else:
-        yield pretty_json(result) + '\n'
+        yield pretty_json(result) + b'\n'
