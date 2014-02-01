@@ -13,14 +13,14 @@ remote CKAN instances for bulk operations and simple API actions.
 
 Datasets, groups and organizations may be dumped to
 [JSON lines](http://jsonlines.org)
-text files and created or update from JSON lines text files.
+text files and created or updated from JSON lines text files.
 Dumping and loading jobs can be run in parallel with
 multiple worker processes. Jobs in progress, the rate of job
-completion and errors are shown on stderr and may be recorded to
-an parsable log file.
+completion and errors are shown on stderr and may also be logged.
 
-Loading may be resumed from the last completed record, or split
-across multiple servers by specifying record start and max values.
+Loading jobs may be resumed from the last completed
+record, or split across multiple servers by specifying record
+start and max values.
 
 ```
 Usage:
