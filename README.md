@@ -83,6 +83,13 @@ and actions added by CKAN plugins are supported.
 
 Failures are raised as exceptions just like when calling get_action from a plugin:
 
+* `NotAuthorized` - user unauthorized or accessing a deleted item
+* `NotFound` - name/id not found
+* `ValidationError` - field errors listed in `.error_dict`
+* `SearchQueryError` - error reported from SOLR index
+* `SearchError`
+* `CKANAPIError` - incorrect use of ckanapi or unable to parse response
+
 ```python
 import ckanapi
 
