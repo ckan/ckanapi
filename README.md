@@ -8,8 +8,11 @@ A [command line interface](#ckanapi-cli) and
 
 ## ckanapi CLI
 
-The ckanapi command line interface let you access local and
+The ckanapi command line interface lets you access local and
 remote CKAN instances for bulk operations and simple API actions.
+
+Simple actions with string parameters may be called and the response
+is pretty-printed by default.
 
 Datasets, groups and organizations may be dumped to
 [JSON lines](http://jsonlines.org)
