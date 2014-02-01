@@ -109,7 +109,7 @@ def dump_things_worker(ckan, thing, arguments):
     for line in iter(sys.stdin.readline, ''):
         try:
             name = json.loads(line.decode('utf-8'))
-        except UnicodeDecodeError, e:
+        except UnicodeDecodeError as e:
             reply('UnicodeDecodeError')
             continue
 
