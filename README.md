@@ -1,6 +1,7 @@
 ## ckanapi
 
-A command line interface and Python module for accessing the
+A [command line interface](#ckanapi-cli) and
+[Python module](#ckanapi-python-module) for accessing the
 [CKAN Action API](http://docs.ckan.org/en/latest/api.html)
 
 [![Build Status](https://travis-ci.org/ckan/ckanapi.png?branch=master)](https://travis-ci.org/open-data/ckanapi) tested under Python 2.6, 2.7, 3.2, 3.3 and pypy
@@ -74,6 +75,12 @@ result:
 [u'data-explorer', u'example-group', u'geo-examples', u'skeenawild']
 ```
 
+All actions in the [CKAN Action API](http://docs.ckan.org/en/latest/api.html)
+and actions added by CKAN plugins are supported.
+
+
+### Exceptions
+
 Failures are raised as exceptions just like when calling get_action from a plugin:
 
 ```python
@@ -88,11 +95,8 @@ except ckanapi.NotAuthorized:
     print 'denied'
 ```
 
-result:
 
-```
-denied
-```
+### File uploads
 
 File uploads for CKAN 2.2+ are supported by passing file-like objects:
 
