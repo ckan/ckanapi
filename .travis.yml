@@ -6,8 +6,8 @@ python:
   - "3.3"
   - "pypy"
 install:
-  - "pip install --use-mirrors -r requirements.txt || true"
-  - "pip install ."
+  - "pip install --use-mirrors -r requirements.txt"
   - "[ \"$TRAVIS_PYTHON_VERSION\" != '2.6' ] || pip install --use-mirrors unittest2"
+  - "[ \"$TRAVIS_PYTHON_VERSION\" != '3.2' ] || pip uninstall simplejson" # avoid python 3.2 + requests + simplejson import error
 script:
   - "if [ \"$TRAVIS_PYTHON_VERSION\" != '2.6' ]; then python setup.py test; else unit2 discover; fi"
