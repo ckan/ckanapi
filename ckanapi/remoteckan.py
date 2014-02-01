@@ -27,20 +27,9 @@ class RemoteCKAN(object):
                     'http://demo.ckan.org', stored as self.address
     :param apikey: the API key to pass as an 'X-CKAN-API-Key' header
                     when actions are called, stored as self.apikey
-    :param request_fn: a callable that will be used to make requests
-
-    The default implementation of request_fn is::
-
-      def request_fn(url, data, headers):
-          req = Request(url, data, headers)
-          try:
-              r = urlopen(req)
-              return r.getcode(), r.read()
-          except:
-              return e.code, e.read()
-
+    :param user_agent: the User-agent to report when making requests
     """
-    def __init__(self, address, apikey=None, request_fn=None, user_agent=None):
+    def __init__(self, address, apikey=None, user_agent=None):
         self.address = address
         self.apikey = apikey
         if not user_agent:
@@ -49,8 +38,6 @@ class RemoteCKAN(object):
                 url='https://github.com/ckan/ckanapi')
         self.user_agent = user_agent
         self.action = ActionShortcut(self)
-        if request_fn:
-            self._request_fn = request_fn
 
         net_loc = urlparse(address)
         if ']' in net_loc:
