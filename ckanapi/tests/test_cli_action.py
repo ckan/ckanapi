@@ -31,7 +31,7 @@ class TestCLIAction(unittest.TestCase):
             '--plain-json': False,
             '--jsonl': False,
             })
-        self.assertEqual(''.join(rval), """
+        self.assertEqual(b''.join(rval), b"""
 {
   "oh": [
     "right",
@@ -48,7 +48,7 @@ class TestCLIAction(unittest.TestCase):
             '--plain-json': True,
             '--jsonl': False,
             })
-        self.assertEqual(''.join(rval), '["right","on"]\n')
+        self.assertEqual(b''.join(rval), b'["right","on"]\n')
 
     def test_compact_fallback(self):
         ckan = MockCKAN('shake_it', {'who': 'baby'}, {"oh": ["right", "on"]})
@@ -58,7 +58,7 @@ class TestCLIAction(unittest.TestCase):
             '--plain-json': False,
             '--jsonl': True,
             })
-        self.assertEqual(''.join(rval), '{"oh":["right","on"]}\n')
+        self.assertEqual(b''.join(rval), b'{"oh":["right","on"]}\n')
 
     def test_jsonl(self):
         ckan = MockCKAN('shake_it', {'who': 'baby'}, [99,98,97])
@@ -68,5 +68,5 @@ class TestCLIAction(unittest.TestCase):
             '--plain-json': False,
             '--jsonl': True,
             })
-        self.assertEqual(''.join(rval), '99\n98\n97\n')
+        self.assertEqual(b''.join(rval), b'99\n98\n97\n')
 
