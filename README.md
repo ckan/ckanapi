@@ -6,11 +6,21 @@ A [command line interface](#ckanapi-cli) and
 
 [![Build Status](https://travis-ci.org/ckan/ckanapi.png?branch=master)](https://travis-ci.org/open-data/ckanapi) tested under Python 2.6, 2.7, 3.2, 3.3 and pypy
 
-The ckanapi Python module may be used from within a
-[CKAN extension](http://docs.ckan.org/en/latest/extensions/index.html)
-or in a Python 2 or Python 3 application separate from CKAN.
-
 ## ckanapi CLI
+
+The ckanapi command line interface let you access local and
+remote CKAN instances for bulk operations and simple API actions.
+
+Datasets, groups and organizations may be dumped to
+[JSON lines](http://jsonlines.org)
+text files and created or update from JSON lines text files.
+Dumping and loading jobs can be run in parallel with
+multiple worker processes. Jobs in progress, the rate of job
+completion and errors are shown on stderr and may be recorded to
+an parsable log file.
+
+Loading may be resumed from the last completed record, or split
+across multiple servers by specifying record start and max values.
 
 ```
 Usage:
@@ -55,6 +65,10 @@ Options:
 ```
 
 ## ckanapi Python Module
+
+The ckanapi Python module may be used from within a
+[CKAN extension](http://docs.ckan.org/en/latest/extensions/index.html)
+or in a Python 2 or Python 3 application separate from CKAN.
 
 ### RemoteCKAN
 
