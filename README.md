@@ -3,7 +3,7 @@
 A Python module and command line interface for accessing the
 [CKAN Action API](http://docs.ckan.org/en/latest/api.html)
 
-[![Build Status](https://travis-ci.org/open-data/ckanapi.png?branch=master)](https://travis-ci.org/open-data/ckanapi) tested under Python 2.6, 2.7, 3.2, 3.3 and pypy
+[![Build Status](https://travis-ci.org/ckan/ckanapi.png?branch=master)](https://travis-ci.org/open-data/ckanapi) tested under Python 2.6, 2.7, 3.2, 3.3 and pypy
 
 The ckanapi Python module may be used from within a
 [CKAN extension](http://docs.ckan.org/en/latest/extensions/index.html)
@@ -35,7 +35,8 @@ Failures are raised as exceptions just like when calling get_action from a plugi
 ```python
 import ckanapi
 
-demo = ckanapi.RemoteCKAN('http://demo.ckan.org', apikey='phony-key',
+demo = ckanapi.RemoteCKAN('http://demo.ckan.org',
+    apikey='phony-key',
     user_agent='ckanapiexample/1.0 (+http://example.com/my/website)')
 try:
     pkg = demo.action.package_create(name='my-dataset', title='not going to work')
@@ -49,16 +50,17 @@ result:
 denied
 ```
 
-File uploads are supported by the call_action method:
+File uploads for CKAN 2.2+ are supported by passing file-like objects:
 
 ```python
 import ckanapi
 
-mysite = ckanapi.RemoteCKAN('http://myckan.example.com', apikey='real-key',
+mysite = ckanapi.RemoteCKAN('http://myckan.example.com',
+    apikey='real-key',
     user_agent='ckanapiexample/1.0 (+http://example.com/my/website)')
-mysite.call_action('resource_create',
-    {'package_id': 'my-dataset-with-files'},
-    files={'upload': open('/path/to/file/to/upload.csv')})
+mysite.action.resource_create(
+    package_id='my-dataset-with-files',
+    upload=open('/path/to/file/to/upload.csv'))
 ```
 
 ### LocalCKAN

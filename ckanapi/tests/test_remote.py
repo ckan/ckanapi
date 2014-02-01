@@ -68,10 +68,14 @@ class TestRemoteAction(unittest.TestCase):
             self.ckan.action.test_echo_user_agent().startswith('ckanapi'))
 
     def test_custom_ua(self):
-        ua = 'testckanapibot/1.0 (+https://github.com/open-data/ckanapi)'
+        ua = 'testckanapibot/1.0 (+https://github.com/ckan/ckanapi)'
         ckan = ckanapi.RemoteCKAN('http://localhost:8901', user_agent=ua)
 
         self.assertEqual(ckan.action.test_echo_user_agent(), ua)
+
+    def test_default_content_type(self):
+        self.assertEqual(self.ckan.action.test_echo_content_type(),
+            "application/json")
 
     def test_resource_upload(self):
         res = self.ckan.call_action('test_upload',
@@ -84,6 +88,12 @@ class TestRemoteAction(unittest.TestCase):
             {'option': "42"},
             files={'upload': StringIO(NUMBER_THING_CSV)})
         self.assertEqual(res.get('option'), "42")
+
+    def test_resource_upload_content_type(self):
+        res = self.ckan.call_action('test_echo_content_type',
+            {'option': "42"},
+            files={'upload': StringIO(NUMBER_THING_CSV)})
+        self.assertEqual(res.split(';')[0], "multipart/form-data")
 
     @classmethod
     def tearDownClass(cls):

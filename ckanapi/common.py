@@ -15,22 +15,39 @@ class ActionShortcut(object):
     LocalCKAN and RemoteCKAN instances to provide a short way to call
     actions, e.g::
 
-        demo = RemoteCKAN('http://demo.ckan.org')
         pkg = demo.action.package_show(id='adur_district_spending')
 
     instead of::
 
-        demo = RemoteCKAN('http://demo.ckan.org')
         pkg = demo.call_action('package_show', {'id':'adur_district_spending'})
+
+    File-like values (objects with a 'read' attribute) are
+    sent as file-uploads::
+
+        pkg = demo.action.resource_update(package_id='foo', upload=open(..))
+
+    becomes::
+
+        pkg = demo.call_action('resource_update',
+            {'package_id': 'foo'}, files={'upload': open(..)})
 
     """
     def __init__(self, ckan):
         self._ckan = ckan
 
     def __getattr__(self, name):
-        def action(apikey=None, **kwargs):
-            return self._ckan.call_action(name, data_dict=kwargs,
-                                          apikey=apikey)
+        def action(**kwargs):
+            files = {}
+            for k, v in kwargs.items():
+                if hasattr(v, 'read'):
+                    files[k] = v
+            if files:
+                nonfiles = dict((k, v) for k, v in kwargs.items()
+                    if k not in files)
+                return self._ckan.call_action(name,
+                    data_dict=nonfiles,
+                    files=files)
+            return self._ckan.call_action(name, data_dict=kwargs)
         return action
 
 
@@ -65,7 +82,7 @@ def reverse_apicontroller_action(url, status, response):
             err = parsed.get('error', {})
         else:
             err = {}
-    except ValueError:
+    except (AttributeError, ValueError):
         err = {}
 
     etype = err.get('__type')
