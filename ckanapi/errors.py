@@ -28,7 +28,7 @@ except ImportError:
             return repr(self.error_dict)
 
     class NotFound(CKANAPIError):
-        def __init__(self, extra_msg):
+        def __init__(self, extra_msg=None):
             self.extra_msg = extra_msg
         def __str__(self):
             return self.extra_msg
