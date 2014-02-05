@@ -110,7 +110,7 @@ def load_things_worker(ckan, thing, arguments):
             response]) + b'\n')
         sys.stdout.flush()
 
-    for line in iter(sys.stdin.readline, ''):
+    for line in iter(sys.stdin.readline, b''):
         try:
             obj = json.loads(line.decode('utf-8'))
         except UnicodeDecodeError, e:

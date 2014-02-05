@@ -9,12 +9,12 @@ from datetime import datetime
 
 from ckanapi.errors import (NotFound, NotAuthorized, ValidationError,
     SearchIndexError)
-from ckanapi.cli.workers import worker_pool
+from ckanapi.cli import workers
 from ckanapi.cli.utils import completion_stats, compact_json, quiet_int_pipe
 
 
 def dump_things(ckan, thing, arguments,
-        worker_pool=worker_pool, stdout=sys.stdout, stderr=sys.stderr):
+        worker_pool=None, stdout=None, stderr=None):
     """
     dump all datasets, groups or orgs accessible by the connected user
 
@@ -22,6 +22,13 @@ def dump_things(ckan, thing, arguments,
     out ids to each worker. Status of last record completed and records
     being processed is displayed on stderr.
     """
+    if not worker_pool:
+        worker_pool = workers.worker_pool
+    if not stdout:
+        stdout = getattr(sys.stdout, 'buffer', sys.stdout)
+    if not stderr:
+        stderr = getattr(sys.stderr, 'buffer', sys.stderr)
+
     if arguments['--worker']:
         return dump_things_worker(ckan, thing, arguments)
 
@@ -68,7 +75,7 @@ def dump_things(ckan, thing, arguments,
                     next(stats),
                     error,
                     record.get('name', '') if record else '',
-                    ))
+                    ).encode('utf-8'))
 
             if log:
                 log.write(compact_json([
@@ -89,12 +96,17 @@ def dump_things(ckan, thing, arguments,
 
 
 def dump_things_worker(ckan, thing, arguments,
-        stdin=sys.stdin, stdout=sys.stdout):
+        stdin=None, stdout=None):
     """
     a process that accepts names on stdin which are
     passed to the {thing}_show actions.  it produces lines of json
     which are the responses from each action call.
     """
+    if not stdin:
+        stdin = getattr(sys.stdin, 'buffer', sys.stdin)
+    if not stdout:
+        stdout = getattr(sys.stdout, 'buffer', sys.stdout)
+
     thing_show = {
         'datasets': ckan.action.package_show,
         'groups': ckan.action.group_show,
@@ -111,7 +123,7 @@ def dump_things_worker(ckan, thing, arguments,
             record]) + b'\n')
         stdout.flush()
 
-    for line in iter(stdin.readline, ''):
+    for line in iter(stdin.readline, b''):
         try:
             name = json.loads(line.decode('utf-8'))
         except UnicodeDecodeError as e:

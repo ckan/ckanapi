@@ -44,7 +44,7 @@ class TestCLIDump(unittest.TestCase):
         rval = dump_things_worker(self.ckan, 'datasets', {},
             stdin=BytesIO(b'"34"\n'), stdout=self.stdout)
         response = self.stdout.getvalue()
-        self.assertEqual(response[-1], b'\n')
+        self.assertEqual(response[-1:], b'\n')
         timstamp, error, data = json.loads(response.decode('UTF-8'))
         self.assertEqual(error, None)
         self.assertEqual(data, {"title":"Thirty-four"})
@@ -54,8 +54,8 @@ class TestCLIDump(unittest.TestCase):
             stdin=BytesIO(b'"12"\n"34"\n'), stdout=self.stdout)
         response = self.stdout.getvalue()
         self.assertEqual(response.count(b'\n'), 2, response)
-        self.assertEqual(response[-1], b'\n')
-        r1, r2 = response.split('\n', 1)
+        self.assertEqual(response[-1:], b'\n')
+        r1, r2 = response.split(b'\n', 1)
         timstamp, error, data = json.loads(r1.decode('UTF-8'))
         self.assertEqual(error, None)
         self.assertEqual(data, {"title":"Twelve"})
@@ -67,7 +67,7 @@ class TestCLIDump(unittest.TestCase):
         dump_things_worker(self.ckan, 'datasets', {},
             stdin=BytesIO(b'"99"\n'), stdout=self.stdout)
         response = self.stdout.getvalue()
-        self.assertEqual(response[-1], b'\n')
+        self.assertEqual(response[-1:], b'\n')
         timstamp, error, data = json.loads(response.decode('UTF-8'))
         self.assertEqual(error, "NotFound")
         self.assertEqual(data, None)
@@ -76,7 +76,7 @@ class TestCLIDump(unittest.TestCase):
         dump_things_worker(self.ckan, 'groups', {},
             stdin=BytesIO(b'"ab"\n'), stdout=self.stdout)
         response = self.stdout.getvalue()
-        self.assertEqual(response[-1], b'\n')
+        self.assertEqual(response[-1:], b'\n')
         timstamp, error, data = json.loads(response.decode('UTF-8'))
         self.assertEqual(error, None)
         self.assertEqual(data, {"title":"ABBA"})
@@ -85,7 +85,7 @@ class TestCLIDump(unittest.TestCase):
         dump_things_worker(self.ckan, 'organizations', {},
             stdin=BytesIO(b'"cd"\n'), stdout=self.stdout)
         response = self.stdout.getvalue()
-        self.assertEqual(response[-1], b'\n')
+        self.assertEqual(response[-1:], b'\n')
         timstamp, error, data = json.loads(response.decode('UTF-8'))
         self.assertEqual(error, None)
         self.assertEqual(data, {"title":"Super Trouper"})
@@ -179,7 +179,7 @@ class TestCLIDump(unittest.TestCase):
         self.assertEqual(self.worker_cmd, [
             'ckanapi', 'dump', 'organizations', '--worker'])
         self.assertEqual(self.worker_processes, 1)
-        self.assertEqual(self.stdout.getvalue(), """
+        self.assertEqual(self.stdout.getvalue(), b"""
 {"id":"P"}
 {"id":"Q"}
 {"id":"R"}
