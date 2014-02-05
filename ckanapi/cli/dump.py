@@ -13,7 +13,8 @@ from ckanapi.cli.workers import worker_pool
 from ckanapi.cli.utils import completion_stats, compact_json, quiet_int_pipe
 
 
-def dump_things(ckan, thing, arguments):
+def dump_things(ckan, thing, arguments,
+        worker_pool=worker_pool, stderr=sys.stderr):
     """
     dump all datasets, groups or orgs accessible by the connected user
 
@@ -58,7 +59,7 @@ def dump_things(ckan, thing, arguments):
             results[finished] = record
 
             if not arguments['--quiet']:
-                sys.stderr.write('{0} {1} {2} {3} {4}\n'.format(
+                stderr.write('{0} {1} {2} {3} {4}\n'.format(
                     finished,
                     job_ids,
                     stats.next(),
@@ -84,7 +85,8 @@ def dump_things(ckan, thing, arguments):
                 expecting_number += 1
 
 
-def dump_things_worker(ckan, thing, arguments):
+def dump_things_worker(ckan, thing, arguments,
+        stdin=sys.stdin, stdout=sys.stdout):
     """
     a process that accepts names on stdin which are
     passed to the {thing}_show actions.  it produces lines of json
@@ -100,13 +102,13 @@ def dump_things_worker(ckan, thing, arguments):
         """
         format messages to be sent back to parent process
         """
-        sys.stdout.write(compact_json([
+        stdout.write(compact_json([
             datetime.now().isoformat(),
             error,
             record]) + b'\n')
-        sys.stdout.flush()
+        stdout.flush()
 
-    for line in iter(sys.stdin.readline, ''):
+    for line in iter(stdin.readline, ''):
         try:
             name = json.loads(line.decode('utf-8'))
         except UnicodeDecodeError as e:

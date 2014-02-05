@@ -24,10 +24,10 @@ class MockCKAN(object):
 
 class TestCLIAction(unittest.TestCase):
     def test_pretty(self):
-        ckan = MockCKAN('shake_it', {'who': 'baby'}, {"oh": ["right", "on"]})
+        ckan = MockCKAN('shake_it', {'who': 'me'}, {"oh": ["right", "on"]})
         rval = action(ckan, {
             'ACTION_NAME': 'shake_it',
-            'KEY=VALUE': ['who=baby'],
+            'KEY=VALUE': ['who=me'],
             '--plain-json': False,
             '--jsonl': False,
             })
@@ -41,30 +41,30 @@ class TestCLIAction(unittest.TestCase):
 """.lstrip())
 
     def test_compact(self):
-        ckan = MockCKAN('shake_it', {'who': 'baby'}, ["right", "on"])
+        ckan = MockCKAN('shake_it', {'who': 'me'}, ["right", "on"])
         rval = action(ckan, {
             'ACTION_NAME': 'shake_it',
-            'KEY=VALUE': ['who=baby'],
+            'KEY=VALUE': ['who=me'],
             '--plain-json': True,
             '--jsonl': False,
             })
         self.assertEqual(b''.join(rval), b'["right","on"]\n')
 
     def test_compact_fallback(self):
-        ckan = MockCKAN('shake_it', {'who': 'baby'}, {"oh": ["right", "on"]})
+        ckan = MockCKAN('shake_it', {'who': 'me'}, {"oh": ["right", "on"]})
         rval = action(ckan, {
             'ACTION_NAME': 'shake_it',
-            'KEY=VALUE': ['who=baby'],
+            'KEY=VALUE': ['who=me'],
             '--plain-json': False,
             '--jsonl': True,
             })
         self.assertEqual(b''.join(rval), b'{"oh":["right","on"]}\n')
 
     def test_jsonl(self):
-        ckan = MockCKAN('shake_it', {'who': 'baby'}, [99,98,97])
+        ckan = MockCKAN('shake_it', {'who': 'me'}, [99,98,97])
         rval = action(ckan, {
             'ACTION_NAME': 'shake_it',
-            'KEY=VALUE': ['who=baby'],
+            'KEY=VALUE': ['who=me'],
             '--plain-json': False,
             '--jsonl': True,
             })
