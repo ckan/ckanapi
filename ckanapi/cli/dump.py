@@ -58,7 +58,7 @@ def dump_things(ckan, thing, arguments,
     expecting_number = 0
     with quiet_int_pipe():
         for job_ids, finished, result in pool:
-            timestamp, error, record = json.loads(result)
+            timestamp, error, record = json.loads(result.decode('utf-8'))
             results[finished] = record
 
             if not arguments['--quiet']:
