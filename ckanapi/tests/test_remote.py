@@ -2,6 +2,8 @@ import subprocess
 import time
 import os
 import atexit
+import socket
+import requests
 
 import ckanapi
 try:
@@ -25,6 +27,18 @@ NUMBER_THING_CSV = """
 Number,Thing
 5,sasquach
 """.lstrip()
+
+class DeterminedRemoteCKAN(ckanapi.RemoteCKAN):
+    def call_action(self, *args, **kwargs):
+        # wsgiref is terrible (at least in 2.6), don't give up right away
+        tries = 3
+        while True:
+            try:
+                return super(DeterminedRemoteCKAN, self).call_action(*args, **kwargs)
+            except (socket.error, requests.ConnectionError):
+                tries -= 1
+                if not tries:
+                    raise
 
 class TestRemoteAction(unittest.TestCase):
     @classmethod
@@ -50,7 +64,7 @@ class TestRemoteAction(unittest.TestCase):
             time.sleep(0.1)
 
     def setUp(self):
-        self.ckan = ckanapi.RemoteCKAN('http://localhost:8901')
+        self.ckan = DeterminedRemoteCKAN('http://localhost:8901')
 
     def test_good(self):
         self.assertEqual(
@@ -69,7 +83,7 @@ class TestRemoteAction(unittest.TestCase):
 
     def test_custom_ua(self):
         ua = 'testckanapibot/1.0 (+https://github.com/ckan/ckanapi)'
-        ckan = ckanapi.RemoteCKAN('http://localhost:8901', user_agent=ua)
+        ckan = DeterminedRemoteCKAN('http://localhost:8901', user_agent=ua)
 
         self.assertEqual(ckan.action.test_echo_user_agent(), ua)
 
