@@ -7,10 +7,7 @@ try:
     import unittest2 as unittest
 except ImportError:
     import unittest
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from io import StringIO
+from io import BytesIO
 
 class MockCKAN(object):
     def __init__(self):
@@ -40,12 +37,12 @@ class MockCKAN(object):
 class TestCLIDump(unittest.TestCase):
     def setUp(self):
         self.ckan = MockCKAN()
-        self.stdout = StringIO()
-        self.stderr = StringIO()
+        self.stdout = BytesIO()
+        self.stderr = BytesIO()
 
     def test_worker_one(self):
         rval = dump_things_worker(self.ckan, 'datasets', {},
-            stdin=StringIO(b'"34"\n'), stdout=self.stdout)
+            stdin=BytesIO(b'"34"\n'), stdout=self.stdout)
         response = self.stdout.getvalue()
         self.assertEqual(response[-1], b'\n')
         timstamp, error, data = json.loads(response.decode('UTF-8'))
@@ -54,7 +51,7 @@ class TestCLIDump(unittest.TestCase):
 
     def test_worker_two(self):
         rval = dump_things_worker(self.ckan, 'datasets', {},
-            stdin=StringIO(b'"12"\n"34"\n'), stdout=self.stdout)
+            stdin=BytesIO(b'"12"\n"34"\n'), stdout=self.stdout)
         response = self.stdout.getvalue()
         self.assertEqual(response.count(b'\n'), 2, response)
         self.assertEqual(response[-1], b'\n')
@@ -68,7 +65,7 @@ class TestCLIDump(unittest.TestCase):
 
     def test_worker_error(self):
         dump_things_worker(self.ckan, 'datasets', {},
-            stdin=StringIO(b'"99"\n'), stdout=self.stdout)
+            stdin=BytesIO(b'"99"\n'), stdout=self.stdout)
         response = self.stdout.getvalue()
         self.assertEqual(response[-1], b'\n')
         timstamp, error, data = json.loads(response.decode('UTF-8'))
@@ -77,7 +74,7 @@ class TestCLIDump(unittest.TestCase):
 
     def test_worker_group(self):
         dump_things_worker(self.ckan, 'groups', {},
-            stdin=StringIO(b'"ab"\n'), stdout=self.stdout)
+            stdin=BytesIO(b'"ab"\n'), stdout=self.stdout)
         response = self.stdout.getvalue()
         self.assertEqual(response[-1], b'\n')
         timstamp, error, data = json.loads(response.decode('UTF-8'))
@@ -86,7 +83,7 @@ class TestCLIDump(unittest.TestCase):
 
     def test_worker_organization(self):
         dump_things_worker(self.ckan, 'organizations', {},
-            stdin=StringIO(b'"cd"\n'), stdout=self.stdout)
+            stdin=BytesIO(b'"cd"\n'), stdout=self.stdout)
         response = self.stdout.getvalue()
         self.assertEqual(response[-1], b'\n')
         timstamp, error, data = json.loads(response.decode('UTF-8'))
