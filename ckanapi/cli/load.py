@@ -67,7 +67,7 @@ def load_things(ckan, thing, arguments):
                 sys.stderr.write('{0} {1} {2} {3} {4} {5}\n'.format(
                     finished,
                     job_ids,
-                    stats.next(),
+                    next(stats),
                     action,
                     error,
                     compact_json(response) if response else ''))

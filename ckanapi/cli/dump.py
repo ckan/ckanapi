@@ -65,7 +65,7 @@ def dump_things(ckan, thing, arguments,
                 stderr.write('{0} {1} {2} {3} {4}\n'.format(
                     finished,
                     job_ids,
-                    stats.next(),
+                    next(stats),
                     error,
                     record.get('name', '') if record else '',
                     ))
