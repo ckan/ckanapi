@@ -115,6 +115,28 @@ class TestCLIDump(unittest.TestCase):
         self.assertEqual(self.worker_processes, 1)
         self.assertEqual(self.worker_jobs, [(0, b'"12"\n'), (1, b'"34"\n')])
 
+    def test_parent_one(self):
+        dump_things(self.ckan, 'groups', {
+                '--quiet': False,
+                '--ckan-user': None,
+                '--config': None,
+                '--remote': None,
+                '--apikey': None,
+                '--worker': False,
+                '--log': None,
+                '--output': None,
+                '--gzip': False,
+                '--all': False,
+                'ID': ['ab'],
+                '--processes': '1',
+            },
+            worker_pool=self._mock_worker_pool,
+            stderr=self.stderr)
+        self.assertEqual(self.worker_cmd, [
+            'ckanapi', 'dump', 'groups', '--worker'])
+        self.assertEqual(self.worker_processes, 1)
+        self.assertEqual(self.worker_jobs, [(0, b'"ab"\n')])
+
     def _mock_worker_pool(self, cmd, processes, job_iter):
         self.worker_cmd = cmd
         self.worker_processes = processes
