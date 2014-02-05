@@ -39,7 +39,19 @@ class TestCLIDump(unittest.TestCase):
     def test_worker_one(self):
         rval = dump_things_worker(self.ckan, 'datasets', {},
             stdin=StringIO(b'"34"\n'), stdout=self.stdout)
-        timstamp, error, data = json.loads(self.stdout.getvalue())
+        response = self.stdout.getvalue()
+        self.assertEqual(response[-1], b'\n')
+        timstamp, error, data = json.loads(response)
         self.assertEqual(error, None)
         self.assertEqual(data, {"title":"Thirty-four"})
+
+    def test_worker_error(self):
+        rval = dump_things_worker(self.ckan, 'datasets', {},
+            stdin=StringIO(b'"99"\n'), stdout=self.stdout)
+        response = self.stdout.getvalue()
+        self.assertEqual(response[-1], b'\n')
+        timstamp, error, data = json.loads(response)
+        self.assertEqual(error, "NotFound")
+        self.assertEqual(data, None)
+
 
