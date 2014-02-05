@@ -115,6 +115,29 @@ class TestCLIDump(unittest.TestCase):
         self.assertEqual(self.worker_processes, 1)
         self.assertEqual(self.worker_jobs, [(0, b'"12"\n'), (1, b'"34"\n')])
 
+    def test_parent_parallel_limit(self):
+        self.ckan.parallel_limit = 2
+        dump_things(self.ckan, 'datasets', {
+                '--quiet': False,
+                '--ckan-user': None,
+                '--config': None,
+                '--remote': None,
+                '--apikey': None,
+                '--worker': False,
+                '--log': None,
+                '--output': None,
+                '--gzip': False,
+                '--all': False,
+                'ID': ['12'],
+                '--processes': '5',
+            },
+            worker_pool=self._mock_worker_pool,
+            stdout=self.stdout,
+            stderr=self.stderr)
+        self.assertEqual(self.worker_cmd, [
+            'ckanapi', 'dump', 'datasets', '--worker'])
+        self.assertEqual(self.worker_processes, 2)
+
     def test_parent_id_argument(self):
         dump_things(self.ckan, 'groups', {
                 '--quiet': False,
