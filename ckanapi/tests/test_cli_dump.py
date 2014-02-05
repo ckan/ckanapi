@@ -48,7 +48,7 @@ class TestCLIDump(unittest.TestCase):
             stdin=StringIO(b'"34"\n'), stdout=self.stdout)
         response = self.stdout.getvalue()
         self.assertEqual(response[-1], b'\n')
-        timstamp, error, data = json.loads(response)
+        timstamp, error, data = json.loads(response.decode('UTF-8'))
         self.assertEqual(error, None)
         self.assertEqual(data, {"title":"Thirty-four"})
 
@@ -59,10 +59,10 @@ class TestCLIDump(unittest.TestCase):
         self.assertEqual(response.count(b'\n'), 2, response)
         self.assertEqual(response[-1], b'\n')
         r1, r2 = response.split('\n', 1)
-        timstamp, error, data = json.loads(r1)
+        timstamp, error, data = json.loads(r1.decode('UTF-8'))
         self.assertEqual(error, None)
         self.assertEqual(data, {"title":"Twelve"})
-        timstamp, error, data = json.loads(r2)
+        timstamp, error, data = json.loads(r2.decode('UTF-8'))
         self.assertEqual(error, None)
         self.assertEqual(data, {"title":"Thirty-four"})
 
@@ -71,7 +71,7 @@ class TestCLIDump(unittest.TestCase):
             stdin=StringIO(b'"99"\n'), stdout=self.stdout)
         response = self.stdout.getvalue()
         self.assertEqual(response[-1], b'\n')
-        timstamp, error, data = json.loads(response)
+        timstamp, error, data = json.loads(response.decode('UTF-8'))
         self.assertEqual(error, "NotFound")
         self.assertEqual(data, None)
 
@@ -80,7 +80,7 @@ class TestCLIDump(unittest.TestCase):
             stdin=StringIO(b'"ab"\n'), stdout=self.stdout)
         response = self.stdout.getvalue()
         self.assertEqual(response[-1], b'\n')
-        timstamp, error, data = json.loads(response)
+        timstamp, error, data = json.loads(response.decode('UTF-8'))
         self.assertEqual(error, None)
         self.assertEqual(data, {"title":"ABBA"})
 
@@ -89,7 +89,7 @@ class TestCLIDump(unittest.TestCase):
             stdin=StringIO(b'"cd"\n'), stdout=self.stdout)
         response = self.stdout.getvalue()
         self.assertEqual(response[-1], b'\n')
-        timstamp, error, data = json.loads(response)
+        timstamp, error, data = json.loads(response.decode('UTF-8'))
         self.assertEqual(error, None)
         self.assertEqual(data, {"title":"Super Trouper"})
 
@@ -194,7 +194,7 @@ class TestCLIDump(unittest.TestCase):
         self.worker_processes = processes
         self.worker_jobs = list(job_iter)
         for i, j in self.worker_jobs:
-            jname = json.loads(j)
+            jname = json.loads(j.decode('UTF-8'))
             yield [[], i, json.dumps(['some-date', None, {'id':jname}])
                 + b'\n']
 
