@@ -14,7 +14,7 @@ from ckanapi.cli.utils import completion_stats, compact_json, quiet_int_pipe
 
 
 def dump_things(ckan, thing, arguments,
-        worker_pool=worker_pool, stderr=sys.stderr):
+        worker_pool=worker_pool, stdout=sys.stdout, stderr=sys.stderr):
     """
     dump all datasets, groups or orgs accessible by the connected user
 
@@ -29,7 +29,7 @@ def dump_things(ckan, thing, arguments,
     if arguments['--log']:
         log = open(arguments['--log'], 'a')
 
-    jsonl_output = sys.stdout
+    jsonl_output = stdout
     if arguments['--output']:
         jsonl_output = open(arguments['--output'], 'wb')
     if arguments['--gzip']:
@@ -67,7 +67,7 @@ def dump_things(ckan, thing, arguments,
                     job_ids,
                     stats.next(),
                     error,
-                    record['name'] if record else '',
+                    record.get('name', '') if record else '',
                     ))
 
             if log:
@@ -75,7 +75,7 @@ def dump_things(ckan, thing, arguments,
                     timestamp,
                     finished,
                     error,
-                    record['name'] if record else None,
+                    record.get('name', '') if record else None,
                     ]) + b'\n')
 
             # keep the output in the same order as names

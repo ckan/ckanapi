@@ -42,7 +42,6 @@ class TestCLIDump(unittest.TestCase):
         self.ckan = MockCKAN()
         self.stdout = StringIO()
         self.stderr = StringIO()
-        self.worker_returns = []
 
     def test_worker_one(self):
         rval = dump_things_worker(self.ckan, 'datasets', {},
@@ -109,13 +108,14 @@ class TestCLIDump(unittest.TestCase):
                 '--processes': '1',
             },
             worker_pool=self._mock_worker_pool,
+            stdout=self.stdout,
             stderr=self.stderr)
         self.assertEqual(self.worker_cmd, [
             'ckanapi', 'dump', 'datasets', '--worker'])
         self.assertEqual(self.worker_processes, 1)
         self.assertEqual(self.worker_jobs, [(0, b'"12"\n'), (1, b'"34"\n')])
 
-    def test_parent_one(self):
+    def test_parent_id_argument(self):
         dump_things(self.ckan, 'groups', {
                 '--quiet': False,
                 '--ckan-user': None,
@@ -131,17 +131,50 @@ class TestCLIDump(unittest.TestCase):
                 '--processes': '1',
             },
             worker_pool=self._mock_worker_pool,
+            stdout=self.stdout,
             stderr=self.stderr)
         self.assertEqual(self.worker_cmd, [
             'ckanapi', 'dump', 'groups', '--worker'])
         self.assertEqual(self.worker_processes, 1)
         self.assertEqual(self.worker_jobs, [(0, b'"ab"\n')])
 
+    def test_parent_maintain_order(self):
+        dump_things(self.ckan, 'organizations', {
+                '--quiet': False,
+                '--ckan-user': None,
+                '--config': None,
+                '--remote': None,
+                '--apikey': None,
+                '--worker': False,
+                '--log': None,
+                '--output': None,
+                '--gzip': False,
+                '--all': False,
+                'ID': ['P', 'Q', 'R', 'S'],
+                '--processes': '1',
+            },
+            worker_pool=self._mock_worker_pool_reversed,
+            stdout=self.stdout,
+            stderr=self.stderr)
+        self.assertEqual(self.worker_cmd, [
+            'ckanapi', 'dump', 'organizations', '--worker'])
+        self.assertEqual(self.worker_processes, 1)
+        self.assertEqual(self.stdout.getvalue(), """
+{"id":"P"}
+{"id":"Q"}
+{"id":"R"}
+{"id":"S"}
+""".lstrip())
+
     def _mock_worker_pool(self, cmd, processes, job_iter):
         self.worker_cmd = cmd
         self.worker_processes = processes
         self.worker_jobs = list(job_iter)
-        for i, j in enumerate(self.worker_jobs):
-            yield [[], i, json.dumps(['some-date', None,
-                self.worker_returns.pop(0) if self.worker_returns else {}])
+        for i, j in self.worker_jobs:
+            jname = json.loads(j)
+            yield [[], i, json.dumps(['some-date', None, {'id':jname}])
                 + b'\n']
+
+    def _mock_worker_pool_reversed(self, cmd, processes, job_iter):
+        return reversed(list(
+            self._mock_worker_pool(cmd, processes, job_iter)))
