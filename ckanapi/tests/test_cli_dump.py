@@ -195,8 +195,8 @@ class TestCLIDump(unittest.TestCase):
         self.worker_jobs = list(job_iter)
         for i, j in self.worker_jobs:
             jname = json.loads(j.decode('UTF-8'))
-            yield [[], i, json.dumps(['some-date', None, {'id':jname}])
-                + b'\n']
+            yield [[], i, json.dumps(['some-date', None, {'id':jname}]
+                ).encode('UTF-8') + b'\n']
 
     def _mock_worker_pool_reversed(self, cmd, processes, job_iter):
         return reversed(list(
