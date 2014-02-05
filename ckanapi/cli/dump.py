@@ -35,12 +35,15 @@ def dump_things(ckan, thing, arguments,
     if arguments['--gzip']:
         jsonl_output = gzip.GzipFile(fileobj=jsonl_output)
 
-    get_thing_list = {
-        'datasets': ckan.action.package_list,
-        'groups': ckan.action.group_list,
-        'organizations': ckan.action.organization_list,
-        }[thing]
-    names = get_thing_list()
+    if arguments['--all']:
+        get_thing_list = {
+            'datasets': ckan.action.package_list,
+            'groups': ckan.action.group_list,
+            'organizations': ckan.action.organization_list,
+            }[thing]
+        names = get_thing_list()
+    else:
+        names = arguments['ID']
 
     cmd = _worker_command_line(thing, arguments)
     processes = int(arguments['--processes'])

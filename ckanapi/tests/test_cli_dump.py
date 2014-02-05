@@ -41,6 +41,8 @@ class TestCLIDump(unittest.TestCase):
     def setUp(self):
         self.ckan = MockCKAN()
         self.stdout = StringIO()
+        self.stderr = StringIO()
+        self.worker_returns = []
 
     def test_worker_one(self):
         rval = dump_things_worker(self.ckan, 'datasets', {},
@@ -92,3 +94,32 @@ class TestCLIDump(unittest.TestCase):
         self.assertEqual(error, None)
         self.assertEqual(data, {"title":"Super Trouper"})
 
+    def test_parent_dump_all(self):
+        dump_things(self.ckan, 'datasets', {
+                '--quiet': False,
+                '--ckan-user': None,
+                '--config': None,
+                '--remote': None,
+                '--apikey': None,
+                '--worker': False,
+                '--log': None,
+                '--output': None,
+                '--gzip': False,
+                '--all': True,
+                '--processes': '1',
+            },
+            worker_pool=self._mock_worker_pool,
+            stderr=self.stderr)
+        self.assertEqual(self.worker_cmd, [
+            'ckanapi', 'dump', 'datasets', '--worker'])
+        self.assertEqual(self.worker_processes, 1)
+        self.assertEqual(self.worker_jobs, [(0, b'"12"\n'), (1, b'"34"\n')])
+
+    def _mock_worker_pool(self, cmd, processes, job_iter):
+        self.worker_cmd = cmd
+        self.worker_processes = processes
+        self.worker_jobs = list(job_iter)
+        for i, j in enumerate(self.worker_jobs):
+            yield [[], i, json.dumps(['some-date', None,
+                self.worker_returns.pop(0) if self.worker_returns else {}])
+                + b'\n']
