@@ -26,6 +26,12 @@ class MockCKAN(object):
                     '12': {'title': "Twelve"},
                     '34': {'title': "Thirty-four"},
                     },
+                'group_show': {
+                    'ab': {'title': "ABBA"},
+                    },
+                'organization_show': {
+                    'cd': {'title': "Super Trouper"},
+                    },
                 }[name][data_dict.get('id')]
         except KeyError:
             raise NotFound()
@@ -60,7 +66,7 @@ class TestCLIDump(unittest.TestCase):
         self.assertEqual(data, {"title":"Thirty-four"})
 
     def test_worker_error(self):
-        rval = dump_things_worker(self.ckan, 'datasets', {},
+        dump_things_worker(self.ckan, 'datasets', {},
             stdin=StringIO(b'"99"\n'), stdout=self.stdout)
         response = self.stdout.getvalue()
         self.assertEqual(response[-1], b'\n')
@@ -68,4 +74,21 @@ class TestCLIDump(unittest.TestCase):
         self.assertEqual(error, "NotFound")
         self.assertEqual(data, None)
 
+    def test_worker_group(self):
+        dump_things_worker(self.ckan, 'groups', {},
+            stdin=StringIO(b'"ab"\n'), stdout=self.stdout)
+        response = self.stdout.getvalue()
+        self.assertEqual(response[-1], b'\n')
+        timstamp, error, data = json.loads(response)
+        self.assertEqual(error, None)
+        self.assertEqual(data, {"title":"ABBA"})
+
+    def test_worker_organization(self):
+        dump_things_worker(self.ckan, 'organizations', {},
+            stdin=StringIO(b'"cd"\n'), stdout=self.stdout)
+        response = self.stdout.getvalue()
+        self.assertEqual(response[-1], b'\n')
+        timstamp, error, data = json.loads(response)
+        self.assertEqual(error, None)
+        self.assertEqual(data, {"title":"Super Trouper"})
 
