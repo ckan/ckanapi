@@ -179,12 +179,11 @@ class TestCLIDump(unittest.TestCase):
         self.assertEqual(self.worker_cmd, [
             'ckanapi', 'dump', 'organizations', '--worker'])
         self.assertEqual(self.worker_processes, 1)
-        self.assertEqual(self.stdout.getvalue(), b"""
-{"id":"P"}
-{"id":"Q"}
-{"id":"R"}
-{"id":"S"}
-""".lstrip())
+        self.assertEqual(self.stdout.getvalue(),
+            b'{"id":"P"}\n'
+            b'{"id":"Q"}\n'
+            b'{"id":"R"}\n'
+            b'{"id":"S"}\n')
 
     def _mock_worker_pool(self, cmd, processes, job_iter):
         self.worker_cmd = cmd

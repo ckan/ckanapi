@@ -191,4 +191,45 @@ class TestCLILoad(unittest.TestCase):
         self.assertEqual(error, None)
         self.assertEqual(data, 'org-created')
 
+    def test_parent_load_two(self):
+        load_things(self.ckan, 'datasets', {
+                '--quiet': False,
+                '--ckan-user': None,
+                '--config': None,
+                '--remote': None,
+                '--apikey': None,
+                '--worker': False,
+                '--log': None,
+                '--gzip': False,
+                '--processes': '1',
+                'JSONL_INPUT': None,
+                '--create-only': False,
+                '--update-only': False,
+                '--start-record': '1',
+                '--max-records': None,
+            },
+            worker_pool=self._mock_worker_pool,
+            stdin=BytesIO(
+                b'{"name": "cd", "title": "Go"}\n'
+                b'{"name": "ef", "title": "Play"}\n'
+                ),
+            stdout=self.stdout,
+            stderr=self.stderr)
+        self.assertEqual(self.worker_cmd, [
+            'ckanapi', 'load', 'datasets', '--worker'])
+        self.assertEqual(self.worker_processes, 1)
+        self.assertEqual(self.worker_jobs, [
+            (1, b'{"name": "cd", "title": "Go"}\n'),
+            (2, b'{"name": "ef", "title": "Play"}\n'),
+            ])
+
+    def _mock_worker_pool(self, cmd, processes, job_iter):
+        self.worker_cmd = cmd
+        self.worker_processes = processes
+        self.worker_jobs = list(job_iter)
+        for i, j in self.worker_jobs:
+            jname = json.loads(j.decode('UTF-8'))
+            yield [[], i, json.dumps(['some-date', None, None, {'id':jname}]
+                ).encode('UTF-8') + b'\n']
+
 

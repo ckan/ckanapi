@@ -47,8 +47,7 @@ def load_things(ckan, thing, arguments,
 
     def line_reader():
         """
-        generate stripped records from jsonl
-        handles start-record and max-records options
+        handle start-record and max-records options
         """
         start_record = int(arguments['--start-record'])
         max_records = arguments['--max-records']
@@ -59,7 +58,7 @@ def load_things(ckan, thing, arguments,
                 continue
             if max_records is not None and num >= start_record + max_records:
                 break
-            yield num, line.strip()
+            yield num, line
 
     cmd = _worker_command_line(thing, arguments)
     processes = int(arguments['--processes'])
