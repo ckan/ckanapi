@@ -223,6 +223,69 @@ class TestCLILoad(unittest.TestCase):
             (2, b'{"name": "ef", "title": "Play"}\n'),
             ])
 
+    def test_parent_load_start_max(self):
+        load_things(self.ckan, 'groups', {
+                '--quiet': False,
+                '--ckan-user': None,
+                '--config': None,
+                '--remote': None,
+                '--apikey': None,
+                '--worker': False,
+                '--log': None,
+                '--gzip': False,
+                '--processes': '1',
+                'JSONL_INPUT': None,
+                '--create-only': False,
+                '--update-only': False,
+                '--start-record': '2',
+                '--max-records': '2',
+            },
+            worker_pool=self._mock_worker_pool,
+            stdin=BytesIO(
+                b'{"name": "cd", "title": "Go"}\n'
+                b'{"name": "ef", "title": "Play"}\n'
+                b'{"name": "gh", "title": "Hotel"}\n'
+                b'{"name": "ij", "title": "Ambient"}\n'
+                ),
+            stdout=self.stdout,
+            stderr=self.stderr)
+        self.assertEqual(self.worker_cmd, [
+            'ckanapi', 'load', 'groups', '--worker'])
+        self.assertEqual(self.worker_processes, 1)
+        self.assertEqual(self.worker_jobs, [
+            (2, b'{"name": "ef", "title": "Play"}\n'),
+            (3, b'{"name": "gh", "title": "Hotel"}\n'),
+            ])
+
+    def test_parent_parallel_limit(self):
+        self.ckan.parallel_limit = 2
+        load_things(self.ckan, 'datasets', {
+                '--quiet': False,
+                '--ckan-user': None,
+                '--config': None,
+                '--remote': None,
+                '--apikey': None,
+                '--worker': False,
+                '--log': None,
+                '--gzip': False,
+                '--processes': '5',
+                'JSONL_INPUT': None,
+                '--create-only': False,
+                '--update-only': False,
+                '--start-record': '1',
+                '--max-records': None,
+            },
+            worker_pool=self._mock_worker_pool,
+            stdin=BytesIO(
+                b'{"name": "cd", "title": "Go"}\n'
+                b'{"name": "ef", "title": "Play"}\n'
+                ),
+            stdout=self.stdout,
+            stderr=self.stderr)
+        self.assertEqual(self.worker_cmd, [
+            'ckanapi', 'load', 'datasets', '--worker'])
+        self.assertEqual(self.worker_processes, 2)
+
     def _mock_worker_pool(self, cmd, processes, job_iter):
         self.worker_cmd = cmd
         self.worker_processes = processes
