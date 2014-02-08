@@ -50,7 +50,7 @@ def dump_things(ckan, thing, arguments,
             }[thing]
         names = get_thing_list()
     else:
-        names = arguments['ID']
+        names = arguments['ID_OR_NAME']
 
     cmd = _worker_command_line(thing, arguments)
     processes = int(arguments['--processes'])
