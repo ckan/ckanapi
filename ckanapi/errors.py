@@ -8,8 +8,14 @@ class CKANAPIError(Exception):
     SearchIndexError are created as subclasses of this class so that they
     provide a helpful str() for tracebacks.
     """
+
+    def __init__(self, extra_msg=None):
+        self.extra_msg = extra_msg
+
     def __str__(self):
-        return repr(self.args)
+        err_msgs = (super(CKANAPIError, self).__str__(),
+                    self.extra_msg)
+        return ' - '.join([str(err_msg) for err_msg in err_msgs if err_msg])
 
 try:
     import ckan

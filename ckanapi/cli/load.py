@@ -12,6 +12,11 @@ from ckanapi.errors import (NotFound, NotAuthorized, ValidationError,
 from ckanapi.cli import workers
 from ckanapi.cli.utils import completion_stats, compact_json, quiet_int_pipe
 
+try:
+    unicode
+except NameError:
+    unicode = str
+
 
 def load_things(ckan, thing, arguments,
         worker_pool=None, stdin=None, stdout=None, stderr=None):
@@ -70,7 +75,8 @@ def load_things(ckan, thing, arguments,
 
     with quiet_int_pipe():
         for job_ids, finished, result in pool:
-            timestamp, action, error, response = json.loads(result)
+            timestamp, action, error, response = json.loads(
+                result.decode('utf-8'))
 
             if not arguments['--quiet']:
                 stderr.write('{0} {1} {2} {3} {4} {5}\n'.format(
@@ -79,7 +85,8 @@ def load_things(ckan, thing, arguments,
                     next(stats),
                     action,
                     error,
-                    compact_json(response) if response else ''))
+                    compact_json(response) if response else ''
+                    ).encode('utf-8'))
 
             if log:
                 log.write(compact_json([
@@ -128,7 +135,7 @@ def load_things_worker(ckan, thing, arguments,
     for line in iter(stdin.readline, b''):
         try:
             obj = json.loads(line.decode('utf-8'))
-        except UnicodeDecodeError, e:
+        except UnicodeDecodeError as e:
             obj = None
             reply('read', 'UnicodeDecodeError', unicode(e))
             continue
