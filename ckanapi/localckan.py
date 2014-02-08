@@ -25,12 +25,15 @@ class LocalCKAN(object):
         user = self._get_action('get_site_user')({'ignore_auth': True}, ())
         return user['name']
 
-    def call_action(self, action, data_dict=None, context=None, apikey=None):
+    def call_action(self, action, data_dict=None, context=None, apikey=None,
+            files=None):
         """
         :param action: the action name, e.g. 'package_create'
         :param data_dict: the dict to pass to the action, defaults to {}
         :param context: an override for the context to use for this action,
                         remember to include a 'user' when necessary
+        :param apikey: not supported
+        :param files: not supported
         """
         if not data_dict:
             data_dict = []
@@ -40,5 +43,8 @@ class LocalCKAN(object):
             # FIXME: allow use of apikey to set a user in context?
             raise CKANAPIError("LocalCKAN.call_action does not support "
                 "use of apikey parameter, use context['user'] instead")
+        if files:
+            raise CKANAPIError("TestAppCKAN.call_action does not support "
+                "file uploads, consider contributing it if you need it")
         # copy dicts because actions may modify the dicts they are passed
         return self._get_action(action)(dict(context), dict(data_dict))

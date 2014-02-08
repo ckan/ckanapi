@@ -22,6 +22,8 @@ class TestAppCKAN(object):
         :param action: the action name, e.g. 'package_create'
         :param data_dict: the dict to pass to the action as JSON,
                           defaults to {}
+        :param context: not supported
+        :param files: not supported
 
         This function parses the response from the server as JSON and
         returns the decoded value.  When an error is returned this
