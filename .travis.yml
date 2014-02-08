@@ -13,8 +13,9 @@ install:
   - "[ \"$TRAVIS_PYTHON_VERSION\" != '2.6' ] || pip install --use-mirrors unittest2"
   - "[ \"$TRAVIS_PYTHON_VERSION\" == '3.2' ] || pip install --use-mirrors simplejson" # avoid python 3.2 + travis pip + simplejson import error
 script:
-  - "if [ \"$TRAVIS_PYTHON_VERSION\" != '2.6' ]; then
-         python setup.py test
-     else
-         unit2 discover
-     fi"
+  - |
+    if [ "$TRAVIS_PYTHON_VERSION" != '2.6' ]; then
+      python setup.py test
+    else
+      unit2 discover
+    fi
