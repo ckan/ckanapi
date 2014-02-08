@@ -28,13 +28,13 @@ start and max values.
 ```
 Usage:
   ckanapi action ACTION_NAME
-          [KEY=VALUE ...] [-j | -J]
+          [KEY=VALUE ... | -i] [-j | -J]
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
   ckanapi load (datasets | groups | organizations)
           [-I JSONL_INPUT] [-s START] [-m MAX] [-p PROCESSES] [-l LOG_FILE]
           [-n | -o] [-qwz] [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
   ckanapi dump (datasets | groups | organizations)
-          (ID ... | --all | -w) [-O JSONL_OUTPUT] [-p PROCESSES] [-qz]
+          (ID_OR_NAME ... | --all) [-O JSONL_OUTPUT] [-p PROCESSES] [-qwz]
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
   ckanapi (-h | --help)
   ckanapi --version
@@ -46,7 +46,8 @@ Options:
   --all                     all the things
   -c --config=CONFIG        CKAN configuration file for local actions,
                             defaults to ./development.ini if that file exists
-  -I --input=JSONL_INPUT    input from json lines file instead of stdin
+  -i --stdin-json           pass json from stdin to action
+  -I --input=JSONL_INPUT    input json lines from file instead of stdin
   -j --plain-json           plain json instead of pretty-printed json
   -J --jsonl                format list response as json lines instead of
                             default pretty-printed json format
