@@ -9,11 +9,12 @@ from datetime import datetime
 
 from ckanapi.errors import (NotFound, NotAuthorized, ValidationError,
     SearchIndexError)
-from ckanapi.cli.workers import worker_pool
+from ckanapi.cli import workers
 from ckanapi.cli.utils import completion_stats, compact_json, quiet_int_pipe
 
 
-def load_things(ckan, thing, arguments):
+def load_things(ckan, thing, arguments,
+        worker_pool=None, stdin=None, stdout=None, stderr=None):
     """
     create and update datasets, groups and orgs
 
@@ -22,6 +23,15 @@ def load_things(ckan, thing, arguments):
     last record completed and records being processed is displayed
     on stderr.
     """
+    if worker_pool is None:
+        worker_pool = workers.worker_pool
+    if stdin is None:
+        stdin = getattr(sys.stdin, 'buffer', sys.stdin)
+    if stdout is None:
+        stdout = getattr(sys.stdout, 'buffer', sys.stdout)
+    if stderr is None:
+        stderr = getattr(sys.stderr, 'buffer', sys.stderr)
+
     if arguments['--worker']:
         return load_things_worker(ckan, thing, arguments)
 
@@ -29,7 +39,7 @@ def load_things(ckan, thing, arguments):
     if arguments['--log']:
         log = open(arguments['--log'], 'a')
 
-    jsonl_input = sys.stdin
+    jsonl_input = stdin
     if arguments['JSONL_INPUT']:
         jsonl_input = open(arguments['JSONL_INPUT'], 'rb')
     if arguments['--gzip']:
@@ -64,7 +74,7 @@ def load_things(ckan, thing, arguments):
             timestamp, action, error, response = json.loads(result)
 
             if not arguments['--quiet']:
-                sys.stderr.write('{0} {1} {2} {3} {4} {5}\n'.format(
+                stderr.write('{0} {1} {2} {3} {4} {5}\n'.format(
                     finished,
                     job_ids,
                     next(stats),
@@ -83,12 +93,18 @@ def load_things(ckan, thing, arguments):
                 log.flush()
 
 
-def load_things_worker(ckan, thing, arguments):
+def load_things_worker(ckan, thing, arguments,
+        stdin=None, stdout=None):
     """
     a process that accepts lines of json on stdin which is parsed and
     passed to the {thing}_create/update actions.  it produces lines of json
     which are the responses from each action call.
     """
+    if stdin is None:
+        stdin = getattr(sys.stdin, 'buffer', sys.stdin)
+    if stdout is None:
+        stdout = getattr(sys.stdout, 'buffer', sys.stdout)
+
     supported_things = ('datasets', 'groups', 'organizations')
     thing_number = supported_things.index(thing)
 
@@ -103,14 +119,14 @@ def load_things_worker(ckan, thing, arguments):
         """
         format messages to be sent back to parent process
         """
-        sys.stdout.write(compact_json([
+        stdout.write(compact_json([
             datetime.now().isoformat(),
             action,
             error,
             response]) + b'\n')
-        sys.stdout.flush()
+        stdout.flush()
 
-    for line in iter(sys.stdin.readline, b''):
+    for line in iter(stdin.readline, b''):
         try:
             obj = json.loads(line.decode('utf-8'))
         except UnicodeDecodeError, e:

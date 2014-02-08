@@ -22,11 +22,11 @@ def dump_things(ckan, thing, arguments,
     out ids to each worker. Status of last record completed and records
     being processed is displayed on stderr.
     """
-    if not worker_pool:
+    if worker_pool is None:
         worker_pool = workers.worker_pool
-    if not stdout:
+    if stdout is None:
         stdout = getattr(sys.stdout, 'buffer', sys.stdout)
-    if not stderr:
+    if stderr is None:
         stderr = getattr(sys.stderr, 'buffer', sys.stderr)
 
     if arguments['--worker']:
@@ -102,9 +102,9 @@ def dump_things_worker(ckan, thing, arguments,
     passed to the {thing}_show actions.  it produces lines of json
     which are the responses from each action call.
     """
-    if not stdin:
+    if stdin is None:
         stdin = getattr(sys.stdin, 'buffer', sys.stdin)
-    if not stdout:
+    if stdout is None:
         stdout = getattr(sys.stdout, 'buffer', sys.stdout)
 
     thing_show = {
