@@ -2,7 +2,8 @@ import select
 import subprocess
 
 def worker_pool(popen_arg, num_workers, job_iterable,
-                stop_when_jobs_done=True, stop_on_keyboard_interrupt=True):
+        stop_when_jobs_done=True, stop_on_keyboard_interrupt=True,
+        popen=None):
     """
     Coroutine to manage a pool of workers that accept jobs as single lines
     of input on stdin and produces results as single lines of output.
@@ -29,6 +30,9 @@ def worker_pool(popen_arg, num_workers, job_iterable,
     when no jobs remain to be completed and stop_when_jobs_done is False a
     new job iterable must be sent to this generator with send().
     """
+    if popen is None:
+        popen = subprocess.Popen
+
     workers = []
     job_ids = []
     worker_fds = {}
@@ -43,10 +47,13 @@ def worker_pool(popen_arg, num_workers, job_iterable,
         job_id, job_str = next(job_iter, (None, None))
         if job_str is None:
             return None, None
-        job_str = job_str.rstrip('\n') + '\n'
+        job_str = job_str.rstrip(b'\n') + b'\n'
         if not worker:
-            worker = subprocess.Popen(popen_arg,
-                stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+            worker = popen(
+                popen_arg,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                )
         worker.stdin.write(job_str)
         worker.stdin.flush()
         return (job_id, worker)
