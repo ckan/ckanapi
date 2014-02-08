@@ -3,10 +3,9 @@ try:
     import unittest2 as unittest
 except ImportError:
     import unittest
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from io import StringIO
+
+from io import BytesIO
+
 
 class MockCKAN(object):
     def __init__(self, expected_name, expected_args, response):
@@ -30,6 +29,7 @@ class TestCLIAction(unittest.TestCase):
             'KEY=VALUE': ['who=me'],
             '--plain-json': False,
             '--jsonl': False,
+            '--stdin-json': False,
             })
         self.assertEqual(b''.join(rval), b"""
 {
@@ -47,6 +47,7 @@ class TestCLIAction(unittest.TestCase):
             'KEY=VALUE': ['who=me'],
             '--plain-json': True,
             '--jsonl': False,
+            '--stdin-json': False,
             })
         self.assertEqual(b''.join(rval), b'["right","on"]\n')
 
@@ -57,6 +58,7 @@ class TestCLIAction(unittest.TestCase):
             'KEY=VALUE': ['who=me'],
             '--plain-json': False,
             '--jsonl': True,
+            '--stdin-json': False,
             })
         self.assertEqual(b''.join(rval), b'{"oh":["right","on"]}\n')
 
@@ -67,6 +69,22 @@ class TestCLIAction(unittest.TestCase):
             'KEY=VALUE': ['who=me'],
             '--plain-json': False,
             '--jsonl': True,
+            '--stdin-json': False,
             })
         self.assertEqual(b''.join(rval), b'99\n98\n97\n')
+
+    def test_stdin_json(self):
+        ckan = MockCKAN('shake_it', {'who': ['just', 'me']}, "yeah")
+        rval = action(ckan, {
+                'ACTION_NAME': 'shake_it',
+                'KEY=VALUE': ['who=me'],
+                '--plain-json': False,
+                '--jsonl': False,
+                '--stdin-json': True,
+            },
+            stdin=BytesIO(b'{"who":["just","me"]}'),
+            )
+        self.assertEqual(b''.join(rval), b'"yeah"\n')
+
+
 
