@@ -13,9 +13,7 @@ class CKANAPIError(Exception):
         self.extra_msg = extra_msg
 
     def __str__(self):
-        err_msgs = (super(CKANAPIError, self).__str__(),
-                    self.extra_msg)
-        return ' - '.join([str(err_msg) for err_msg in err_msgs if err_msg])
+        return self.extra_msg
 
 try:
     import ckan
