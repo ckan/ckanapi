@@ -93,8 +93,17 @@ result:
 [u'data-explorer', u'example-group', u'geo-examples', u'skeenawild']
 ```
 
+The example above is using the `.action` "shortcut". This object detects
+the method name called ("group_list" above) and converts it to a normal
+`call_action`. This is the same code without using the action shortcut:
+
+```python
+groups = demo.call_action('group_list', {'id': 'data-explorer'})
+```
+
 All actions in the [CKAN Action API](http://docs.ckan.org/en/latest/api.html)
-and actions added by CKAN plugins are supported.
+and actions added by CKAN plugins are supported by the action shortcut and
+call_action methods.
 
 
 ### Exceptions
@@ -123,7 +132,8 @@ except ckanapi.NotAuthorized:
 
 ### File uploads
 
-File uploads for CKAN 2.2+ are supported by passing file-like objects:
+File uploads for CKAN 2.2+ are supported by passing file-like objects to action
+shortcut methods:
 
 ```python
 import ckanapi
@@ -134,6 +144,14 @@ mysite = ckanapi.RemoteCKAN('http://myckan.example.com',
 mysite.action.resource_create(
     package_id='my-dataset-with-files',
     upload=open('/path/to/file/to/upload.csv'))
+```
+
+When using `call_action` you must pass file objects separately:
+
+```python
+mysite.call_action('resource_create',
+    {'package_id': 'my-dataset-with-files'},
+    files={'upload': open('/path/to/file/to/upload.csv')})
 ```
 
 ### LocalCKAN
