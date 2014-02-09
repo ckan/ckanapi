@@ -11,18 +11,19 @@ A [command line interface](#ckanapi-cli) and
 The ckanapi command line interface lets you access local and
 remote CKAN instances for bulk operations and simple API actions.
 
-Simple actions with string parameters may be called and the response
-is pretty-printed by default.
+Simple actions with string parameters may be called directly. The
+response is pretty-printed to STDOUT.
 
 Datasets, groups and organizations may be dumped to
 [JSON lines](http://jsonlines.org)
 text files and created or updated from JSON lines text files.
-Dumping and loading jobs can be run in parallel with
-multiple worker processes. Jobs in progress, the rate of job
-completion and errors are shown on stderr and may also be logged.
+These bulk dumping and loading jobs can be run in parallel with
+multiple worker processes. The jobs in progress, the rate of job
+completion and any individual errors are shown on STDERR while
+the jobs run.
 
-Loading jobs may be resumed from the last completed
-record, or split across multiple servers by specifying record
+Bulk loading jobs may be resumed from the last completed
+record or split across multiple servers by specifying record
 start and max values.
 
 ```
