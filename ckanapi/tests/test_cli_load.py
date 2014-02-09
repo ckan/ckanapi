@@ -1,6 +1,5 @@
 from ckanapi.cli.load import load_things, load_things_worker
 from ckanapi.errors import NotFound, ValidationError, NotAuthorized
-from ckanapi.common import ActionShortcut
 import json
 
 try:
@@ -10,9 +9,6 @@ except ImportError:
 from io import BytesIO
 
 class MockCKAN(object):
-    def __init__(self):
-        self.action = ActionShortcut(self)
-
     def call_action(self, name, data_dict):
         if name == 'package_show' and data_dict['id'] == 'seekrit':
             raise NotAuthorized('naughty user')

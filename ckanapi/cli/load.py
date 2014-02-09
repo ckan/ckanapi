@@ -111,15 +111,14 @@ def load_things_worker(ckan, thing, arguments,
     if stdout is None:
         stdout = getattr(sys.stdout, 'buffer', sys.stdout)
 
-    supported_things = ('datasets', 'groups', 'organizations')
-    thing_number = supported_things.index(thing)
-
-    a = ckan.action
-    thing_show, thing_create, thing_update = [
-        (a.package_show, a.package_create, a.package_update),
-        (a.group_show, a.group_create, a.group_update),
-        (a.organization_show, a.organization_create, a.organization_update),
-        ][thing_number]
+    thing_show, thing_create, thing_update = {
+        'datasets': (
+            'package_show', 'package_create', 'package_update'),
+        'groups': (
+            'group_show', 'group_create', 'group_update'),
+        'organizations': (
+            'organization_show', 'organization_create', 'organization_update'),
+        }[thing]
 
     def reply(action, error, response):
         """
@@ -147,7 +146,7 @@ def load_things_worker(ckan, thing, arguments,
                 name = obj.get('id')
                 if name:
                     try:
-                        existing = thing_show(id=name)
+                        existing = ckan.call_action(thing_show, {'id': name})
                     except NotFound:
                         pass
                     except NotAuthorized as e:
@@ -156,7 +155,7 @@ def load_things_worker(ckan, thing, arguments,
                 name = obj.get('name')
                 if not existing and name:
                     try:
-                        existing = thing_show(id=name)
+                        existing = ckan.call_action(thing_show, {'id': name})
                         # matching id required for *_update
                         obj['id'] = existing['id']
                     except NotFound:
@@ -174,9 +173,9 @@ def load_things_worker(ckan, thing, arguments,
             act = 'update' if existing else 'create'
             try:
                 if existing:
-                    r = thing_update(**obj)
+                    r = ckan.call_action(thing_update, obj)
                 else:
-                    r = thing_create(**obj)
+                    r = ckan.call_action(thing_create, obj)
             except ValidationError as e:
                 reply(act, 'ValidationError', e.error_dict)
             except SearchIndexError as e:

@@ -44,11 +44,11 @@ def dump_things(ckan, thing, arguments,
 
     if arguments['--all']:
         get_thing_list = {
-            'datasets': ckan.action.package_list,
-            'groups': ckan.action.group_list,
-            'organizations': ckan.action.organization_list,
+            'datasets': 'package_list',
+            'groups': 'group_list',
+            'organizations': 'organization_list',
             }[thing]
-        names = get_thing_list()
+        names = ckan.call_action(get_thing_list, {})
     else:
         names = arguments['ID_OR_NAME']
 
@@ -108,9 +108,9 @@ def dump_things_worker(ckan, thing, arguments,
         stdout = getattr(sys.stdout, 'buffer', sys.stdout)
 
     thing_show = {
-        'datasets': ckan.action.package_show,
-        'groups': ckan.action.group_show,
-        'organizations': ckan.action.organization_show,
+        'datasets': 'package_show',
+        'groups': 'group_show',
+        'organizations': 'organization_show',
         }[thing]
 
     def reply(error, record=None):
@@ -131,7 +131,7 @@ def dump_things_worker(ckan, thing, arguments,
             continue
 
         try:
-            obj = thing_show(id=name)
+            obj = ckan.call_action(thing_show, {'id': name})
             reply(None, obj)
         except NotFound:
             reply('NotFound')
