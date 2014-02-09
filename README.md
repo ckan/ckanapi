@@ -93,17 +93,17 @@ result:
 [u'data-explorer', u'example-group', u'geo-examples', u'skeenawild']
 ```
 
-The example above is using the `.action` "shortcut". This object detects
-the method name called ("group_list" above) and converts it to a normal
-`call_action`. This is the same code without using the action shortcut:
+The example above is using an "action shortcut". The `.action` object detects
+the method name used ("group_list" above) and converts it to a normal
+`call_action` call. This is equivalent code without using an action shortcut:
 
 ```python
 groups = demo.call_action('group_list', {'id': 'data-explorer'})
 ```
 
 All actions in the [CKAN Action API](http://docs.ckan.org/en/latest/api.html)
-and actions added by CKAN plugins are supported by the action shortcut and
-call_action methods.
+and actions added by CKAN plugins are supported by action shortcuts and
+`call_action` calls.
 
 
 ### Exceptions
@@ -115,7 +115,9 @@ call_action methods.
 * `SearchError`
 * `CKANAPIError` - incorrect use of ckanapi or unable to parse response
 
-Failures are raised as exceptions just like when calling get_action from a plugin:
+When using an action shortcut or the `call_action` method
+failures are raised as exceptions just like when calling `get_action` from a
+CKAN plugin:
 
 ```python
 import ckanapi
@@ -128,6 +130,9 @@ try:
 except ckanapi.NotAuthorized:
     print 'denied'
 ```
+
+When it is possible to `import ckan` all the ckanapi exception classes are
+replaced with the CKAN exceptions with the same names.
 
 
 ### File uploads
