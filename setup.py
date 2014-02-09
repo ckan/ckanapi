@@ -5,11 +5,13 @@ from setuptools import setup
 setup(
     name='ckanapi',
     version='3.0-dev',
-    description='Thin wrapper around the CKAN Action API',
-    license='BSD',
+    description=
+        'A command line interface and Python module for '
+        'accessing the CKAN Action API',
+    license='MIT',
     author='Ian Ward',
     author_email='ian@excess.org',
-    url='https://github.com/open-data/ckanapi',
+    url='https://github.com/ckan/ckanapi',
     packages=[
         'ckanapi',
         'ckanapi.tests',
