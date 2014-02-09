@@ -15,7 +15,7 @@ def action(ckan, arguments,
     if stdin is None:
         stdin = getattr(sys.stdin, 'buffer', sys.stdin)
 
-    if arguments['--stdin-json']:
+    if arguments['--input-json']:
         action_args = json.loads(stdin.read().decode('utf-8'))
     else:
         action_args = {}
@@ -24,13 +24,13 @@ def action(ckan, arguments,
             action_args[key] = value
     result = ckan.call_action(arguments['ACTION_NAME'], action_args)
 
-    if arguments['--jsonl']:
+    if arguments['--output-jsonl']:
         if isinstance(result, list):
             for r in result:
                 yield compact_json(r) + b'\n'
         else:
             yield compact_json(result) + b'\n'
-    elif arguments['--plain-json']:
+    elif arguments['--output-json']:
         yield compact_json(result) + b'\n'
     else:
         yield pretty_json(result) + b'\n'

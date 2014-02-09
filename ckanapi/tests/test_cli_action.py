@@ -27,9 +27,9 @@ class TestCLIAction(unittest.TestCase):
         rval = action(ckan, {
             'ACTION_NAME': 'shake_it',
             'KEY=VALUE': ['who=me'],
-            '--plain-json': False,
-            '--jsonl': False,
-            '--stdin-json': False,
+            '--output-json': False,
+            '--output-jsonl': False,
+            '--input-json': False,
             })
         self.assertEqual(b''.join(rval), b"""
 {
@@ -45,9 +45,9 @@ class TestCLIAction(unittest.TestCase):
         rval = action(ckan, {
             'ACTION_NAME': 'shake_it',
             'KEY=VALUE': ['who=me'],
-            '--plain-json': True,
-            '--jsonl': False,
-            '--stdin-json': False,
+            '--output-json': True,
+            '--output-jsonl': False,
+            '--input-json': False,
             })
         self.assertEqual(b''.join(rval), b'["right","on"]\n')
 
@@ -56,9 +56,9 @@ class TestCLIAction(unittest.TestCase):
         rval = action(ckan, {
             'ACTION_NAME': 'shake_it',
             'KEY=VALUE': ['who=me'],
-            '--plain-json': False,
-            '--jsonl': True,
-            '--stdin-json': False,
+            '--output-json': False,
+            '--output-jsonl': True,
+            '--input-json': False,
             })
         self.assertEqual(b''.join(rval), b'{"oh":["right","on"]}\n')
 
@@ -67,9 +67,9 @@ class TestCLIAction(unittest.TestCase):
         rval = action(ckan, {
             'ACTION_NAME': 'shake_it',
             'KEY=VALUE': ['who=me'],
-            '--plain-json': False,
-            '--jsonl': True,
-            '--stdin-json': False,
+            '--output-json': False,
+            '--output-jsonl': True,
+            '--input-json': False,
             })
         self.assertEqual(b''.join(rval), b'99\n98\n97\n')
 
@@ -78,9 +78,9 @@ class TestCLIAction(unittest.TestCase):
         rval = action(ckan, {
                 'ACTION_NAME': 'shake_it',
                 'KEY=VALUE': ['who=me'],
-                '--plain-json': False,
-                '--jsonl': False,
-                '--stdin-json': True,
+                '--output-json': False,
+                '--output-jsonl': False,
+                '--input-json': True,
             },
             stdin=BytesIO(b'{"who":["just","me"]}'),
             )

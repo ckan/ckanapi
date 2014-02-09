@@ -47,11 +47,11 @@ Options:
   --all                     all the things
   -c --config=CONFIG        CKAN configuration file for local actions,
                             defaults to ./development.ini if that file exists
-  -i --stdin-json           pass json from stdin to action
+  -i --input-json           read json from stdin to send to action
   -I --input=JSONL_INPUT    input json lines from file instead of stdin
-  -j --plain-json           plain json instead of pretty-printed json
-  -J --jsonl                format list response as json lines instead of
-                            default pretty-printed json format
+  -j --output-json          output plain json instead of pretty-printed json
+  -J --output-jsonl         output list responses as json lines instead of
+                            pretty-printed json
   -l --log=LOG_FILE         append messages generated to LOG_FILE
   -m --max-records=MAX      exit after processing MAX records
   -n --create-only          create new records, don't update existing records
