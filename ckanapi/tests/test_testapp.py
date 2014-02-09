@@ -35,7 +35,7 @@ class TestTestAPPCKAN(unittest.TestCase):
         self.ckan = ckanapi.TestAppCKAN(self.test_app)
 
     def test_simple(self):
-        self.assertEquals(
+        self.assertEqual(
             self.ckan.action.hello_world(), 'how are you?')
 
     def test_invalid(self):
@@ -44,7 +44,7 @@ class TestTestAPPCKAN(unittest.TestCase):
             self.ckan.action.invalid)
 
     def test_data(self):
-        self.assertEquals(
+        self.assertEqual(
             self.ckan.action.echo(message='for you'), 'for you')
 
     def test_upload_action(self):

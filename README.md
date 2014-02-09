@@ -1,12 +1,83 @@
 ## ckanapi
 
-[![Build Status](https://travis-ci.org/ckan/ckanapi.png?branch=master)](https://travis-ci.org/open-data/ckanapi) tested under Python 2.6, 2.7, 3.2, 3.3 and pypy
+A [command line interface](#ckanapi-cli) and
+[Python module](#ckanapi-python-module) for accessing the
+[CKAN Action API](http://docs.ckan.org/en/latest/api.html)
 
-A thin wrapper around CKAN's action API
+[![Build Status](https://travis-ci.org/ckan/ckanapi.png?branch=master)](https://travis-ci.org/ckan/ckanapi) tested under Python 2.6, 2.7, 3.2, 3.3 and pypy
 
-ckanapi may be used from within a plugin or separate from CKAN.
+## ckanapi CLI
 
-### Making an API Request
+The ckanapi command line interface lets you access local and
+remote CKAN instances for bulk operations and simple API actions.
+
+Simple actions with string parameters may be called directly. The
+response is pretty-printed to STDOUT.
+
+Datasets, groups and organizations may be dumped to
+[JSON lines](http://jsonlines.org)
+text files and created or updated from JSON lines text files.
+These bulk dumping and loading jobs can be run in parallel with
+multiple worker processes. The jobs in progress, the rate of job
+completion and any individual errors are shown on STDERR while
+the jobs run.
+
+Bulk loading jobs may be resumed from the last completed
+record or split across multiple servers by specifying record
+start and max values.
+
+```
+Usage:
+  ckanapi action ACTION_NAME
+          [KEY=VALUE ... | -i] [-j | -J]
+          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
+  ckanapi load (datasets | groups | organizations)
+          [-I JSONL_INPUT] [-s START] [-m MAX] [-p PROCESSES] [-l LOG_FILE]
+          [-n | -o] [-qwz] [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
+  ckanapi dump (datasets | groups | organizations)
+          (ID_OR_NAME ... | --all) [-O JSONL_OUTPUT] [-p PROCESSES] [-qwz]
+          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
+  ckanapi (-h | --help)
+  ckanapi --version
+
+Options:
+  -h --help                 show this screen
+  --version                 show version
+  -a --apikey=APIKEY        API key to use for remote actions
+  --all                     all the things
+  -c --config=CONFIG        CKAN configuration file for local actions,
+                            defaults to ./development.ini if that file exists
+  -i --input-json           read json from stdin to send to action
+  -I --input=JSONL_INPUT    input json lines from file instead of stdin
+  -j --output-json          output plain json instead of pretty-printed json
+  -J --output-jsonl         output list responses as json lines instead of
+                            pretty-printed json
+  -l --log=LOG_FILE         append messages generated to LOG_FILE
+  -m --max-records=MAX      exit after processing MAX records
+  -n --create-only          create new records, don't update existing records
+  -o --update-only          update existing records, don't create new records
+  -O --output=JSONL_OUTPUT  output to json lines file instead of stdout
+  -p --processes=PROCESSES  set the number of worker processes [default: 1]
+  -q --quiet                don't display progress messages
+  -r --remote=URL           URL of CKAN server for remote actions
+  -s --start-record=START   start from record number START, where the first
+                            record is number 1 [default: 1]
+  -u --ckan-user=USER       perform actions as user with this name, uses the
+                            site sysadmin user when not specified
+  -w --worker               launch worker process, used internally by load
+                            and dump commands
+  -z --gzip                 read/write gzipped data
+```
+
+## ckanapi Python Module
+
+The ckanapi Python module may be used from within a
+[CKAN extension](http://docs.ckan.org/en/latest/extensions/index.html)
+or in a Python 2 or Python 3 application separate from CKAN.
+
+### RemoteCKAN
+
+Making a request:
 
 ```python
 import ckanapi
@@ -23,7 +94,31 @@ result:
 [u'data-explorer', u'example-group', u'geo-examples', u'skeenawild']
 ```
 
-Failures are raised as exceptions just like when calling get_action from a plugin:
+The example above is using an "action shortcut". The `.action` object detects
+the method name used ("group_list" above) and converts it to a normal
+`call_action` call. This is equivalent code without using an action shortcut:
+
+```python
+groups = demo.call_action('group_list', {'id': 'data-explorer'})
+```
+
+All actions in the [CKAN Action API](http://docs.ckan.org/en/latest/api.html)
+and actions added by CKAN plugins are supported by action shortcuts and
+`call_action` calls.
+
+
+### Exceptions
+
+* `NotAuthorized` - user unauthorized or accessing a deleted item
+* `NotFound` - name/id not found
+* `ValidationError` - field errors listed in `.error_dict`
+* `SearchQueryError` - error reported from SOLR index
+* `SearchError`
+* `CKANAPIError` - incorrect use of ckanapi or unable to parse response
+
+When using an action shortcut or the `call_action` method
+failures are raised as exceptions just like when calling `get_action` from a
+CKAN plugin:
 
 ```python
 import ckanapi
@@ -37,13 +132,14 @@ except ckanapi.NotAuthorized:
     print 'denied'
 ```
 
-result:
+When it is possible to `import ckan` all the ckanapi exception classes are
+replaced with the CKAN exceptions with the same names.
 
-```
-denied
-```
 
-File uploads for CKAN 2.2+ are supported by passing file-like objects:
+### File uploads
+
+File uploads for CKAN 2.2+ are supported by passing file-like objects to action
+shortcut methods:
 
 ```python
 import ckanapi
@@ -54,6 +150,14 @@ mysite = ckanapi.RemoteCKAN('http://myckan.example.com',
 mysite.action.resource_create(
     package_id='my-dataset-with-files',
     upload=open('/path/to/file/to/upload.csv'))
+```
+
+When using `call_action` you must pass file objects separately:
+
+```python
+mysite.call_action('resource_create',
+    {'package_id': 'my-dataset-with-files'},
+    files={'upload': open('/path/to/file/to/upload.csv')})
 ```
 
 ### LocalCKAN

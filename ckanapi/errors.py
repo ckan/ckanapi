@@ -8,8 +8,12 @@ class CKANAPIError(Exception):
     SearchIndexError are created as subclasses of this class so that they
     provide a helpful str() for tracebacks.
     """
+
+    def __init__(self, extra_msg=None):
+        self.extra_msg = extra_msg
+
     def __str__(self):
-        return repr(self.args)
+        return self.extra_msg
 
 try:
     import ckan
@@ -28,7 +32,7 @@ except ImportError:
             return repr(self.error_dict)
 
     class NotFound(CKANAPIError):
-        def __init__(self, extra_msg):
+        def __init__(self, extra_msg=None):
             self.extra_msg = extra_msg
         def __str__(self):
             return self.extra_msg

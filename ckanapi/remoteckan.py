@@ -1,15 +1,23 @@
 try:
     from urllib2 import Request, urlopen, HTTPError
+    from urlparse import urlparse
 except ImportError:
     from urllib.request import Request, urlopen, HTTPError
+    from urllib.parse import urlparse
 
 from ckanapi.errors import CKANAPIError
 from ckanapi.common import (ActionShortcut, prepare_action,
     reverse_apicontroller_action)
+from ckanapi.version import __version__
+
+# add your sites here to remove parallel limits on ckanapi cli
+MY_SITES = ['localhost', '127.0.0.1', '[::1]']
+
+# add your site above instead of changing this
+PARALLEL_LIMIT = 3
 
 import requests
 
-import pkg_resources
 
 class RemoteCKAN(object):
     """
@@ -19,31 +27,26 @@ class RemoteCKAN(object):
                     'http://demo.ckan.org', stored as self.address
     :param apikey: the API key to pass as an 'X-CKAN-API-Key' header
                     when actions are called, stored as self.apikey
-    :param request_fn: a callable that will be used to make requests
-
-    The default implementation of request_fn is::
-
-      def request_fn(url, data, headers):
-          req = Request(url, data, headers)
-          try:
-              r = urlopen(req)
-              return r.getcode(), r.read()
-          except:
-              return e.code, e.read()
-
+    :param user_agent: the User-agent to report when making requests
     """
-    def __init__(self, address, apikey=None, request_fn=None, user_agent=None):
+    def __init__(self, address, apikey=None, user_agent=None):
         self.address = address
         self.apikey = apikey
         if not user_agent:
-            ckanapi_info = pkg_resources.require("ckanapi")[0]
             user_agent = "ckanapi/{version} (+{url})".format(
-                version=ckanapi_info.version,
+                version=__version__,
                 url='https://github.com/ckan/ckanapi')
         self.user_agent = user_agent
         self.action = ActionShortcut(self)
-        if request_fn:
-            self._request_fn = request_fn
+
+        net_loc = urlparse(address)
+        if ']' in net_loc:
+            net_loc = net_loc[:net_loc.index(']') + 1]
+        elif ':' in net_loc:
+            net_loc = net_loc[:net_loc.index(':')]
+        if net_loc not in MY_SITES:
+            # add your sites to MY_SITES above instead of removing this
+            self.parallel_limit = PARALLEL_LIMIT
 
     def call_action(self, action, data_dict=None, context=None, apikey=None,
             files=None):
