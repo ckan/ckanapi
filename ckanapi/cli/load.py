@@ -45,8 +45,8 @@ def load_things(ckan, thing, arguments,
         log = open(arguments['--log'], 'a')
 
     jsonl_input = stdin
-    if arguments['JSONL_INPUT']:
-        jsonl_input = open(arguments['JSONL_INPUT'], 'rb')
+    if arguments['--input']:
+        jsonl_input = open(arguments['--input'], 'rb')
     if arguments['--gzip']:
         jsonl_input = gzip.GzipFile(fileobj=jsonl_input)
 
