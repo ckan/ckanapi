@@ -44,7 +44,10 @@ class TestAppCKAN(object):
             # (fieldname, filename, file_contents) tuples that webtests needs.
             upload_files = []
             for fieldname, file_ in files.items():
-                filename = os.path.split(file_.name)[1]
+                if hasattr(file_, 'name'):
+                    filename = os.path.split(file_.name)[1]
+                else:
+                    filename = 'Unnmaed file'
                 upload_files.append( (fieldname, filename, file_.read()) )
             kwargs['upload_files'] = upload_files
 
