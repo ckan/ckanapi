@@ -1,3 +1,5 @@
+import os.path
+
 from ckanapi.errors import CKANAPIError
 from ckanapi.common import (ActionShortcut, prepare_action,
     reverse_apicontroller_action)
@@ -33,10 +35,19 @@ class TestAppCKAN(object):
         if context:
             raise CKANAPIError("TestAppCKAN.call_action does not support "
                 "use of context parameter, use apikey instead")
-        if files:
-            raise CKANAPIError("TestAppCKAN.call_action does not support "
-                "file uploads, consider contributing it if you need it")
         url, data, headers = prepare_action(action, data_dict,
-                                            apikey or self.apikey)
-        r = self.test_app.post('/' + url, data, headers, expect_errors=True)
+                                            apikey or self.apikey, files)
+
+        kwargs = {}
+        if files:
+            # Convert the list of (fieldname, file_object) tuples into the
+            # (fieldname, filename, file_contents) tuples that webtests needs.
+            upload_files = []
+            for fieldname, file_ in files.items():
+                filename = os.path.split(file_.name)[1]
+                upload_files.append( (fieldname, filename, file_.read()) )
+            kwargs['upload_files'] = upload_files
+
+        r = self.test_app.post('/' + url, data, headers, expect_errors=True,
+                               **kwargs)
         return reverse_apicontroller_action(url, r.status, r.body)
