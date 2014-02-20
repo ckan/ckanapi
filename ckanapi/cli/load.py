@@ -146,7 +146,8 @@ def load_things_worker(ckan, thing, arguments,
                 name = obj.get('id')
                 if name:
                     try:
-                        existing = ckan.call_action(thing_show, {'id': name})
+                        existing = ckan.call_action(thing_show,
+                            {'id': name, 'include_datasets': False})
                     except NotFound:
                         pass
                     except NotAuthorized as e:
