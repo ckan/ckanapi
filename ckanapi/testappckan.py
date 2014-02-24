@@ -23,7 +23,7 @@ class TestAppCKAN(object):
         :param data_dict: the dict to pass to the action as JSON,
                           defaults to {}
         :param context: not supported
-        :param files: not supported
+        :param files: None or {field-name: file-to-be-sent, ...}
 
         This function parses the response from the server as JSON and
         returns the decoded value.  When an error is returned this
