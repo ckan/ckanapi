@@ -1,5 +1,3 @@
-import os.path
-
 from ckanapi.errors import CKANAPIError
 from ckanapi.common import (ActionShortcut, prepare_action,
     reverse_apicontroller_action)
@@ -43,12 +41,8 @@ class TestAppCKAN(object):
             # Convert the list of (fieldname, file_object) tuples into the
             # (fieldname, filename, file_contents) tuples that webtests needs.
             upload_files = []
-            for fieldname, file_ in files.items():
-                if hasattr(file_, 'name'):
-                    filename = os.path.split(file_.name)[1]
-                else:
-                    filename = 'Unnmaed file'
-                upload_files.append( (fieldname, filename, file_.read()) )
+            for fieldname, f in files.items():
+                upload_files.append((fieldname, fieldname, f.read()))
             kwargs['upload_files'] = upload_files
 
         r = self.test_app.post('/' + url, data, headers, expect_errors=True,
