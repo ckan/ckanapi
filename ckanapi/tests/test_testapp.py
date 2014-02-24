@@ -1,11 +1,17 @@
 
 import json
-
+from io import BytesIO
 try:
     import unittest2 as unittest
 except ImportError:
     import unittest
+
 import ckanapi
+
+
+UPLOAD_DATA = b"""
+public info
+""".lstrip()
 
 def wsgi_app(environ, start_response):
     status = '200 OK'
@@ -20,6 +26,17 @@ def wsgi_app(environ, start_response):
         content = environ['wsgi.input'].read()
         response = {'success': True, 'result':
             json.loads(content)['message']}
+    elif path == '/api/action/upload':
+        # poor man's multipart parsing
+        data = environ['wsgi.input'].read().split('\r\n')
+        saw_file = False
+        for i, s in enumerate(data):
+            if saw_file:
+                if s == b'':
+                    break
+            elif b'filename="f"' in s:
+                saw_file = True
+        response = {'success': True, 'result': data[i + 1].decode('ascii')}
 
     start_response(status, headers)
     return [json.dumps(response)]
@@ -48,9 +65,7 @@ class TestTestAPPCKAN(unittest.TestCase):
             self.ckan.action.echo(message='for you'), 'for you')
 
     def test_upload_action(self):
-        class FileLike(object):
-            def read(x=None):
-                return ""
-        self.assertRaises(ckanapi.CKANAPIError,
-            self.ckan.action.upload, package_id='42', f=FileLike())
+        self.assertEqual(
+            self.ckan.action.upload(package_id='42',
+                f=BytesIO(UPLOAD_DATA)), 'public info\n')
 
