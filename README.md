@@ -11,8 +11,30 @@ A [command line interface](#ckanapi-cli) and
 The ckanapi command line interface lets you access local and
 remote CKAN instances for bulk operations and simple API actions.
 
+
+### Actions
+
 Simple actions with string parameters may be called directly. The
-response is pretty-printed to STDOUT.
+response is pretty-printed to STDOUT. e.g.:
+
+```
+$ ckanapi action group_list -r http://demo.ckan.org
+[
+  "data-expolorer",
+  "example-group",
+  "geo-examples",
+  ...
+]
+```
+
+Local CKAN actions may be run by specifying the config file with -c.
+If no remote server or config file is specified the CLI will look for
+a development.ini file in the current directory, much like paster
+commands. When connecting to a local CKAN instance the site user
+(sysadmin) is used by default.
+
+
+### Bulk operations
 
 Datasets, groups and organizations may be dumped to
 [JSON lines](http://jsonlines.org)
@@ -22,52 +44,35 @@ multiple worker processes. The jobs in progress, the rate of job
 completion and any individual errors are shown on STDERR while
 the jobs run.
 
+e.g. load datasets from a dataset dump file with 3 processes in parallel:
+
+```
+$ ckanapi load datasets -I datasets.jsonl.gz -z -p 3 -c /etc/ckan/production.ini
+```
+
 Bulk loading jobs may be resumed from the last completed
 record or split across multiple servers by specifying record
 start and max values.
 
-```
-Usage:
-  ckanapi action ACTION_NAME
-          [KEY=VALUE ... | -i] [-j | -J]
-          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
-  ckanapi load (datasets | groups | organizations)
-          [-I JSONL_INPUT] [-s START] [-m MAX] [-p PROCESSES] [-l LOG_FILE]
-          [-n | -o] [-qwz] [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
-  ckanapi dump (datasets | groups | organizations)
-          (ID_OR_NAME ... | --all) [-O JSONL_OUTPUT] [-p PROCESSES] [-qwz]
-          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
-  ckanapi (-h | --help)
-  ckanapi --version
 
-Options:
-  -h --help                 show this screen
-  --version                 show version
-  -a --apikey=APIKEY        API key to use for remote actions
-  --all                     all the things
-  -c --config=CONFIG        CKAN configuration file for local actions,
-                            defaults to ./development.ini if that file exists
-  -i --input-json           read json from stdin to send to action
-  -I --input=JSONL_INPUT    input json lines from file instead of stdin
-  -j --output-json          output plain json instead of pretty-printed json
-  -J --output-jsonl         output list responses as json lines instead of
-                            pretty-printed json
-  -l --log=LOG_FILE         append messages generated to LOG_FILE
-  -m --max-records=MAX      exit after processing MAX records
-  -n --create-only          create new records, don't update existing records
-  -o --update-only          update existing records, don't create new records
-  -O --output=JSONL_OUTPUT  output to json lines file instead of stdout
-  -p --processes=PROCESSES  set the number of worker processes [default: 1]
-  -q --quiet                don't display progress messages
-  -r --remote=URL           URL of CKAN server for remote actions
-  -s --start-record=START   start from record number START, where the first
-                            record is number 1 [default: 1]
-  -u --ckan-user=USER       perform actions as user with this name, uses the
-                            site sysadmin user when not specified
-  -w --worker               launch worker process, used internally by load
-                            and dump commands
-  -z --gzip                 read/write gzipped data
+### Shell pipelines
+
+Simple shell pipelines are possible with the CLI. E.g. update the
+title of a dataset with the help of the 'jq' command-line json tool:
+
 ```
+$ ckanapi action package_show id=my-dataset \
+  | jq '.+{"title":"New title"}' \
+  | ckanapi action package_update -i
+```
+
+E.g. Copy all datasets from one CKAN instance to another:
+
+```
+$ ckanapi dump datasets --all -q -r http://sourceckan.example.com \
+  | ckanapi load datasets
+```
+
 
 ## ckanapi Python Module
 
