@@ -131,7 +131,8 @@ def dump_things_worker(ckan, thing, arguments,
             continue
 
         try:
-            obj = ckan.call_action(thing_show, {'id': name})
+            obj = ckan.call_action(thing_show, {'id': name,
+                'include_datasets': False})
             reply(None, obj)
         except NotFound:
             reply('NotFound')
