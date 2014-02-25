@@ -13,7 +13,7 @@ class CKANAPIError(Exception):
         self.extra_msg = extra_msg
 
     def __str__(self):
-        return self.extra_msg
+        return repr(self.extra_msg)
 
 try:
     import ckan
