@@ -104,7 +104,8 @@ class TestCLIDump(unittest.TestCase):
             stdout=self.stdout,
             stderr=self.stderr)
         self.assertEqual(self.worker_cmd, [
-            'ckanapi', 'dump', 'datasets', '--worker'])
+            'ckanapi', 'dump', 'datasets', '--worker',
+            'value-here-to-make-docopt-happy'])
         self.assertEqual(self.worker_processes, 1)
         self.assertEqual(self.worker_jobs, [(0, b'"12"\n'), (1, b'"34"\n')])
 
@@ -128,7 +129,8 @@ class TestCLIDump(unittest.TestCase):
             stdout=self.stdout,
             stderr=self.stderr)
         self.assertEqual(self.worker_cmd, [
-            'ckanapi', 'dump', 'datasets', '--worker'])
+            'ckanapi', 'dump', 'datasets', '--worker',
+            'value-here-to-make-docopt-happy'])
         self.assertEqual(self.worker_processes, 2)
 
     def test_parent_id_argument(self):
@@ -150,7 +152,8 @@ class TestCLIDump(unittest.TestCase):
             stdout=self.stdout,
             stderr=self.stderr)
         self.assertEqual(self.worker_cmd, [
-            'ckanapi', 'dump', 'groups', '--worker'])
+            'ckanapi', 'dump', 'groups', '--worker',
+            'value-here-to-make-docopt-happy'])
         self.assertEqual(self.worker_processes, 1)
         self.assertEqual(self.worker_jobs, [(0, b'"ab"\n')])
 
@@ -173,7 +176,8 @@ class TestCLIDump(unittest.TestCase):
             stdout=self.stdout,
             stderr=self.stderr)
         self.assertEqual(self.worker_cmd, [
-            'ckanapi', 'dump', 'organizations', '--worker'])
+            'ckanapi', 'dump', 'organizations', '--worker',
+            'value-here-to-make-docopt-happy'])
         self.assertEqual(self.worker_processes, 1)
         self.assertEqual(self.stdout.getvalue(),
             b'{"id":"P"}\n'

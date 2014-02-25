@@ -154,5 +154,6 @@ def _worker_command_line(thing, arguments):
         + a('--ckan-user')
         + a('--remote')
         + a('--apikey')
+        + ['value-here-to-make-docopt-happy']
         )
 
