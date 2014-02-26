@@ -149,12 +149,16 @@ def _worker_command_line(thing, arguments):
     def a(name):
         "options with values"
         return [name, arguments[name]] * (arguments[name] is not None)
+    def b(name):
+        "boolean options"
+        return [name] * bool(arguments[name])
     return (
         ['ckanapi', 'dump', thing, '--worker']
         + a('--config')
         + a('--ckan-user')
         + a('--remote')
         + a('--apikey')
+        + b('--get-request')
         + ['value-here-to-make-docopt-happy']
         )
 

@@ -9,7 +9,7 @@ Usage:
           [-n | -o] [-qwz] [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
   ckanapi dump (datasets | groups | organizations)
           (ID_OR_NAME ... | --all) [-O JSONL_OUTPUT] [-p PROCESSES] [-qwz]
-          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
+          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g]]
   ckanapi (-h | --help)
   ckanapi --version
 
@@ -20,7 +20,7 @@ Options:
   --all                     all the things
   -c --config=CONFIG        CKAN configuration file for local actions,
                             defaults to ./development.ini if that file exists
-  -g --get-request
+  -g --get-request          use GET instead of POST for API calls
   -i --input-json           read json from stdin to send to action
   -I --input=JSONL_INPUT    input json lines from file instead of stdin
   -j --output-json          output plain json instead of pretty-printed json
