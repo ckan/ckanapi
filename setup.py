@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name='ckanapi',
-    version='3.2-dev',
+    version='3.2',
     description=
         'A command line interface and Python module for '
         'accessing the CKAN Action API',
