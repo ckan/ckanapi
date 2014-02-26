@@ -3,7 +3,7 @@
 Usage:
   ckanapi action ACTION_NAME
           [KEY=VALUE ... | -i] [-j | -J]
-          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
+          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g]]
   ckanapi load (datasets | groups | organizations)
           [-I JSONL_INPUT] [-s START] [-m MAX] [-p PROCESSES] [-l LOG_FILE]
           [-n | -o] [-qwz] [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
@@ -20,6 +20,7 @@ Options:
   --all                     all the things
   -c --config=CONFIG        CKAN configuration file for local actions,
                             defaults to ./development.ini if that file exists
+  -g --get-request
   -i --input-json           read json from stdin to send to action
   -I --input=JSONL_INPUT    input json lines from file instead of stdin
   -j --output-json          output plain json instead of pretty-printed json
@@ -72,7 +73,9 @@ def main(running_with_paster=False):
             apikey=arguments['--apikey'],
             user_agent="ckanapi-cli/{version} (+{url})".format(
                 version=__version__,
-                url='https://github.com/open-data/ckanapi'))
+                url='https://github.com/open-data/ckanapi'),
+            get_only=arguments['--get-request'],
+            )
     else:
         ckan = LocalCKAN(username=arguments['--ckan-user'])
 
