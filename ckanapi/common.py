@@ -103,4 +103,4 @@ def reverse_apicontroller_action(url, status, response):
         raise NotAuthorized(err)
 
     # don't recognize the error
-    raise CKANAPIError([url, status, response])
+    raise CKANAPIError(repr([url, status, response]))
