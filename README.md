@@ -183,14 +183,15 @@ except ckanapi.ValidationError:
 
 ### TestAppCKAN
 
-A class is provided for making action requests to a paste.fixture.TestApp
+A class is provided for making action requests to a
+[webtest.TestApp](http://webtest.readthedocs.org/en/latest/testapp.html)
 instance for use in CKAN tests:
 
 ```python
 import ckanapi
-import paste.fixture
+import webtest
 
-test_app = paste.fixture.TestApp(...)
+test_app = webtest.TestApp(...)
 demo = ckanapi.TestAppCKAN(test_app, apikey='my-test-key')
 groups = demo.action.group_list(id='data-explorer')
 ```
