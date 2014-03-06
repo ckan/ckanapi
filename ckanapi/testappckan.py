@@ -47,7 +47,7 @@ class TestAppCKAN(object):
                 if hasattr(file_, 'name'):
                     filename = os.path.split(file_.name)[1]
                 else:
-                    filename = 'Unnmaed file'
+                    filename = fieldname
                 upload_files.append( (fieldname, filename, file_.read()) )
             kwargs['upload_files'] = upload_files
 
