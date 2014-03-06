@@ -17,6 +17,9 @@ def action(ckan, arguments,
 
     if arguments['--input-json']:
         action_args = json.loads(stdin.read().decode('utf-8'))
+    elif arguments['--input']:
+        action_args = json.loads(open(
+            arguments['--input']).read().decode('utf-8'))
     else:
         action_args = {}
         for kv in arguments['KEY=VALUE']:

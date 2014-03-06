@@ -2,7 +2,7 @@
 
 Usage:
   ckanapi action ACTION_NAME
-          [KEY=VALUE ... | -i] [-j | -J]
+          [KEY=VALUE ... | -i | -I JSON_INPUT] [-j | -J]
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g]]
   ckanapi load (datasets | groups | organizations)
           [-I JSONL_INPUT] [-s START] [-m MAX] [-p PROCESSES] [-l LOG_FILE]
@@ -22,7 +22,7 @@ Options:
                             defaults to ./development.ini if that file exists
   -g --get-request          use GET instead of POST for API calls
   -i --input-json           read json from stdin to send to action
-  -I --input=JSONL_INPUT    input json lines from file instead of stdin
+  -I --input=INPUT          input json/ json lines from file instead of stdin
   -j --output-json          output plain json instead of pretty-printed json
   -J --output-jsonl         output list responses as json lines instead of
                             pretty-printed json
