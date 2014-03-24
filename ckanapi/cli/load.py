@@ -79,7 +79,7 @@ def load_things(ckan, thing, arguments,
                 result.decode('utf-8'))
 
             if not arguments['--quiet']:
-                stderr.write('{0} {1} {2} {3} {4} {5}\n'.format(
+                stderr.write(u'{0} {1} {2} {3} {4} {5}\n'.format(
                     finished,
                     job_ids,
                     next(stats),
