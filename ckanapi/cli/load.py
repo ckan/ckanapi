@@ -85,7 +85,7 @@ def load_things(ckan, thing, arguments,
                     next(stats),
                     action,
                     error,
-                    compact_json(response) if response else ''
+                    compact_json(response).decode('utf-8') if response else u''
                     ).encode('utf-8'))
 
             if log:
