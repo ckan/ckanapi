@@ -79,14 +79,14 @@ def load_things(ckan, thing, arguments,
                 result.decode('utf-8'))
 
             if not arguments['--quiet']:
-                stderr.write(u'{0} {1} {2} {3} {4} {5}\n'.format(
+                stderr.write(('%s %s %s %s %s %s\n' % (
                     finished,
                     job_ids,
                     next(stats),
                     action,
                     error,
-                    compact_json(response).decode('utf-8') if response else u''
-                    ).encode('utf-8'))
+                    compact_json(response).decode('utf-8') if response else ''
+                    )).encode('utf-8'))
 
             if log:
                 log.write(compact_json([
