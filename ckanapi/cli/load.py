@@ -157,13 +157,14 @@ def load_things_worker(ckan, thing, arguments,
                 if not existing and name:
                     try:
                         existing = ckan.call_action(thing_show, {'id': name})
-                        # matching id required for *_update
-                        obj['id'] = existing['id']
                     except NotFound:
                         pass
                     except NotAuthorized as e:
                         reply('show', 'NotAuthorized', unicode(e))
                         continue
+
+                if existing:
+                    _copy_from_existing_for_update(obj, existing, thing)
 
                 # FIXME: compare and reply when 'unchanged'?
 
@@ -210,3 +211,19 @@ def _worker_command_line(thing, arguments):
         + b('--update-only')
         )
 
+
+def _copy_from_existing_for_update(obj, existing, thing):
+    """
+    modifies obj dict in place, copying values from existing.
+
+    the id is alwasys copied from existing to make sure update updates
+    the correct object.
+
+    users lists for groups and orgs are maintained if not present in obj
+    """
+    if 'id' in existing:
+        obj['id'] = existing['id']
+
+    if thing in ('organizations', 'groups'):
+        if 'users' not in obj and 'users' in existing:
+            obj['users'] = existing['users']
