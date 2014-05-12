@@ -14,6 +14,12 @@ class MockCKAN(object):
             raise NotAuthorized('naughty user')
         if name == 'package_create' and data_dict['name'] == '34':
             raise ValidationError({'name': 'That URL is already in use.'})
+        if name == 'organization_update':
+            if data_dict['id'] == 'used' and data_dict.get('users') != [
+                    'people']:
+                raise ValidationError({'users': 'should be unchanged'})
+            if data_dict['id'] == 'unused' and data_dict.get('users') != []:
+                raise ValidationError({'users': 'should be cleared'})
         try:
             return {
                 'package_show': {
@@ -26,6 +32,8 @@ class MockCKAN(object):
                     },
                 'organization_show': {
                     'cd': {'id': 'cd', 'title': "Super Trouper"},
+                    'used': {'users': ['people']},
+                    'unused': {'users': ['people']},
                     },
                 'package_create': {
                     None: {'name': 'something-new'},
@@ -38,6 +46,8 @@ class MockCKAN(object):
                     },
                 'organization_update': {
                     'cd': {'name': 'org-updated'},
+                    'used': {'name': 'users-unchanged'},
+                    'unused': {'name': 'users-cleared'},
                     },
                 'organization_create': {
                     None: {'name': 'org-created'},
@@ -186,6 +196,34 @@ class TestCLILoad(unittest.TestCase):
         self.assertEqual(action, 'create')
         self.assertEqual(error, None)
         self.assertEqual(data, 'org-created')
+
+    def test_update_organization_with_users_unchanged(self):
+        load_things_worker(self.ckan, 'organizations', {
+                '--create-only': False,
+                '--update-only': False,
+                },
+            stdin=BytesIO(b'{"id": "used", "title": "here"}\n'),
+            stdout=self.stdout)
+        response = self.stdout.getvalue()
+        self.assertEqual(response[-1:], b'\n')
+        timstamp, action, error, data = json.loads(response.decode('UTF-8'))
+        self.assertEqual(action, 'update')
+        self.assertEqual(error, None)
+        self.assertEqual(data, 'users-unchanged')
+
+    def test_update_organization_with_users_cleared(self):
+        load_things_worker(self.ckan, 'organizations', {
+                '--create-only': False,
+                '--update-only': False,
+                },
+            stdin=BytesIO(b'{"id": "unused", "users": []}\n'),
+            stdout=self.stdout)
+        response = self.stdout.getvalue()
+        self.assertEqual(response[-1:], b'\n')
+        timstamp, action, error, data = json.loads(response.decode('UTF-8'))
+        self.assertEqual(action, 'update')
+        self.assertEqual(error, None)
+        self.assertEqual(data, 'users-cleared')
 
     def test_parent_load_two(self):
         load_things(self.ckan, 'datasets', {
