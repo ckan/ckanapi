@@ -18,6 +18,12 @@ setup(
         'ckanapi.tests.mock',
         'ckanapi.cli',
         ],
+    install_requires=[
+        'setuptools',
+        'docopt',
+        'requests',
+        'simplejson',
+    ],
     test_suite='ckanapi.tests',
     zip_safe=False,
     entry_points = """
