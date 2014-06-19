@@ -11,7 +11,6 @@ install_requires=[
 ],
 
 if sys.version_info <= (3,):
-    extra['use_2to3'] = True
     install_requires.append('simplejson')
 
 
