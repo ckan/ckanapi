@@ -8,7 +8,7 @@ install_requires=[
     'setuptools',
     'docopt',
     'requests',
-],
+]
 
 if sys.version_info <= (3,):
     install_requires.append('simplejson')
