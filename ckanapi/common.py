@@ -85,6 +85,9 @@ def reverse_apicontroller_action(url, status, response):
     except (AttributeError, ValueError):
         err = {}
 
+    if not isinstance(err, dict):
+        err = {}
+
     etype = err.get('__type')
     emessage = err.get('message', '').split(': ', 1)[-1]
     if etype == 'Search Query Error':
