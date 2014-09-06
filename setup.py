@@ -1,6 +1,18 @@
 #!/usr/bin/env python
 
 from setuptools import setup
+import sys
+
+
+install_requires=[
+    'setuptools',
+    'docopt',
+    'requests',
+]
+
+if sys.version_info <= (3,):
+    install_requires.append('simplejson')
+
 
 setup(
     name='ckanapi',
@@ -18,6 +30,7 @@ setup(
         'ckanapi.tests.mock',
         'ckanapi.cli',
         ],
+    install_requires=install_requires,
     test_suite='ckanapi.tests',
     zip_safe=False,
     entry_points = """
@@ -28,3 +41,4 @@ setup(
         ckanapi=ckanapi.cli.paster:CKANAPICommand
         """
     )
+
