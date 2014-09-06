@@ -1,3 +1,10 @@
+class ServerIncompatibleError(Exception):
+    """
+    The error raised from RemoteCKAN.call_action when the API doesn't behave
+    like a CKAN API.
+    """
+
+
 class CKANAPIError(Exception):
     """
     The error raised from RemoteCKAN.call_action when no other error
@@ -14,6 +21,7 @@ class CKANAPIError(Exception):
 
     def __str__(self):
         return self.extra_msg
+
 
 try:
     import ckan
