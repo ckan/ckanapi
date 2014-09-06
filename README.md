@@ -120,6 +120,7 @@ and actions added by CKAN plugins are supported by action shortcuts and
 * `SearchQueryError` - error reported from SOLR index
 * `SearchError`
 * `CKANAPIError` - incorrect use of ckanapi or unable to parse response
+* `ServerIncompatibleError` - the remote API is not a CKAN API
 
 When using an action shortcut or the `call_action` method
 failures are raised as exceptions just like when calling `get_action` from a
