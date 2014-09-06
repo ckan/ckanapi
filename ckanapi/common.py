@@ -5,7 +5,8 @@ Code shared by LocalCKAN, RemoteCKAN and TestCKAN
 import json
 
 from ckanapi.errors import (CKANAPIError, NotAuthorized, NotFound,
-    ValidationError, SearchQueryError, SearchError, SearchIndexError)
+    ValidationError, SearchQueryError, SearchError, SearchIndexError,
+    ServerIncompatibleError)
 
 class ActionShortcut(object):
     """
@@ -84,6 +85,9 @@ def reverse_apicontroller_action(url, status, response):
             err = {}
     except (AttributeError, ValueError):
         err = {}
+
+    if not isinstance(err, dict):  # possibly a Socrata API.
+        raise ServerIncompatibleError(repr([url, status, response]))
 
     etype = err.get('__type')
     emessage = err.get('message', '').split(': ', 1)[-1]
