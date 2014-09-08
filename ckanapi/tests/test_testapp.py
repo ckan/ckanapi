@@ -37,6 +37,8 @@ def wsgi_app(environ, start_response):
             elif b'filename="f"' in s:
                 saw_file = True
         response = {'success': True, 'result': data[i + 1].decode('ascii')}
+    elif path == '/api/action/not_ckan':
+        response = {'success': False, 'error': True}
 
     start_response(status, headers)
     return [json.dumps(response)]
@@ -69,3 +71,7 @@ class TestTestAPPCKAN(unittest.TestCase):
             self.ckan.action.upload(package_id='42',
                 f=BytesIO(UPLOAD_DATA)), 'public info\n')
 
+    def test_not_ckan(self):
+        self.assertRaises(
+            ckanapi.ServerIncompatibleError,
+            self.ckan.action.not_ckan)

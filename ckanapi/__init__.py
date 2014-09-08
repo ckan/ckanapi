@@ -13,6 +13,7 @@ from ckanapi.errors import (
     SearchQueryError,
     SearchError,
     SearchIndexError,
+    ServerIncompatibleError,
     )
 from ckanapi.localckan import LocalCKAN
 from ckanapi.remoteckan import RemoteCKAN
