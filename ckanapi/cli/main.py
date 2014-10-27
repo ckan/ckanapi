@@ -44,6 +44,7 @@ Options:
 """
 
 import sys
+import os
 from docopt import docopt
 from pkg_resources import load_entry_point
 
@@ -86,6 +87,11 @@ def main(running_with_paster=False):
 
     things = ['datasets', 'groups', 'organizations']
     thing = [x for x in things if arguments[x]]
+    if (arguments['load'] or arguments['dump']
+            ) and arguments['--processes'] != '1' and os.name == 'nt':
+        print "multiple worker processes are not supported on windows"
+        arguments['--processes'] = '1'
+
     if arguments['load']:
         assert len(thing) == 1, thing
         return load_things(ckan, thing[0], arguments)
