@@ -103,6 +103,13 @@ class TestRemoteAction(unittest.TestCase):
             files={'upload': StringIO(NUMBER_THING_CSV)})
         self.assertEqual(res.get('option'), "42")
 
+    def test_resource_upload_unicode_param(self):
+        uname = b't\xc3\xab\xc3\x9ft resource'.decode('utf-8')
+        res = self.ckan.call_action('test_upload',
+            {'option': uname},
+            files={'upload': StringIO(NUMBER_THING_CSV)})
+        self.assertEqual(res.get('option'), uname)
+
     def test_resource_upload_content_type(self):
         res = self.ckan.call_action('test_echo_content_type',
             {'option': "42"},
