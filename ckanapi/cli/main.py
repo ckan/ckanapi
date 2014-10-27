@@ -89,7 +89,8 @@ def main(running_with_paster=False):
     thing = [x for x in things if arguments[x]]
     if (arguments['load'] or arguments['dump']
             ) and arguments['--processes'] != '1' and os.name == 'nt':
-        print "multiple worker processes are not supported on windows"
+        sys.stderr.write(
+            "multiple worker processes are not supported on windows\n")
         arguments['--processes'] = '1'
 
     if arguments['load']:
