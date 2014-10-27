@@ -91,6 +91,12 @@ def worker_pool(popen_arg, num_workers, job_iterable,
 
             try:
                 readable, _, _ = select.select(worker_fds, [], [])
+            except select.error as e:
+                if e.args[0] == 10038:
+                    # XXX: no many-worker support on windows yet
+                    readable = list(worker_fds)[:1]
+                else:
+                    raise
             except KeyboardInterrupt:
                 if stop_on_keyboard_interrupt:
                     return
