@@ -59,7 +59,10 @@ def prepare_action(action, data_dict=None, apikey=None, files=None):
     if not data_dict:
         data_dict = {}
     headers = {}
-    if not files:
+    if files:
+        data_dict = dict((k.encode('utf-8'), v.encode('utf-8'))
+            for (k, v) in data_dict.items())
+    else:
         data_dict = json.dumps(data_dict).encode('ascii')
         headers['Content-Type'] = 'application/json'
     if apikey:
