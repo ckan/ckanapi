@@ -63,7 +63,7 @@ def dump_things(ckan, thing, arguments,
 
     results = {}
     expecting_number = 0
-    with quiet_int_pipe():
+    with quiet_int_pipe() as errors:
         for job_ids, finished, result in pool:
             timestamp, error, record = json.loads(result.decode('utf-8'))
             results[finished] = record
@@ -93,6 +93,10 @@ def dump_things(ckan, thing, arguments,
                     jsonl_output.write(compact_json(record,
                         sort_keys=True) + b'\n')
                 expecting_number += 1
+    if 'pipe' in errors:
+        return 1
+    if 'interrupt' in errors:
+        return 2
 
 
 def dump_things_worker(ckan, thing, arguments,

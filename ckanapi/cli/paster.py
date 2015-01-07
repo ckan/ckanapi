@@ -26,4 +26,4 @@ class CKANAPICommand(CkanCommand):
     def command(self):
         self._load_config()
 
-        main.main(running_with_paster=True)
+        return main.main(running_with_paster=True)
