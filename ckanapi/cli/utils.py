@@ -34,13 +34,15 @@ def quiet_int_pipe():
     """
     let pipe errors and KeyboardIterrupt exceptions cause silent exit
     """
+    errors = []
     try:
-        yield
+        yield errors
     except KeyboardInterrupt:
-        pass
+        errors.append('interrupt')
     except IOError as e:
         if e.errno != 32:
             raise
+        errors.append('pipe')
 
 
 def compact_json(r, sort_keys=False):
