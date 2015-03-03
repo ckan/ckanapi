@@ -8,8 +8,8 @@ Usage:
           [-I JSONL_INPUT] [-s START] [-m MAX] [-p PROCESSES] [-l LOG_FILE]
           [-n | -o] [-qwz] [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
   ckanapi dump (datasets | groups | organizations)
-          (ID_OR_NAME ... | --all) [-O JSONL_OUTPUT] [-p PROCESSES] [-qwz]
-          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g]]
+          (ID_OR_NAME ... | --all) [-O JSONL_OUTPUT] [--output-datapackage]
+          [-p PROCESSES] [-qwz] [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g]]
   ckanapi (-h | --help)
   ckanapi --version
 
@@ -26,6 +26,8 @@ Options:
   -j --output-json          output plain json instead of pretty-printed json
   -J --output-jsonl         output list responses as json lines instead of
                             pretty-printed json
+  -d --output-datapackage   output to datapackage format instead of pretty-printed json
+                            includes resources
   -l --log=LOG_FILE         append messages generated to LOG_FILE
   -m --max-records=MAX      exit after processing MAX records
   -n --create-only          create new records, don't update existing records
@@ -66,6 +68,7 @@ def main(running_with_paster=False):
     ckanapi command line entry point
     """
     arguments = parse_arguments()
+
     if not running_with_paster and not arguments['--remote']:
         return _switch_to_paster(arguments)
 

@@ -6,11 +6,14 @@ import sys
 import gzip
 import json
 from datetime import datetime
+import datapackage
+import os
 
 from ckanapi.errors import (NotFound, NotAuthorized, ValidationError,
     SearchIndexError)
 from ckanapi.cli import workers
-from ckanapi.cli.utils import completion_stats, compact_json, quiet_int_pipe
+from ckanapi.cli.utils import completion_stats, compact_json, \
+    quiet_int_pipe, pretty_json
 
 
 def dump_things(ckan, thing, arguments,
@@ -41,7 +44,6 @@ def dump_things(ckan, thing, arguments,
         jsonl_output = open(arguments['--output'], 'wb')
     if arguments['--gzip']:
         jsonl_output = gzip.GzipFile(fileobj=jsonl_output)
-
     if arguments['--all']:
         get_thing_list = {
             'datasets': 'package_list',
@@ -84,6 +86,24 @@ def dump_things(ckan, thing, arguments,
                     error,
                     record.get('name', '') if record else None,
                     ]) + b'\n')
+
+            if arguments['--output-datapackage']:
+                id = record.get('id', '') if record else ''
+                if not os.path.exists('./{id}'.format(id=id)):
+                    os.makedirs('./{id}'.format(id=id))
+
+                datapackage_json_output = open('./{id}/datapackage.json'.format(id=id), 'w')
+                datapackage_json_output.write(pretty_json(record))
+
+                stderr.write('{0} {1} {2} {3} {4}\n'.format(
+                    finished,
+                    job_ids,
+                    next(stats),
+                    error,
+                    record.get('id', '') if record else '',
+                    ).encode('utf-8'))
+
+
 
             # keep the output in the same order as names
             while expecting_number in results:
