@@ -8,6 +8,7 @@ import json
 from datetime import datetime
 import datapackage
 import os
+import requests
 
 from ckanapi.errors import (NotFound, NotAuthorized, ValidationError,
     SearchIndexError)
@@ -88,22 +89,38 @@ def dump_things(ckan, thing, arguments,
                     ]) + b'\n')
 
             if arguments['--output-datapackage']:
-                id = record.get('id', '') if record else ''
-                if not os.path.exists('./{id}'.format(id=id)):
-                    os.makedirs('./{id}'.format(id=id))
+                resource_types_to_not_download = ['API', 'api']
 
-                datapackage_json_output = open('./{id}/datapackage.json'.format(id=id), 'w')
-                datapackage_json_output.write(pretty_json(record))
+                dataset_name = record.get('name', '') if record else ''
 
-                stderr.write('{0} {1} {2} {3} {4}\n'.format(
-                    finished,
-                    job_ids,
-                    next(stats),
-                    error,
-                    record.get('id', '') if record else '',
-                    ).encode('utf-8'))
+                if not os.path.exists('./{name}'.format(name=dataset_name)):
+                    os.makedirs('./{name}'.format(name=dataset_name))
+
+                for resource in record.get('resources', ''):
+                    if resource['name'] is None:
+                        resource_id = resource['name']
+                    else:
+                        resource_id = resource['id']
+
+                    output = './{dataset_name}/{id}'.format(dataset_name=dataset_name, id=resource_id)
+
+                    resource_path = output.split('/')[-1]
+                    resource['path'] = resource_path
+
+                    try:
+                        if resource['mimetype'] not in resource_types_to_not_download:
+                            r = requests.get(resource['url'], stream=True)
+                            with open(output, 'wb') as f:
+                                for chunk in r.iter_content(chunk_size=1024):
+                                    if chunk: # filter out keep-alive new chunks
+                                        f.write(chunk)
+                                        f.flush()
+                    except KeyError:
+                        stderr.write('Resource {id} does not have a mimetype\n'.format(id=resource['id']).encode('utf-8'))
 
 
+                datapackagejson_output = open('./{name}/datapackage.json'.format(name=dataset_name), 'w')
+                datapackagejson_output.write(pretty_json(record))
 
             # keep the output in the same order as names
             while expecting_number in results:
