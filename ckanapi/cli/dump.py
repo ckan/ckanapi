@@ -6,7 +6,6 @@ import sys
 import gzip
 import json
 from datetime import datetime
-import datapackage
 import os
 import requests
 
@@ -117,12 +116,13 @@ def dump_things(ckan, thing, arguments,
 
                     output = os.path.join(target_dir, resource_filename)
 
-                    # resources can have a free-form address and no internal info, so in those cases
+                    # Resources can have a free-form address and no internal info, so in those cases
                     # we're going to merely save them using the UID.
                     if output.endswith('/'):
                         output = os.path.join(output, resource_id)
 
                     resource['path'] = output  # datapackage.json format explicitly requires a path to the resource
+                    resource['version'] = '1.0-beta.10'
 
                     try:
                         if resource['format'] not in resource_types_to_not_download:
