@@ -40,6 +40,8 @@ def dump_things(ckan, thing, arguments,
         log = open(arguments['--log'], 'a')
 
     jsonl_output = stdout
+    if arguments['--dp-output']:  # TODO: do we want to just divert this to devnull?
+        jsonl_output = open(os.devnull, 'w')
     if arguments['--output']:
         jsonl_output = open(arguments['--output'], 'wb')
     if arguments['--gzip']:
@@ -88,9 +90,9 @@ def dump_things(ckan, thing, arguments,
                     ]) + b'\n')
 
             if arguments['--dp-output']:
-
-                resource_types_to_not_download = ['API', 'api']  # TODO: how are we going to handle which resources to leave alone?
-
+                # TODO: how are we going to handle which resources to leave alone? They're very inconsistent in some instances
+                # And I can't imagine anyone wants to download a copy of, for example, the API base endpoint
+                resource_formats_to_ignore = ['API', 'api']
                 dataset_name = record.get('name', '') if record else ''
 
                 try:
@@ -103,8 +105,8 @@ def dump_things(ckan, thing, arguments,
 
                 try:
                     os.makedirs(target_dir)
-                except:
-                    pass  # todo: catch this exception
+                except Exception as e:
+                    stderr.write(e.message)
 
                 for resource in record.get('resources', ''):
                     if resource['name'] is not None:
@@ -117,27 +119,32 @@ def dump_things(ckan, thing, arguments,
                     output = os.path.join(target_dir, resource_filename)
 
                     # Resources can have a free-form address and no internal info, so in those cases
-                    # we're going to merely save them using the UID.
+                    # we're going to merely save them using the UID. (If they even exist)
                     if output.endswith('/'):
                         output = os.path.join(output, resource_id)
 
                     resource['path'] = output  # datapackage.json format explicitly requires a path to the resource
-                    resource['version'] = '1.0-beta.10'
 
                     try:
-                        if resource['format'] not in resource_types_to_not_download:
+                        if resource['format'] not in resource_formats_to_ignore:
                             r = requests.get(resource['url'], stream=True)
                             with open(output, 'wb') as f:
                                 for chunk in r.iter_content(chunk_size=1024):
                                     if chunk: # filter out keep-alive new chunks
                                         f.write(chunk)
                                         f.flush()
-                    except KeyError:
-                        stderr.write('Resource {id} does not have a mimetype\n'.format(id=resource['id']).encode('utf-8'))
+                    except requests.ConnectionError:
+                        stderr.write('URL {url} refused connection. The resource will not be downloaded\n'.format(url=resource['url']))
+                    except requests.exceptions.RequestException as e:
+                        stderr.write(e.message)
+                        stderr.write('\n')
 
 
-                datapackagejson_output = open('{base_path}/{dataset_name}/datapackage.json'.format(base_path=base_path,
+                datapackagejson_output = open('{base_path}{dataset_name}/datapackage.json'.format(base_path=base_path,
                                                                                                    dataset_name=dataset_name), 'w',)
+
+                record['version'] = '1.0-beta.10'
+
                 datapackagejson_output.write(pretty_json(record))
 
             # keep the output in the same order as names

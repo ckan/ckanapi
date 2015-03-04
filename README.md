@@ -54,6 +54,19 @@ Bulk loading jobs may be resumed from the last completed
 record or split across multiple servers by specifying record
 start and max values.
 
+### Bulk Dataset Export
+
+In order to export to the [datapackage.json format](http://data.okfn.org/doc/data-package),
+which includes all metadata belonging to a dataset (including resource metadata) as well
+as a copy of the actual data.
+
+This output format will enable users to export their metadata and data from a CKAN instance
+in order to import it into any number of other open data repository applications.
+
+
+```
+$ ckanapi dump datasets --all --dp-output=./output_directory/ -r http://sourceckan.example.com
+```
 
 ### Shell pipelines
 
