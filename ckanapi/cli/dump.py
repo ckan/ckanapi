@@ -88,27 +88,44 @@ def dump_things(ckan, thing, arguments,
                     record.get('name', '') if record else None,
                     ]) + b'\n')
 
-            if arguments['--output-datapackage']:
-                resource_types_to_not_download = ['API', 'api']
+            if arguments['--dp-output']:
+
+                resource_types_to_not_download = ['API', 'api']  # TODO: how are we going to handle which resources to leave alone?
 
                 dataset_name = record.get('name', '') if record else ''
 
-                if not os.path.exists('./{name}'.format(name=dataset_name)):
-                    os.makedirs('./{name}'.format(name=dataset_name))
+                try:
+                    base_path = arguments['--dp-output']
+                except KeyError:
+                    base_path = './'
+
+                target_dir = '{base_path}/{name}/data'.format(base_path=base_path,
+                                                                 name=dataset_name)
+
+                try:
+                    os.makedirs(target_dir)
+                except:
+                    pass  # todo: catch this exception
 
                 for resource in record.get('resources', ''):
-                    if resource['name'] is None:
+                    if resource['name'] is not None:
                         resource_id = resource['name']
                     else:
                         resource_id = resource['id']
 
-                    output = './{dataset_name}/{id}'.format(dataset_name=dataset_name, id=resource_id)
+                    resource_filename = os.path.split(resource['url'])[1]
 
-                    resource_path = output.split('/')[-1]
-                    resource['path'] = resource_path
+                    output = os.path.join(target_dir, resource_filename)
+
+                    # resources can have a free-form address and no internal info, so in those cases
+                    # we're going to merely save them using the UID.
+                    if output.endswith('/'):
+                        output = os.path.join(output, resource_id)
+
+                    resource['path'] = output  # datapackage.json format explicitly requires a path to the resource
 
                     try:
-                        if resource['mimetype'] not in resource_types_to_not_download:
+                        if resource['format'] not in resource_types_to_not_download:
                             r = requests.get(resource['url'], stream=True)
                             with open(output, 'wb') as f:
                                 for chunk in r.iter_content(chunk_size=1024):
@@ -119,7 +136,8 @@ def dump_things(ckan, thing, arguments,
                         stderr.write('Resource {id} does not have a mimetype\n'.format(id=resource['id']).encode('utf-8'))
 
 
-                datapackagejson_output = open('./{name}/datapackage.json'.format(name=dataset_name), 'w')
+                datapackagejson_output = open('{base_path}/{dataset_name}/datapackage.json'.format(base_path=base_path,
+                                                                                                   dataset_name=dataset_name), 'w',)
                 datapackagejson_output.write(pretty_json(record))
 
             # keep the output in the same order as names

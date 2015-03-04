@@ -8,7 +8,7 @@ Usage:
           [-I JSONL_INPUT] [-s START] [-m MAX] [-p PROCESSES] [-l LOG_FILE]
           [-n | -o] [-qwz] [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
   ckanapi dump (datasets | groups | organizations)
-          (ID_OR_NAME ... | --all) [-O JSONL_OUTPUT] [--output-datapackage]
+          (ID_OR_NAME ... | --all) [-O JSONL_OUTPUT] [(--dp-output=directory)]
           [-p PROCESSES] [-qwz] [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g]]
   ckanapi (-h | --help)
   ckanapi --version
@@ -26,7 +26,7 @@ Options:
   -j --output-json          output plain json instead of pretty-printed json
   -J --output-jsonl         output list responses as json lines instead of
                             pretty-printed json
-  -d --output-datapackage   output to datapackage format instead of pretty-printed json
+  -d --dp-output=directory  output to datapackage format instead of pretty-printed json
                             includes resources
   -l --log=LOG_FILE         append messages generated to LOG_FILE
   -m --max-records=MAX      exit after processing MAX records
