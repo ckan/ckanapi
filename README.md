@@ -54,7 +54,7 @@ Bulk loading jobs may be resumed from the last completed
 record or split across multiple servers by specifying record
 start and max values.
 
-### Bulk Dataset Export - datapackage.json format
+### Bulk Dataset and Resource Export - datapackage.json format
 
 Datasets may be exported to the [datapackage.json format](http://dataprotocols.org/data-packages/) (which includes the actual resources, where available).
 
