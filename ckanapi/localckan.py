@@ -15,7 +15,7 @@ class LocalCKAN(object):
         from ckan.logic import get_action
         self._get_action = get_action
 
-        if not username:
+        if username is None:
             username = self.get_site_username()
         self.username = username
         self.context = dict(context or [], user=self.username)
