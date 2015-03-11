@@ -16,7 +16,7 @@ if sys.version_info <= (3,):
 
 setup(
     name='ckanapi',
-    version='3.4-dev',
+    version='3.4',
     description=
         'A command line interface and Python module for '
         'accessing the CKAN Action API',
