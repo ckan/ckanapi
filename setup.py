@@ -7,7 +7,8 @@ import sys
 install_requires=[
     'setuptools',
     'docopt',
-    '-e git://github.com/sigmavirus24/requests.git@537de1c65137c39b15277c6dc11aa932f82ed7c0#egg=requests',
+    'requests',
+    #'-e git://github.com/sigmavirus24/requests.git@537de1c65137c39b15277c6dc11aa932f82ed7c0#egg=requests',
 ]
 
 if sys.version_info <= (3,):
