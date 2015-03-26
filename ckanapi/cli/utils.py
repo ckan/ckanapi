@@ -60,4 +60,3 @@ def pretty_json(r):
     return json.dumps(r, ensure_ascii=False, separators=(',', ': '),
         indent=2, sort_keys=True).encode('utf-8')
 
-

@@ -54,6 +54,16 @@ Bulk loading jobs may be resumed from the last completed
 record or split across multiple servers by specifying record
 start and max values.
 
+### Bulk Dataset and Resource Export - datapackage.json format
+
+Datasets may be exported to the [datapackage.json format](http://dataprotocols.org/data-packages/) (which includes the actual resources, where available).
+
+If the resource url is not available, the resource will be included in the datapackage.json file
+but the actual resource data will not be downloaded.
+
+```
+$ ckanapi dump datasets --all --dp-output=./output_directory/ -r http://sourceckan.example.com
+```
 
 ### Shell pipelines
 

@@ -6,11 +6,14 @@ import sys
 import gzip
 import json
 from datetime import datetime
+import os
+import requests
 
 from ckanapi.errors import (NotFound, NotAuthorized, ValidationError,
     SearchIndexError)
 from ckanapi.cli import workers
-from ckanapi.cli.utils import completion_stats, compact_json, quiet_int_pipe
+from ckanapi.cli.utils import completion_stats, compact_json, \
+    quiet_int_pipe, pretty_json
 
 
 def dump_things(ckan, thing, arguments,
@@ -37,11 +40,12 @@ def dump_things(ckan, thing, arguments,
         log = open(arguments['--log'], 'a')
 
     jsonl_output = stdout
+    if arguments['--dp-output']:  # TODO: do we want to just divert this to devnull?
+        jsonl_output = open(os.devnull, 'w')
     if arguments['--output']:
         jsonl_output = open(arguments['--output'], 'wb')
     if arguments['--gzip']:
         jsonl_output = gzip.GzipFile(fileobj=jsonl_output)
-
     if arguments['--all']:
         get_thing_list = {
             'datasets': 'package_list',
@@ -84,6 +88,64 @@ def dump_things(ckan, thing, arguments,
                     error,
                     record.get('name', '') if record else None,
                     ]) + b'\n')
+
+            if arguments['--dp-output']:
+                # TODO: how are we going to handle which resources to leave alone? They're very inconsistent in some instances
+                # And I can't imagine anyone wants to download a copy of, for example, the API base endpoint
+                resource_formats_to_ignore = ['API', 'api']
+                dataset_name = record.get('name', '') if record else ''
+
+                try:
+                    base_path = arguments['--dp-output']
+                except KeyError:
+                    base_path = './'
+
+                target_dir = '{base_path}/{name}/data'.format(base_path=base_path,
+                                                                 name=dataset_name)
+
+                try:
+                    os.makedirs(target_dir)
+                except Exception as e:
+                    stderr.write(e.message)
+
+                for resource in record.get('resources', ''):
+                    if resource['name'] is not None:
+                        resource_id = resource['name']
+                    else:
+                        resource_id = resource['id']
+
+                    resource_filename = os.path.split(resource['url'])[1]
+
+                    output = os.path.join(target_dir, resource_filename)
+
+                    # Resources can have a free-form address and no internal info, so in those cases
+                    # we're going to merely save them using the UID. (If they even exist)
+                    if output.endswith('/'):
+                        output = os.path.join(output, resource_id)
+
+                    resource['path'] = output  # datapackage.json format explicitly requires a path to the resource
+
+                    try:
+                        if resource['format'] not in resource_formats_to_ignore:
+                            r = requests.get(resource['url'], stream=True)
+                            with open(output, 'wb') as f:
+                                for chunk in r.iter_content(chunk_size=1024):
+                                    if chunk: # filter out keep-alive new chunks
+                                        f.write(chunk)
+                                        f.flush()
+                    except requests.ConnectionError:
+                        stderr.write('URL {url} refused connection. The resource will not be downloaded\n'.format(url=resource['url']))
+                    except requests.exceptions.RequestException as e:
+                        stderr.write(e.message)
+                        stderr.write('\n')
+
+
+                datapackagejson_output = open('{base_path}{dataset_name}/datapackage.json'.format(base_path=base_path,
+                                                                                                   dataset_name=dataset_name), 'w',)
+
+                record['version'] = '1.0-beta.10'
+
+                datapackagejson_output.write(pretty_json(record))
 
             # keep the output in the same order as names
             while expecting_number in results:
