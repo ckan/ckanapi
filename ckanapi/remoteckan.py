@@ -51,7 +51,7 @@ class RemoteCKAN(object):
             self.parallel_limit = PARALLEL_LIMIT
 
     def call_action(self, action, data_dict=None, context=None, apikey=None,
-            files=None):
+            files=None, requests_kwargs=None):
         """
         :param action: the action name, e.g. 'package_create'
         :param data_dict: the dict to pass to the action as JSON,
@@ -75,17 +75,18 @@ class RemoteCKAN(object):
             action, data_dict, apikey or self.apikey, files)
         headers['User-Agent'] = self.user_agent
         url = self.address.rstrip('/') + '/' + url
+        requests_kwargs = requests_kwargs or {}
         if self.get_only:
-            status, response = self._request_fn_get(url, data_dict, headers)
+            status, response = self._request_fn_get(url, data_dict, headers, requests_kwargs)
         else:
-            status, response = self._request_fn(url, data, headers, files)
+            status, response = self._request_fn(url, data, headers, files, requests_kwargs)
         return reverse_apicontroller_action(url, status, response)
 
-    def _request_fn(self, url, data, headers, files):
-        r = requests.post(url, data=data, headers=headers, files=files)
+    def _request_fn(self, url, data, headers, files, requests_kwargs):
+        r = requests.post(url, data=data, headers=headers, files=files, **requests_kwargs)
         return r.status_code, r.text
 
-    def _request_fn_get(self, url, data_dict, headers):
-        r = requests.get(url, params=data_dict, headers=headers)
+    def _request_fn_get(self, url, data_dict, headers, requests_kwargs):
+        r = requests.get(url, params=data_dict, headers=headers, **requests_kwargs)
         return r.status_code, r.text
 
