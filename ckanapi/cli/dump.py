@@ -200,13 +200,10 @@ def create_datapackage(record, base_path):
             stderr.write(e.message)
             stderr.write('\n')
 
-
-    datapackagejson_output = open('{base_path}{dataset_name}/datapackage.json'.format(base_path=base_path,
-                                                                                       dataset_name=dataset_name), 'w',)
-
-    record['version'] = '1.0-beta.10'
-
-    datapackagejson_output.write(pretty_json(record))
+    json_output_name = '{base_path}{dataset_name}/datapackage.json'.format(
+        base_path=base_path, dataset_name=dataset_name)
+    with open(json_output_name, 'w') as out:
+        out.write(pretty_json(dict(record, version='1.0-beta.10'))
 
 
 def _worker_command_line(thing, arguments):
