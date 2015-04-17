@@ -40,7 +40,7 @@ def dump_things(ckan, thing, arguments,
         log = open(arguments['--log'], 'a')
 
     jsonl_output = stdout
-    if arguments['--dp-output']:  # TODO: do we want to just divert this to devnull?
+    if arguments['--datapackages']:  # TODO: do we want to just divert this to devnull?
         jsonl_output = open(os.devnull, 'w')
     if arguments['--output']:
         jsonl_output = open(arguments['--output'], 'wb')
@@ -89,14 +89,14 @@ def dump_things(ckan, thing, arguments,
                     record.get('name', '') if record else None,
                     ]) + b'\n')
 
-            if arguments['--dp-output']:
+            if arguments['--datapackages']:
                 # TODO: how are we going to handle which resources to leave alone? They're very inconsistent in some instances
                 # And I can't imagine anyone wants to download a copy of, for example, the API base endpoint
                 resource_formats_to_ignore = ['API', 'api']
                 dataset_name = record.get('name', '') if record else ''
 
                 try:
-                    base_path = arguments['--dp-output']
+                    base_path = arguments['--datapackages']
                 except KeyError:
                     base_path = './'
 

@@ -26,8 +26,8 @@ Options:
   -j --output-json          output plain json instead of pretty-printed json
   -J --output-jsonl         output list responses as json lines instead of
                             pretty-printed json
-  -D --dp-output=DIRECTORY  output to datapackage format instead of pretty-printed json
-                            includes resources
+  -D --datapackages=DIR     download resources and output as datapackages
+                            in DIR instead of metadata-only json lines
   -l --log=LOG_FILE         append messages generated to LOG_FILE
   -m --max-records=MAX      exit after processing MAX records
   -n --create-only          create new records, don't update existing records
