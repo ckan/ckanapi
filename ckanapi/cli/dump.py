@@ -15,6 +15,8 @@ from ckanapi.cli import workers
 from ckanapi.cli.utils import completion_stats, compact_json, \
     quiet_int_pipe, pretty_json
 
+DL_CHUNK_SIZE = 100 * 1024
+
 
 def dump_things(ckan, thing, arguments,
         worker_pool=None, stdout=None, stderr=None):
@@ -190,7 +192,7 @@ def create_datapackage(record, base_path):
             if resource['format'] not in resource_formats_to_ignore:
                 r = requests.get(resource['url'], stream=True)
                 with open(output, 'wb') as f:
-                    for chunk in r.iter_content(chunk_size=1024):
+                    for chunk in r.iter_content(chunk_size=DL_CHUNK_SIZE):
                         if chunk: # filter out keep-alive new chunks
                             f.write(chunk)
                             f.flush()
