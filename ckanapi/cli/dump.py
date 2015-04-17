@@ -16,6 +16,7 @@ from ckanapi.cli.utils import completion_stats, compact_json, \
     quiet_int_pipe, pretty_json
 
 DL_CHUNK_SIZE = 100 * 1024
+DATAPACKAGE_VERSION = '1.0-beta.10'
 
 
 def dump_things(ckan, thing, arguments,
@@ -205,7 +206,7 @@ def create_datapackage(record, base_path):
     json_output_name = '{base_path}{dataset_name}/datapackage.json'.format(
         base_path=base_path, dataset_name=dataset_name)
     with open(json_output_name, 'w') as out:
-        out.write(pretty_json(dict(record, version='1.0-beta.10'))
+        out.write(pretty_json(dict(record, version=DATAPACKAGE_VERSION))
 
 
 def _worker_command_line(thing, arguments):
