@@ -56,6 +56,9 @@ def mock_ckan(environ, start_response):
             "success": False,
             "error": {'__type': 'Not Found Error'},
             }).encode('utf-8')]
+    if environ['PATH_INFO'] == '/static/test-file':
+        start_response(status, headers)
+        return ["hello world\n"]
     start_response('404 Not Found', headers)
     return []
 

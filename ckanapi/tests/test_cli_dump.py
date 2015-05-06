@@ -1,6 +1,7 @@
 from ckanapi.cli.dump import dump_things, dump_things_worker
 from ckanapi.errors import NotFound
 import json
+import tempfile
 
 try:
     import unittest2 as unittest
@@ -8,16 +9,19 @@ except ImportError:
     import unittest
 from io import BytesIO
 
+
 class MockCKAN(object):
     def call_action(self, name, data_dict):
         try:
             return {
                 'package_list': {
-                    None: ['12', '34']
+                    None: ['12', '34', 'dp']
                     },
                 'package_show': {
                     '12': {'title': "Twelve"},
                     '34': {'title': "Thirty-four"},
+                    'dp': {'name': 'dp', 'resources':[
+                        {'url':'http://127.0.0.1:8901/static/test-file'}]}
                     },
                 'group_show': {
                     'ab': {'title': "ABBA"},
@@ -42,6 +46,20 @@ class TestCLIDump(unittest.TestCase):
         response = self.stdout.getvalue()
         self.assertEqual(response[-1:], b'\n')
         timstamp, error, data = json.loads(response.decode('UTF-8'))
+        self.assertEqual(error, None)
+        self.assertEqual(data, {"title":"Thirty-four"})
+
+    def test_worker_two(self):
+        rval = dump_things_worker(self.ckan, 'datasets', {},
+            stdin=BytesIO(b'"12"\n"34"\n'), stdout=self.stdout)
+        response = self.stdout.getvalue()
+        self.assertEqual(response.count(b'\n'), 2, response)
+        self.assertEqual(response[-1:], b'\n')
+        r1, r2 = response.split(b'\n', 1)
+        timstamp, error, data = json.loads(r1.decode('UTF-8'))
+        self.assertEqual(error, None)
+        self.assertEqual(data, {"title":"Twelve"})
+        timstamp, error, data = json.loads(r2.decode('UTF-8'))
         self.assertEqual(error, None)
         self.assertEqual(data, {"title":"Thirty-four"})
 
@@ -109,7 +127,8 @@ class TestCLIDump(unittest.TestCase):
             'ckanapi', 'dump', 'datasets', '--worker',
             'value-here-to-make-docopt-happy'])
         self.assertEqual(self.worker_processes, 1)
-        self.assertEqual(self.worker_jobs, [(0, b'"12"\n'), (1, b'"34"\n')])
+        self.assertEqual(self.worker_jobs,
+            [(0, b'"12"\n'), (1, b'"34"\n'), (2, b'"dp"\n')])
 
     def test_parent_parallel_limit(self):
         self.ckan.parallel_limit = 2
