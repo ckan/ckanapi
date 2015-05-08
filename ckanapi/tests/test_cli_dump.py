@@ -2,6 +2,8 @@ from ckanapi.cli.dump import dump_things, dump_things_worker
 from ckanapi.errors import NotFound
 import json
 import tempfile
+import shutil
+from os.path import exists
 
 try:
     import unittest2 as unittest
@@ -18,10 +20,22 @@ class MockCKAN(object):
                     None: ['12', '34', 'dp']
                     },
                 'package_show': {
-                    '12': {'title': "Twelve"},
-                    '34': {'title': "Thirty-four"},
-                    'dp': {'name': 'dp', 'resources':[
-                        {'url':'http://127.0.0.1:8901/static/test-file'}]}
+                    '12': {
+                        'id': '12',
+                        'name': 'twelve',
+                        'title': "Twelve"},
+                    '34': {
+                        'id': '34',
+                        'name': 'thirtyfour',
+                        'title': "Thirty-four"},
+                    'dp': {
+                        'id': 'dp',
+                        'name': 'dp',
+                        'title': 'Test for datapackage',
+                        'resources':[
+                            {'name': 'resource1',
+                             'format': 'html',
+                             'url':'http://example.com/test-file'}]}
                     },
                 'group_show': {
                     'ab': {'title': "ABBA"},
@@ -199,15 +213,55 @@ class TestCLIDump(unittest.TestCase):
             b'{"id":"R"}\n'
             b'{"id":"S"}\n')
 
+    def test_parent_datapackages(self):
+        target = tempfile.mkdtemp()
+        try:
+            dump_things(self.ckan, 'datasets', {
+                    '--quiet': False,
+                    '--ckan-user': None,
+                    '--config': None,
+                    '--remote': None,
+                    '--apikey': None,
+                    '--worker': False,
+                    '--log': None,
+                    '--output': None,
+                    '--datapackages': target,
+                    '--gzip': False,
+                    '--all': True,
+                    '--processes': '1',
+                    '--get-request': False,
+                },
+                worker_pool=self._mock_worker_pool_with_data,
+                stdout=self.stdout,
+                stderr=self.stderr)
+            assert exists(target + '/twelve/datapackage.json')
+            assert exists(target + '/thirtyfour/datapackage.json')
+            assert exists(target + '/dp/datapackage.json')
+            assert exists(target + '/dp/data/test-file')
+        finally:
+            shutil.rmtree(target)
+
+
     def _mock_worker_pool(self, cmd, processes, job_iter):
         self.worker_cmd = cmd
         self.worker_processes = processes
         self.worker_jobs = list(job_iter)
         for i, j in self.worker_jobs:
             jname = json.loads(j.decode('UTF-8'))
-            yield [[], i, json.dumps(['some-date', None, {'id':jname}]
+            yield [[], i, json.dumps(['some-date', None, {'id': jname}]
                 ).encode('UTF-8') + b'\n']
 
     def _mock_worker_pool_reversed(self, cmd, processes, job_iter):
         return reversed(list(
             self._mock_worker_pool(cmd, processes, job_iter)))
+
+    def _mock_worker_pool_with_data(self, cmd, processes, job_iter):
+        self.worker_cmd = cmd
+        self.worker_processes = processes
+        self.worker_jobs = list(job_iter)
+        for i, j in self.worker_jobs:
+            jname = json.loads(j.decode('UTF-8'))
+            yield [[], i, json.dumps(['some-date', None,
+                self.ckan.call_action('package_show', {'id': jname})]
+                ).encode('UTF-8') + b'\n']
+
