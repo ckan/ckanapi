@@ -44,7 +44,7 @@ def dump_things(ckan, thing, arguments,
 
     jsonl_output = stdout
     if arguments['--datapackages']:  # TODO: do we want to just divert this to devnull?
-        jsonl_output = open(os.devnull, 'w')
+        jsonl_output = open(os.devnull, 'wb')
     if arguments['--output']:
         jsonl_output = open(arguments['--output'], 'wb')
     if arguments['--gzip']:
@@ -205,7 +205,7 @@ def create_datapackage(record, base_path, stderr):
 
     json_output_name = '{base_path}/{dataset_name}/datapackage.json'.format(
         base_path=base_path, dataset_name=dataset_name)
-    with open(json_output_name, 'w') as out:
+    with open(json_output_name, 'wb') as out:
         out.write(pretty_json(dict(record, version=DATAPACKAGE_VERSION)))
 
 
