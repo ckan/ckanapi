@@ -62,7 +62,7 @@ If the resource url is not available, the resource will be included in the datap
 but the actual resource data will not be downloaded.
 
 ```
-$ ckanapi dump datasets --all --dp-output=./output_directory/ -r http://sourceckan.example.com
+$ ckanapi dump datasets --all --datapackages=./output_directory/ -r http://sourceckan.example.com
 ```
 
 ### Shell pipelines
