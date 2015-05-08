@@ -203,7 +203,7 @@ def create_datapackage(record, base_path):
             stderr.write(e.message)
             stderr.write('\n')
 
-    json_output_name = '{base_path}{dataset_name}/datapackage.json'.format(
+    json_output_name = '{base_path}/{dataset_name}/datapackage.json'.format(
         base_path=base_path, dataset_name=dataset_name)
     with open(json_output_name, 'w') as out:
         out.write(pretty_json(dict(record, version=DATAPACKAGE_VERSION)))
