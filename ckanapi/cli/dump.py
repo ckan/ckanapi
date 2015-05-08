@@ -187,7 +187,7 @@ def create_datapackage(record, base_path):
         if output.endswith('/'):
             output = os.path.join(output, resource_id)
 
-        resource['path'] = output  # datapackage.json format explicitly requires a path to the resource
+        resource['path'] = 'data' + output[len(target_dir):]
 
         try:
             if resource['format'] not in resource_formats_to_ignore:
