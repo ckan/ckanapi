@@ -173,7 +173,7 @@ def create_datapackage(record, base_path):
         stderr.write(e.message)
 
     for resource in record.get('resources', ''):
-        if resource['name'] is not None:
+        if resource.get('name') is not None:
             resource_id = resource['name']
         else:
             resource_id = resource['id']
