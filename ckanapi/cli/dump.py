@@ -94,7 +94,7 @@ def dump_things(ckan, thing, arguments,
 
             datapackages_path = arguments['--datapackages']
             if datapackages_path:
-                create_datapackage(record, datapackages_path)
+                create_datapackage(record, datapackages_path, stderr)
 
             # keep the output in the same order as names
             while expecting_number in results:
@@ -155,7 +155,7 @@ def dump_things_worker(ckan, thing, arguments,
             reply('NotAuthorized')
 
 
-def create_datapackage(record, base_path):
+def create_datapackage(record, base_path, stderr):
     # TODO: how are we going to handle which resources to
     # leave alone? They're very inconsistent in some instances
     # And I can't imagine anyone wants to download a copy
