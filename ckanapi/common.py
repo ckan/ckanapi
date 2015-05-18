@@ -40,7 +40,7 @@ class ActionShortcut(object):
         def action(**kwargs):
             files = {}
             for k, v in kwargs.items():
-                if hasattr(v, 'read'):
+                if hasattr(v, 'read') or (isinstance(v, (list, tuple)) and len(v) >= 2 and hasattr(v[1], 'read')):
                     files[k] = v
             if files:
                 nonfiles = dict((k, v) for k, v in kwargs.items()
