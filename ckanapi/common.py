@@ -40,7 +40,7 @@ class ActionShortcut(object):
         def action(**kwargs):
             files = {}
             for k, v in kwargs.items():
-                if hasattr(v, 'read') or (isinstance(v, (list, tuple)) and len(v) >= 2 and hasattr(v[1], 'read')):
+                if is_file_like(v):
                     files[k] = v
             if files:
                 nonfiles = dict((k, v) for k, v in kwargs.items()
@@ -50,6 +50,16 @@ class ActionShortcut(object):
                     files=files)
             return self._ckan.call_action(name, data_dict=kwargs)
         return action
+
+
+def is_file_like(v):
+    """
+    Return True if this object is file-like or is a tuple in a format
+    that the requests library would accept for uploading.
+    """
+    # see http://docs.python-requests.org/en/latest/user/quickstart/#more-complicated-post-requests
+    return hasattr(v, 'read') or (
+        isinstance(v, tuple) and len(v) >= 2 and hasattr(v[1], 'read'))
 
 
 def prepare_action(action, data_dict=None, apikey=None, files=None):
