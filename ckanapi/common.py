@@ -70,8 +70,16 @@ def prepare_action(action, data_dict=None, apikey=None, files=None):
         data_dict = {}
     headers = {}
     if files:
-        data_dict = dict((k.encode('utf-8'), v.encode('utf-8'))
-            for (k, v) in data_dict.items())
+        # when uploading files all parameters must be strings and
+        # no nesting is allowed because request is sent as multipart
+        items = data_dict.items()
+        data_dict = {}
+        for (k, v) in items:
+            if v is None:
+                continue  # assuming missing will work the same as None
+            if isinstance(v, (int, float)):
+                v = unicode(v)
+            data_dict[k.encode('utf-8')] = v.encode('utf-8')
     else:
         data_dict = json.dumps(data_dict).encode('ascii')
         headers['Content-Type'] = 'application/json'
