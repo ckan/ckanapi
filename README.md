@@ -2,7 +2,7 @@
 
 A [command line interface](#ckanapi-cli) and
 [Python module](#ckanapi-python-module) for accessing the
-[CKAN Action API](http://docs.ckan.org/en/latest/api.html)
+[CKAN Action API](http://docs.ckan.org/en/latest/api/index.html#action-api-reference)
 
 [![Build Status](https://travis-ci.org/ckan/ckanapi.png?branch=master)](https://travis-ci.org/ckan/ckanapi) tested under Python 2.6, 2.7, 3.2, 3.3 and pypy
 
