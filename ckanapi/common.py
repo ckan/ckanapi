@@ -40,7 +40,7 @@ class ActionShortcut(object):
         def action(**kwargs):
             files = {}
             for k, v in kwargs.items():
-                if hasattr(v, 'read'):
+                if is_file_like(v):
                     files[k] = v
             if files:
                 nonfiles = dict((k, v) for k, v in kwargs.items()
@@ -52,6 +52,16 @@ class ActionShortcut(object):
         return action
 
 
+def is_file_like(v):
+    """
+    Return True if this object is file-like or is a tuple in a format
+    that the requests library would accept for uploading.
+    """
+    # see http://docs.python-requests.org/en/latest/user/quickstart/#more-complicated-post-requests
+    return hasattr(v, 'read') or (
+        isinstance(v, tuple) and len(v) >= 2 and hasattr(v[1], 'read'))
+
+
 def prepare_action(action, data_dict=None, apikey=None, files=None):
     """
     Return action_url, data_json, http_headers
@@ -60,8 +70,16 @@ def prepare_action(action, data_dict=None, apikey=None, files=None):
         data_dict = {}
     headers = {}
     if files:
-        data_dict = dict((k.encode('utf-8'), v.encode('utf-8'))
-            for (k, v) in data_dict.items())
+        # when uploading files all parameters must be strings and
+        # no nesting is allowed because request is sent as multipart
+        items = data_dict.items()
+        data_dict = {}
+        for (k, v) in items:
+            if v is None:
+                continue  # assuming missing will work the same as None
+            if isinstance(v, (int, float)):
+                v = unicode(v)
+            data_dict[k.encode('utf-8')] = v.encode('utf-8')
     else:
         data_dict = json.dumps(data_dict).encode('ascii')
         headers['Content-Type'] = 'application/json'
