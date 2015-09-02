@@ -72,6 +72,9 @@ def dump_things(ckan, thing, arguments,
     expecting_number = 0
     with quiet_int_pipe() as errors:
         for job_ids, finished, result in pool:
+            if not result:
+                # child exited with traceback
+                return 1
             timestamp, error, record = json.loads(result.decode('utf-8'))
             results[finished] = record
 
@@ -119,8 +122,17 @@ def dump_things_worker(ckan, thing, arguments,
     """
     if stdin is None:
         stdin = getattr(sys.stdin, 'buffer', sys.stdin)
+        # hack so that pdb can be used in extension/ckan
+        # code called by this worker
+        try:
+            sys.stdin = open('/dev/tty', 'rb')
+        except IOError:
+            pass
     if stdout is None:
         stdout = getattr(sys.stdout, 'buffer', sys.stdout)
+        # hack so that "print debugging" can work in extension/ckan
+        # code called by this worker
+        sys.stdout = sys.stderr
 
     thing_show = {
         'datasets': 'package_show',

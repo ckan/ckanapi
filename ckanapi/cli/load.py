@@ -75,6 +75,9 @@ def load_things(ckan, thing, arguments,
 
     with quiet_int_pipe() as errors:
         for job_ids, finished, result in pool:
+            if not result:
+                # child exited with traceback
+                return 1
             timestamp, action, error, response = json.loads(
                 result.decode('utf-8'))
 
@@ -112,8 +115,17 @@ def load_things_worker(ckan, thing, arguments,
     """
     if stdin is None:
         stdin = getattr(sys.stdin, 'buffer', sys.stdin)
+        # hack so that pdb can be used in extension/ckan
+        # code called by this worker
+        try:
+            sys.stdin = open('/dev/tty', 'rb')
+        except IOError:
+            pass
     if stdout is None:
         stdout = getattr(sys.stdout, 'buffer', sys.stdout)
+        # hack so that "print debugging" can work in extension/ckan
+        # code called by this worker
+        sys.stdout = sys.stderr
 
     thing_show, thing_create, thing_update = {
         'datasets': (
