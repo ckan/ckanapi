@@ -72,7 +72,7 @@ def dump_things(ckan, thing, arguments,
     expecting_number = 0
     with quiet_int_pipe() as errors:
         for job_ids, finished, result in pool:
-            if not result.strip():
+            if not result:
                 # child exited with traceback
                 return 1
             timestamp, error, record = json.loads(result.decode('utf-8'))
