@@ -115,6 +115,12 @@ def load_things_worker(ckan, thing, arguments,
     """
     if stdin is None:
         stdin = getattr(sys.stdin, 'buffer', sys.stdin)
+        # hack so that pdb can be used in extension/ckan
+        # code called by this worker
+        try:
+            sys.stdin = open('/dev/tty', 'rb')
+        except IOError:
+            pass
     if stdout is None:
         stdout = getattr(sys.stdout, 'buffer', sys.stdout)
         # hack so that "print debugging" can work in extension/ckan
