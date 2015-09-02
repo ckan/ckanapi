@@ -75,6 +75,9 @@ def load_things(ckan, thing, arguments,
 
     with quiet_int_pipe() as errors:
         for job_ids, finished, result in pool:
+            if not result.strip():
+                # child exited with traceback
+                return 1
             timestamp, action, error, response = json.loads(
                 result.decode('utf-8'))
 
