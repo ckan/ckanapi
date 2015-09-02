@@ -124,6 +124,9 @@ def dump_things_worker(ckan, thing, arguments,
         stdin = getattr(sys.stdin, 'buffer', sys.stdin)
     if stdout is None:
         stdout = getattr(sys.stdout, 'buffer', sys.stdout)
+        # hack so that "print debugging" can work in extension/ckan
+        # code called by this worker
+        sys.stdout = sys.stderr
 
     thing_show = {
         'datasets': 'package_show',
