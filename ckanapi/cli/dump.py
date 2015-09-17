@@ -22,7 +22,7 @@ DATAPACKAGE_VERSION = '1.0-beta.10'
 def dump_things(ckan, thing, arguments,
         worker_pool=None, stdout=None, stderr=None):
     """
-    dump all datasets, groups or orgs accessible by the connected user
+    dump all datasets, groups, orgs or users accessible by the connected user
 
     The parent process creates a pool of worker processes and hands
     out ids to each worker. Status of last record completed and records
@@ -54,10 +54,14 @@ def dump_things(ckan, thing, arguments,
             'datasets': 'package_list',
             'groups': 'group_list',
             'organizations': 'organization_list',
+            'users': 'user_list',
             }[thing]
         names = ckan.call_action(get_thing_list, {})
     else:
         names = arguments['ID_OR_NAME']
+
+    if names and isinstance(names[0], dict):
+        names = [rec['name'] for rec in names]
 
     cmd = _worker_command_line(thing, arguments)
     processes = int(arguments['--processes'])
@@ -138,6 +142,7 @@ def dump_things_worker(ckan, thing, arguments,
         'datasets': 'package_show',
         'groups': 'group_show',
         'organizations': 'organization_show',
+        'users': 'user_show',
         }[thing]
 
     def reply(error, record=None):
@@ -159,7 +164,9 @@ def dump_things_worker(ckan, thing, arguments,
 
         try:
             obj = ckan.call_action(thing_show, {'id': name,
-                'include_datasets': False})
+                'include_datasets': False,
+                'include_password_hash': True,
+                })
             reply(None, obj)
         except NotFound:
             reply('NotFound')
