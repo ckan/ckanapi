@@ -21,7 +21,7 @@ except NameError:
 def load_things(ckan, thing, arguments,
         worker_pool=None, stdin=None, stdout=None, stderr=None):
     """
-    create and update datasets, groups and orgs
+    create and update datasets, groups, orgs and users
 
     The parent process creates a pool of worker processes and hands
     out json lines to each worker as they finish a task. Status of
@@ -134,6 +134,8 @@ def load_things_worker(ckan, thing, arguments,
             'group_show', 'group_create', 'group_update'),
         'organizations': (
             'organization_show', 'organization_create', 'organization_update'),
+        'users': (
+            'user_show', 'user_create', 'user_update'),
         }[thing]
 
     def reply(action, error, response):
@@ -163,7 +165,10 @@ def load_things_worker(ckan, thing, arguments,
                 if name:
                     try:
                         existing = ckan.call_action(thing_show,
-                            {'id': name, 'include_datasets': False})
+                            {'id': name,
+                             'include_datasets': False,
+                             'include_password_hash': True,
+                            })
                     except NotFound:
                         pass
                     except NotAuthorized as e:
