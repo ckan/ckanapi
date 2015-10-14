@@ -136,6 +136,8 @@ def load_things_worker(ckan, thing, arguments,
             'organization_show', 'organization_create', 'organization_update'),
         'users': (
             'user_show', 'user_create', 'user_update'),
+        'related':(
+            'related_show','related_create','related_update'),
         }[thing]
 
     def reply(action, error, response):
@@ -208,8 +210,7 @@ def load_things_worker(ckan, thing, arguments,
             except NotFound:
                 reply(act, 'NotFound', obj)
             else:
-                reply(act, None, r['name'])
-
+                reply(act, None, r.get('name',r.get('id')))
 
 def _worker_command_line(thing, arguments):
     """
