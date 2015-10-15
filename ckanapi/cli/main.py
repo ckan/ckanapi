@@ -4,10 +4,10 @@ Usage:
   ckanapi action ACTION_NAME
           [KEY=VALUE ... | -i | -I JSON_INPUT] [-j | -J]
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g]]
-  ckanapi load (datasets | groups | organizations | users)
+  ckanapi load (datasets | groups | organizations | users | related)
           [-I JSONL_INPUT] [-s START] [-m MAX] [-p PROCESSES] [-l LOG_FILE]
           [-n | -o] [-qwz] [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
-  ckanapi dump (datasets | groups | organizations | users)
+  ckanapi dump (datasets | groups | organizations | users | related)
           (ID_OR_NAME ... | --all) ([-O JSONL_OUTPUT] | [-D DIRECTORY])
           [-p PROCESSES] [-qwz] [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g]]
   ckanapi (-h | --help)
@@ -88,7 +88,7 @@ def main(running_with_paster=False):
             sys.stdout.write(r)
         return
 
-    things = ['datasets', 'groups', 'organizations', 'users']
+    things = ['datasets', 'groups', 'organizations', 'users', 'related']
     thing = [x for x in things if arguments[x]]
     if (arguments['load'] or arguments['dump']
             ) and arguments['--processes'] != '1' and os.name == 'nt':
