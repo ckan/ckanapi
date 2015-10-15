@@ -63,7 +63,7 @@ def dump_things(ckan, thing, arguments,
         names = arguments['ID_OR_NAME']
 
     if names and isinstance(names[0], dict):
-        names = [rec.get('name',rec.get('id')) for rec in names ]
+        names = [rec.get('name',rec.get('id')) for rec in names]
 
     cmd = _worker_command_line(thing, arguments)
     processes = int(arguments['--processes'])
