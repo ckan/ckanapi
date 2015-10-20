@@ -39,7 +39,7 @@ commands. When connecting to a local CKAN instance the site user
 Simple action arguments may be passed in KEY=STRING form for string
 values or in KEY:JSON form for JSON values.
 
-E.g. to view a dataset:
+E.g. to view a dataset using a KEY=STRING parameter:
 
 ```
 $ ckanapi action package_show id=my-dataset-name
@@ -50,7 +50,8 @@ $ ckanapi action package_show id=my-dataset-name
 
 ```
 
-E.g. to get the number of datasets for each organization:
+E.g. to get the number of datasets for each organization
+using KEY:JSON parameters:
 
 ```
 $ ckanapi action package_search 'facet.field:["organization"]' rows:0
