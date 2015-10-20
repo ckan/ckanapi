@@ -26,7 +26,7 @@ class TestCLIAction(unittest.TestCase):
         ckan = MockCKAN('shake_it', {'who': 'me'}, {"oh": ["right", "on"]})
         rval = action(ckan, {
             'ACTION_NAME': 'shake_it',
-            'KEY=VALUE': ['who=me'],
+            'KEY=STRING': ['who=me'],
             '--output-json': False,
             '--output-jsonl': False,
             '--input-json': False,
@@ -45,7 +45,7 @@ class TestCLIAction(unittest.TestCase):
         ckan = MockCKAN('shake_it', {'who': 'me'}, ["right", "on"])
         rval = action(ckan, {
             'ACTION_NAME': 'shake_it',
-            'KEY=VALUE': ['who=me'],
+            'KEY=STRING': ['who=me'],
             '--output-json': True,
             '--output-jsonl': False,
             '--input-json': False,
@@ -57,7 +57,7 @@ class TestCLIAction(unittest.TestCase):
         ckan = MockCKAN('shake_it', {'who': 'me'}, {"oh": ["right", "on"]})
         rval = action(ckan, {
             'ACTION_NAME': 'shake_it',
-            'KEY=VALUE': ['who=me'],
+            'KEY=STRING': ['who=me'],
             '--output-json': False,
             '--output-jsonl': True,
             '--input-json': False,
@@ -69,7 +69,7 @@ class TestCLIAction(unittest.TestCase):
         ckan = MockCKAN('shake_it', {'who': 'me'}, [99,98,97])
         rval = action(ckan, {
             'ACTION_NAME': 'shake_it',
-            'KEY=VALUE': ['who=me'],
+            'KEY=STRING': ['who=me'],
             '--output-json': False,
             '--output-jsonl': True,
             '--input-json': False,
@@ -81,7 +81,7 @@ class TestCLIAction(unittest.TestCase):
         ckan = MockCKAN('shake_it', {'who': ['just', 'me']}, "yeah")
         rval = action(ckan, {
                 'ACTION_NAME': 'shake_it',
-                'KEY=VALUE': ['who=me'],
+                'KEY=STRING': ['who=me'],
                 '--output-json': False,
                 '--output-jsonl': False,
                 '--input-json': True,
