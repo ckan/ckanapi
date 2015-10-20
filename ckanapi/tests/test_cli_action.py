@@ -1,4 +1,5 @@
 from ckanapi.cli.action import action
+from ckanapi.errors import CLIError
 try:
     import unittest2 as unittest
 except ImportError:
@@ -94,11 +95,24 @@ class TestCLIAction(unittest.TestCase):
     def test_key_json(self):
         ckan = MockCKAN('shake_it', {'who': ['just', 'me']}, "yeah")
         rval = action(ckan, {
-                'ACTION_NAME': 'shake_it',
-                'KEY=STRING': ['who:["just", "me"]'],
-                '--output-json': False,
-                '--output-jsonl': False,
-                '--input-json': False,
-                '--input': None,
+            'ACTION_NAME': 'shake_it',
+            'KEY=STRING': ['who:["just", "me"]'],
+            '--output-json': False,
+            '--output-jsonl': False,
+            '--input-json': False,
+            '--input': None,
             })
         self.assertEqual(b''.join(rval), b'"yeah"\n')
+
+    def test_bad_arg(self):
+        ckan = MockCKAN('shake_it', {'who': 'me'}, "yeah")
+        rval = action(ckan, {
+            'ACTION_NAME': 'shake_it',
+            'KEY=STRING': ['who'],
+            '--output-json': False,
+            '--output-jsonl': False,
+            '--input-json': False,
+            '--input': None,
+            })
+        self.assertRaises(CLIError, list, rval)
+

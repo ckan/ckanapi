@@ -5,6 +5,7 @@ implementation of the action cli command
 import sys
 import json
 from ckanapi.cli.utils import compact_json, pretty_json
+from ckanapi.errors import CLIError
 
 
 def action(ckan, arguments, stdin=None):
@@ -31,6 +32,8 @@ def action(ckan, arguments, stdin=None):
                 value = json.loads(value)
                 action_args[key] = value
                 continue
+            raise CLIError("argument not in the form KEY=STRING or KEY:JSON "
+                "%r" % kv)
 
     result = ckan.call_action(arguments['ACTION_NAME'], action_args)
 
