@@ -7,10 +7,9 @@ import json
 from ckanapi.cli.utils import compact_json, pretty_json
 
 
-def action(ckan, arguments,
-        stdin=None):
+def action(ckan, arguments, stdin=None):
     """
-    call an action with KEY=VALUE args, yield the result
+    call an action with KEY=STRING, KEY:JSON or JSON args, yield the result
     """
     if stdin is None:
         stdin = getattr(sys.stdin, 'buffer', sys.stdin)
@@ -22,9 +21,17 @@ def action(ckan, arguments,
             arguments['--input']).read().decode('utf-8'))
     else:
         action_args = {}
-        for kv in arguments['KEY=VALUE']:
+        for kv in arguments['KEY=STRING']:
             key, p, value = kv.partition('=')
-            action_args[key] = value
+            if p:
+                action_args[key] = value
+                continue
+            key, p, value = kv.partition(':')
+            if p:
+                value = json.loads(value)
+                action_args[key] = value
+                continue
+
     result = ckan.call_action(arguments['ACTION_NAME'], action_args)
 
     if arguments['--output-jsonl']:
