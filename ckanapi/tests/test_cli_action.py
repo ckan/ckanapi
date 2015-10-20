@@ -91,5 +91,14 @@ class TestCLIAction(unittest.TestCase):
             )
         self.assertEqual(b''.join(rval), b'"yeah"\n')
 
-
-
+    def test_key_json(self):
+        ckan = MockCKAN('shake_it', {'who': ['just', 'me']}, "yeah")
+        rval = action(ckan, {
+                'ACTION_NAME': 'shake_it',
+                'KEY=STRING': ['who:["just", "me"]'],
+                '--output-json': False,
+                '--output-jsonl': False,
+                '--input-json': False,
+                '--input': None,
+            })
+        self.assertEqual(b''.join(rval), b'"yeah"\n')
