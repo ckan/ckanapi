@@ -29,7 +29,11 @@ def action(ckan, arguments, stdin=None):
                 continue
             key, p, value = kv.partition(':')
             if p:
-                value = json.loads(value)
+                try:
+                    value = json.loads(value)
+                except ValueError:
+                    raise CLIError("KEY:JSON argument %r has invalid JSON "
+                        "value %r" % (key, value))
                 action_args[key] = value
                 continue
             raise CLIError("argument not in the form KEY=STRING or KEY:JSON "

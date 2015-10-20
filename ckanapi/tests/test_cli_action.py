@@ -116,3 +116,14 @@ class TestCLIAction(unittest.TestCase):
             })
         self.assertRaises(CLIError, list, rval)
 
+    def test_bad_key_json(self):
+        ckan = MockCKAN('shake_it', {'who': 'me'}, "yeah")
+        rval = action(ckan, {
+            'ACTION_NAME': 'shake_it',
+            'KEY=STRING': ['who:me'],
+            '--output-json': False,
+            '--output-jsonl': False,
+            '--input-json': False,
+            '--input': None,
+            })
+        self.assertRaises(CLIError, list, rval)
