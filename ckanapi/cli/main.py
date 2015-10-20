@@ -2,7 +2,7 @@
 
 Usage:
   ckanapi action ACTION_NAME
-          [KEY=VALUE ... | -i | -I JSON_INPUT] [-j | -J]
+          [(KEY=STRING | KEY:JSON) ... | -i | -I JSON_INPUT] [-j | -J]
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g]]
   ckanapi load (datasets | groups | organizations | users | related)
           [-I JSONL_INPUT] [-s START] [-m MAX] [-p PROCESSES] [-l LOG_FILE]
@@ -53,6 +53,7 @@ from pkg_resources import load_entry_point
 from ckanapi.version import __version__
 from ckanapi.remoteckan import RemoteCKAN
 from ckanapi.localckan import LocalCKAN
+from ckanapi.errors import CLIError
 from ckanapi.cli.load import load_things
 from ckanapi.cli.dump import dump_things
 from ckanapi.cli.action import action
@@ -84,9 +85,13 @@ def main(running_with_paster=False):
         ckan = LocalCKAN(username=arguments['--ckan-user'])
 
     if arguments['action']:
-        for r in action(ckan, arguments):
-            sys.stdout.write(r)
-        return
+        try:
+            for r in action(ckan, arguments):
+                sys.stdout.write(r)
+            return
+        except CLIError, e:
+            sys.stderr.write(e.args[0] + '\n')
+            return 1
 
     things = ['datasets', 'groups', 'organizations', 'users', 'related']
     thing = [x for x in things if arguments[x]]
