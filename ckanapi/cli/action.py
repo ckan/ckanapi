@@ -28,7 +28,7 @@ def action(ckan, arguments, stdin=None):
             if len(skey) < len(jkey):
                 action_args[skey] = svalue
                 continue
-            if len(jkey) < len(skey)::
+            if len(jkey) < len(skey):
                 try:
                     value = json.loads(jvalue)
                 except ValueError:
