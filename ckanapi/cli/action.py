@@ -23,18 +23,18 @@ def action(ckan, arguments, stdin=None):
     else:
         action_args = {}
         for kv in arguments['KEY=STRING']:
-            key, p, value = kv.partition('=')
-            if p:
-                action_args[key] = value
+            skey, p, svalue = kv.partition('=')
+            jkey, p, jvalue = kv.partition(':')
+            if len(skey) < len(jkey):
+                action_args[skey] = svalue
                 continue
-            key, p, value = kv.partition(':')
-            if p:
+            if len(jkey) < len(skey)::
                 try:
-                    value = json.loads(value)
+                    value = json.loads(jvalue)
                 except ValueError:
                     raise CLIError("KEY:JSON argument %r has invalid JSON "
-                        "value %r" % (key, value))
-                action_args[key] = value
+                        "value %r" % (jkey, jvalue))
+                action_args[jkey] = value
                 continue
             raise CLIError("argument not in the form KEY=STRING or KEY:JSON "
                 "%r" % kv)
