@@ -5,8 +5,8 @@ Usage:
           [KEY=VALUE ... | -i | -I JSON_INPUT] [-j | -J]
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g]]
   ckanapi load (datasets | groups | organizations | users | related)
-          [-I JSONL_INPUT] [-s START] [-m MAX] [-p PROCESSES] [-l LOG_FILE]
-          [-n | -o] [-qwz] [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
+          [-I JSONL_INPUT] [-s START] [-m MAX] [-p PROCESSES] [-l LOG_FILE] [-e]
+          [-n | -o] [-qwz] [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]] [--resources]
   ckanapi dump (datasets | groups | organizations | users | related)
           (ID_OR_NAME ... | --all) ([-O JSONL_OUTPUT] | [-D DIRECTORY])
           [-p PROCESSES] [-qwz] [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g]]
@@ -20,6 +20,7 @@ Options:
   --all                     all the things
   -c --config=CONFIG        CKAN configuration file for local actions,
                             defaults to ./development.ini if that file exists
+  -e --resources            load resources in a package
   -g --get-request          use GET instead of POST for API calls
   -i --input-json           read json from stdin to send to action
   -I --input=INPUT          input json/ json lines from file instead of stdin
