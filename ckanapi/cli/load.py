@@ -204,9 +204,9 @@ def load_things_worker(ckan, thing, arguments,
                     r = ckan.call_action(thing_update, obj)
                 else:
                     r = ckan.call_action(thing_create, obj)
-                if thing == 'datasets':                     # check if it is needed to upload resources when creating/updating packages
-                    _upload_resources(ckan,obj,arguments)
-                elif thing in ['groups','organizations']:   #load images for groups and organizations
+                if thing == 'datasets' and 'resources' in obj:# check if it is needed to upload resources when creating/updating packages
+                        _upload_resources(ckan,obj,arguments)
+                elif thing in ['groups','organizations'] and 'image_display_url' in obj:   #load images for groups and organizations
                     _upload_logo(ckan,obj)
             except ValidationError as e:
                 reply(act, 'ValidationError', e.error_dict)
@@ -216,6 +216,8 @@ def load_things_worker(ckan, thing, arguments,
                 reply(act, 'NotAuthorized', unicode(e))
             except NotFound:
                 reply(act, 'NotFound', obj)
+            except KeyError:
+                reply(act, 'Important attributes missing in resources', r.get('name',r.get('id')) )
             else:
                 reply(act, None, r.get('name',r.get('id')))
 
@@ -260,6 +262,8 @@ def _copy_from_existing_for_update(obj, existing, thing):
 
 def _upload_resources(ckan,obj,arguments):
     resources = obj['resources']
+    if len(resources)==0:
+        return
     for resource in resources:
         if resource['url_type'] == 'upload':      # check for same domain resources
             for key in resource.keys():
