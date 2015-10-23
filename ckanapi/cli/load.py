@@ -197,8 +197,6 @@ def load_things_worker(ckan, thing, arguments,
                 reply('show', 'NotFound', [obj.get('id'), obj.get('name')])
                 continue
 
-
-
             act = 'update' if existing else 'create'
             try:
                 if existing:
@@ -206,13 +204,14 @@ def load_things_worker(ckan, thing, arguments,
                 else:
                     r = ckan.call_action(thing_create, obj)
                 if thing == 'datasets' and 'resources' in obj:# check if it is needed to upload resources when creating/updating packages
-                        _upload_resources(ckan,obj,arguments)
+                    _upload_resources(ckan,obj,arguments)
                 elif thing in ['groups','organizations'] and 'image_display_url' in obj:   #load images for groups and organizations
-                    users = obj['users']
-                    _upload_logo(ckan,obj)
-                    obj.pop('image_upload')
-                    obj['users'] = users
-                    ckan.call_action(thing_update,obj)
+                    if arguments['--upload-logo']:
+                        users = obj['users']
+                        _upload_logo(ckan,obj)
+                        obj.pop('image_upload')
+                        obj['users'] = users
+                        ckan.call_action(thing_update,obj)
             except ValidationError as e:
                 reply(act, 'ValidationError', e.error_dict)
             except SearchIndexError as e:
@@ -245,7 +244,8 @@ def _worker_command_line(thing, arguments):
         + a('--apikey')
         + b('--create-only')
         + b('--update-only')
-        + b('--resources')
+        + b('--upload-resources')
+        + b('--upload-logo')
         )
 
 
@@ -274,7 +274,7 @@ def _upload_resources(ckan,obj,arguments):
             for key in resource.keys():
                 if isinstance(resource[key],(dict,list)):
                     resource.pop(key)                # dict/list objects can't be encoded
-            if arguments['--resources']:
+            if arguments['--upload-resources']:
                 f = requests.get(resource['url'],stream=True)
                 new_url = resource['url'].rsplit('/',1)[-1]
                 resource['upload'] = (new_url,f.raw)

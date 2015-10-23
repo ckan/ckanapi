@@ -67,7 +67,7 @@ class TestCLILoad(unittest.TestCase):
         load_things_worker(self.ckan, 'datasets', {
                 '--create-only': False,
                 '--update-only': False,
-                '--resources':False,
+                '--upload-resources':False,
                 },
             stdin=BytesIO(b'{"name": "45","title":"Forty-five"}\n'),
             stdout=self.stdout)
@@ -82,7 +82,7 @@ class TestCLILoad(unittest.TestCase):
         load_things_worker(self.ckan, 'datasets', {
                 '--create-only': False,
                 '--update-only': False,
-                '--resources':False,
+                '--upload-resources':False,
                 },
             stdin=BytesIO(b'{"name": "45","title":"Forty-five","resources":[{"id":"123"}]}\n'),
             stdout=self.stdout)
@@ -97,10 +97,11 @@ class TestCLILoad(unittest.TestCase):
         load_things_worker(self.ckan, 'datasets', {
                 '--create-only': False,
                 '--update-only': False,
-                '--resources':False,
+                '--upload-resources':False,
                 },
-            stdin=BytesIO(b'{"name": "45","title":"Forty-five",\
-                            "resources":[{"id":"123","url_type":"","url":"http://datacats.com"}]}\n'),
+            stdin=BytesIO(
+                 b'{"name": "45","title":"Forty-five",'
+                 b'"resources":[{"id":"123","url_type":"","url":"http://example.com"}]}\n'),
             stdout=self.stdout)
         response = self.stdout.getvalue()
         self.assertEqual(response[-1:], b'\n')
@@ -113,7 +114,7 @@ class TestCLILoad(unittest.TestCase):
         load_things_worker(self.ckan, 'datasets', {
                 '--create-only': True,
                 '--update-only': False,
-                '--resources':False,
+                '--upload-resources':False,
                 },
             stdin=BytesIO(b'{"name": "45","title":"Forty-five"}\n'),
             stdout=self.stdout)
@@ -171,8 +172,9 @@ class TestCLILoad(unittest.TestCase):
                 '--create-only': False,
                 '--update-only': False,
                 },
-            stdin=BytesIO(b'{"name": "30ish","title":"3.4 times ten",\
-                            "resources":[{"id":"123","url_type":"","url":"http://datacats.com"}]}\n'),
+            stdin=BytesIO(
+                 b'{"name": "30ish","title":"3.4 times ten",'
+                 b'"resources":[{"id":"123","url_type":"","url":"http://example.com"}]}\n'),
             stdout=self.stdout)
         response = self.stdout.getvalue()
         self.assertEqual(response[-1:], b'\n')
@@ -303,7 +305,8 @@ class TestCLILoad(unittest.TestCase):
                 '--update-only': False,
                 '--start-record': '1',
                 '--max-records': None,
-                '--resources': False
+                '--upload-resources': False,
+                '--upload-logo':False
             },
             worker_pool=self._mock_worker_pool,
             stdin=BytesIO(
@@ -336,7 +339,8 @@ class TestCLILoad(unittest.TestCase):
                 '--update-only': False,
                 '--start-record': '2',
                 '--max-records': '2',
-                '--resources': False,
+                '--upload-resources': False,
+                '--upload-logo':False,
             },
             worker_pool=self._mock_worker_pool,
             stdin=BytesIO(
@@ -372,7 +376,8 @@ class TestCLILoad(unittest.TestCase):
                 '--update-only': False,
                 '--start-record': '1',
                 '--max-records': None,
-                '--resources': False,
+                '--upload-resources': False,
+                '--upload-logo':False,
             },
             worker_pool=self._mock_worker_pool,
             stdin=BytesIO(
