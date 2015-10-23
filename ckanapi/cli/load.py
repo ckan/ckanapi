@@ -7,6 +7,7 @@ import gzip
 import json
 import requests
 from datetime import datetime
+import re
 
 from ckanapi.errors import (NotFound, NotAuthorized, ValidationError,
     SearchIndexError)
@@ -204,10 +205,14 @@ def load_things_worker(ckan, thing, arguments,
                     r = ckan.call_action(thing_update, obj)
                 else:
                     r = ckan.call_action(thing_create, obj)
+                users = obj['users']
                 if thing == 'datasets' and 'resources' in obj:# check if it is needed to upload resources when creating/updating packages
                         _upload_resources(ckan,obj,arguments)
                 elif thing in ['groups','organizations'] and 'image_display_url' in obj:   #load images for groups and organizations
                     _upload_logo(ckan,obj)
+                    obj.pop('image_upload')
+                    obj['users'] = users
+                    ckan.call_action(thing_update,obj)
             except ValidationError as e:
                 reply(act, 'ValidationError', e.error_dict)
             except SearchIndexError as e:
@@ -283,8 +288,13 @@ def _upload_logo(ckan,obj):
     for key in obj.keys():
         if isinstance(obj[key],(dict,list)):
             obj.pop(key)                            #dict/list objects can't be encoded
-    f = requests.get(obj['image_display_url'],stream=True)
-    url_start = obj['image_url'].find(obj['name'])
-    new_url = obj['image_url'][url_start:]
-    obj['image_upload'] = (new_url, f.raw)
+    if 'http' in obj['image_url']:                  # logo is an external link
+        obj['clear_upload'] = True
+        obj['image_upload'] = obj['image_url']
+    else:
+        f = requests.get(obj['image_display_url'],stream=True)
+        name,ext = obj['image_url'].rsplit('.',1)  #reformulate image_url for new site
+        new_name = re.sub('[0-9\.-]','',name)
+        new_url = new_name+'.'+ext
+        obj['image_upload'] = (new_url, f.raw)
     ckan.action.group_update(**obj)
