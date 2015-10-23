@@ -205,10 +205,10 @@ def load_things_worker(ckan, thing, arguments,
                     r = ckan.call_action(thing_update, obj)
                 else:
                     r = ckan.call_action(thing_create, obj)
-                users = obj['users']
                 if thing == 'datasets' and 'resources' in obj:# check if it is needed to upload resources when creating/updating packages
                         _upload_resources(ckan,obj,arguments)
                 elif thing in ['groups','organizations'] and 'image_display_url' in obj:   #load images for groups and organizations
+                    users = obj['users']
                     _upload_logo(ckan,obj)
                     obj.pop('image_upload')
                     obj['users'] = users
