@@ -5,7 +5,13 @@ implementation of load cli command
 import sys
 import gzip
 import json
+import requests
 from datetime import datetime
+import re
+try:
+    from urllib.parse import urlparse
+except ImportError:
+    from urlparse import urlparse
 
 from ckanapi.errors import (NotFound, NotAuthorized, ValidationError,
     SearchIndexError)
@@ -201,6 +207,15 @@ def load_things_worker(ckan, thing, arguments,
                     r = ckan.call_action(thing_update, obj)
                 else:
                     r = ckan.call_action(thing_create, obj)
+                if thing == 'datasets' and 'resources' in obj:# check if it is needed to upload resources when creating/updating packages
+                    _upload_resources(ckan,obj,arguments)
+                elif thing in ['groups','organizations'] and 'image_display_url' in obj:   #load images for groups and organizations
+                    if arguments['--upload-logo']:
+                        users = obj['users']
+                        _upload_logo(ckan,obj)
+                        obj.pop('image_upload')
+                        obj['users'] = users
+                        ckan.call_action(thing_update,obj)
             except ValidationError as e:
                 reply(act, 'ValidationError', e.error_dict)
             except SearchIndexError as e:
@@ -209,6 +224,8 @@ def load_things_worker(ckan, thing, arguments,
                 reply(act, 'NotAuthorized', unicode(e))
             except NotFound:
                 reply(act, 'NotFound', obj)
+            except KeyError:
+                reply(act, 'Important attributes missing in resources', r.get('name',r.get('id')) )
             else:
                 reply(act, None, r.get('name',r.get('id')))
 
@@ -231,6 +248,8 @@ def _worker_command_line(thing, arguments):
         + a('--apikey')
         + b('--create-only')
         + b('--update-only')
+        + b('--upload-resources')
+        + b('--upload-logo')
         )
 
 
@@ -249,3 +268,37 @@ def _copy_from_existing_for_update(obj, existing, thing):
     if thing in ('organizations', 'groups'):
         if 'users' not in obj and 'users' in existing:
             obj['users'] = existing['users']
+
+def _upload_resources(ckan,obj,arguments):
+    resources = obj['resources']
+    if len(resources)==0:
+        return
+    for resource in resources:
+        if resource['url_type'] == 'upload':      # check for same domain resources
+            for key in resource.keys():
+                if isinstance(resource[key],(dict,list)):
+                    resource.pop(key)                # dict/list objects can't be encoded
+            if arguments['--upload-resources']:
+                f = requests.get(resource['url'],stream=True)
+                new_url = resource['url'].rsplit('/',1)[-1]
+                resource['upload'] = (new_url,f.raw)
+            else:
+                resource['url_type'] = ''           # hack url_type so that url can be modified
+                resource['package_id'] = obj['name']
+            ckan.action.resource_update(**resource)
+
+
+def _upload_logo(ckan,obj):
+    for key in obj.keys():
+        if isinstance(obj[key],(dict,list)):
+            obj.pop(key)                            #dict/list objects can't be encoded
+    if urlparse(obj['image_url']).netloc:                  # logo is an external link
+        obj['clear_upload'] = True
+        obj['image_upload'] = obj['image_url']
+    else:
+        f = requests.get(obj['image_display_url'],stream=True)
+        name,ext = obj['image_url'].rsplit('.',1)  #reformulate image_url for new site
+        new_name = re.sub('[0-9\.-]','',name)
+        new_url = new_name+'.'+ext
+        obj['image_upload'] = (new_url, f.raw)
+    ckan.action.group_update(**obj)

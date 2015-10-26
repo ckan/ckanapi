@@ -4,7 +4,13 @@ Usage:
   ckanapi action ACTION_NAME
           [(KEY=STRING | KEY:JSON) ... | -i | -I JSON_INPUT] [-j | -J]
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g]]
-  ckanapi load (datasets | groups | organizations | users | related)
+  ckanapi load datasets
+          [--upload-resources] [-I JSONL_INPUT] [-s START] [-m MAX] [-p PROCESSES]
+          [-l LOG_FILE] [-n | -o] [-qwz] [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
+  ckanapi load (groups | organizations)
+          [--upload-logo] [-I JSONL_INPUT] [-s START] [-m MAX] [-p PROCESSES] [-l LOG_FILE]
+          [-n | -o] [-qwz] [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
+  ckanapi load (users | related)
           [-I JSONL_INPUT] [-s START] [-m MAX] [-p PROCESSES] [-l LOG_FILE]
           [-n | -o] [-qwz] [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
   ckanapi dump (datasets | groups | organizations | users | related)
@@ -40,6 +46,12 @@ Options:
                             record is number 1 [default: 1]
   -u --ckan-user=USER       perform actions as user with this name, uses the
                             site sysadmin user when not specified
+  --upload-logo             upload logo image of a group/organization if the
+                            image is stored in the original server, otherwise
+                            its image url will be used
+  --upload-resources        upload resources of a dataset that were uploaded to
+                            server. Resources originally linked by external
+                            urls will keep the urls,will not be uploaded
   -w --worker               launch worker process, used internally by load
                             and dump commands
   -z --gzip                 read/write gzipped data
