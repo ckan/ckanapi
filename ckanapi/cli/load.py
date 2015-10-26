@@ -8,6 +8,7 @@ import json
 import requests
 from datetime import datetime
 import re
+from urlparse import urlparse
 
 from ckanapi.errors import (NotFound, NotAuthorized, ValidationError,
     SearchIndexError)
@@ -288,7 +289,7 @@ def _upload_logo(ckan,obj):
     for key in obj.keys():
         if isinstance(obj[key],(dict,list)):
             obj.pop(key)                            #dict/list objects can't be encoded
-    if 'http' in obj['image_url']:                  # logo is an external link
+    if urlparse(obj['image_url']).scheme:                  # logo is an external link
         obj['clear_upload'] = True
         obj['image_upload'] = obj['image_url']
     else:

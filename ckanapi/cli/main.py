@@ -4,12 +4,12 @@ Usage:
   ckanapi action ACTION_NAME
           [KEY=VALUE ... | -i | -I JSON_INPUT] [-j | -J]
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g]]
-  ckanapi load (datasets)
-          [-I JSONL_INPUT] [-s START] [-m MAX] [-p PROCESSES] [-l LOG_FILE]
-          [--upload-resources] [-n | -o] [-qwz] [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
+  ckanapi load datasets
+          [--upload-resources] [-I JSONL_INPUT] [-s START] [-m MAX] [-p PROCESSES]
+          [-l LOG_FILE] [-n | -o] [-qwz] [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
   ckanapi load (groups | organizations)
-          [-I JSONL_INPUT] [-s START] [-m MAX] [-p PROCESSES] [-l LOG_FILE]
-          [--upload-logo] [-n | -o] [-qwz] [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
+          [--upload-logo] [-I JSONL_INPUT] [-s START] [-m MAX] [-p PROCESSES] [-l LOG_FILE]
+          [-n | -o] [-qwz] [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
   ckanapi load (users | related)
           [-I JSONL_INPUT] [-s START] [-m MAX] [-p PROCESSES] [-l LOG_FILE]
           [-n | -o] [-qwz] [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
@@ -48,7 +48,7 @@ Options:
                             site sysadmin user when not specified
   --upload-logo             upload logo image of a group/organization if the
                             image is stored in the original server, otherwise
-                            tts image url will be used
+                            its image url will be used
   --upload-resources        upload resources of a dataset that were uploaded to
                             server. Resources originally linked by external
                             urls will keep the urls,will not be uploaded
