@@ -55,13 +55,15 @@ def dump_things(ckan, thing, arguments,
             'groups': 'group_list',
             'organizations': 'organization_list',
             'users': 'user_list',
+            'related' :'related_list',
             }[thing]
         names = ckan.call_action(get_thing_list, {})
+
     else:
         names = arguments['ID_OR_NAME']
 
     if names and isinstance(names[0], dict):
-        names = [rec['name'] for rec in names]
+        names = [rec.get('name',rec.get('id')) for rec in names]
 
     cmd = _worker_command_line(thing, arguments)
     processes = int(arguments['--processes'])
@@ -143,6 +145,7 @@ def dump_things_worker(ckan, thing, arguments,
         'groups': 'group_show',
         'organizations': 'organization_show',
         'users': 'user_show',
+        'related':'related_show'
         }[thing]
 
     def reply(error, record=None):
@@ -248,4 +251,3 @@ def _worker_command_line(thing, arguments):
         + b('--get-request')
         + ['value-here-to-make-docopt-happy']
         )
-

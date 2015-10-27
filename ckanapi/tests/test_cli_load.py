@@ -63,12 +63,45 @@ class TestCLILoad(unittest.TestCase):
         self.stdout = BytesIO()
         self.stderr = BytesIO()
 
-    def test_create(self):
+    def test_create_with_no_resources(self):
         load_things_worker(self.ckan, 'datasets', {
                 '--create-only': False,
                 '--update-only': False,
+                '--upload-resources':False,
                 },
             stdin=BytesIO(b'{"name": "45","title":"Forty-five"}\n'),
+            stdout=self.stdout)
+        response = self.stdout.getvalue()
+        self.assertEqual(response[-1:], b'\n')
+        timstamp, action, error, data = json.loads(response.decode('UTF-8'))
+        self.assertEqual(action, 'create')
+        self.assertEqual(error, None)
+        self.assertEqual(data, 'something-new')
+
+    def test_create_with_corrupted_resources(self):
+        load_things_worker(self.ckan, 'datasets', {
+                '--create-only': False,
+                '--update-only': False,
+                '--upload-resources':False,
+                },
+            stdin=BytesIO(b'{"name": "45","title":"Forty-five","resources":[{"id":"123"}]}\n'),
+            stdout=self.stdout)
+        response = self.stdout.getvalue()
+        self.assertEqual(response[-1:], b'\n')
+        timstamp, action, error, data = json.loads(response.decode('UTF-8'))
+        self.assertEqual(action, 'create')
+        self.assertEqual(error, 'Important attributes missing in resources')
+        self.assertEqual(data, 'something-new')
+
+    def test_create_with_complete_resources(self):
+        load_things_worker(self.ckan, 'datasets', {
+                '--create-only': False,
+                '--update-only': False,
+                '--upload-resources':False,
+                },
+            stdin=BytesIO(
+                 b'{"name": "45","title":"Forty-five",'
+                 b'"resources":[{"id":"123","url_type":"","url":"http://example.com"}]}\n'),
             stdout=self.stdout)
         response = self.stdout.getvalue()
         self.assertEqual(response[-1:], b'\n')
@@ -81,6 +114,7 @@ class TestCLILoad(unittest.TestCase):
         load_things_worker(self.ckan, 'datasets', {
                 '--create-only': True,
                 '--update-only': False,
+                '--upload-resources':False,
                 },
             stdin=BytesIO(b'{"name": "45","title":"Forty-five"}\n'),
             stdout=self.stdout)
@@ -105,12 +139,42 @@ class TestCLILoad(unittest.TestCase):
         self.assertEqual(error, 'NotFound')
         self.assertEqual(data, [None, '45'])
 
-    def test_update(self):
+    def test_update_with_no_resources(self):
         load_things_worker(self.ckan, 'datasets', {
                 '--create-only': False,
                 '--update-only': False,
                 },
             stdin=BytesIO(b'{"name": "30ish","title":"3.4 times ten"}\n'),
+            stdout=self.stdout)
+        response = self.stdout.getvalue()
+        self.assertEqual(response[-1:], b'\n')
+        timstamp, action, error, data = json.loads(response.decode('UTF-8'))
+        self.assertEqual(action, 'update')
+        self.assertEqual(error, None)
+        self.assertEqual(data, 'something-updated')
+
+    def test_update_with_corrupted_resources(self):
+        load_things_worker(self.ckan, 'datasets', {
+                '--create-only': False,
+                '--update-only': False,
+                },
+            stdin=BytesIO(b'{"name": "30ish","title":"3.4 times ten","resources":[{"id":"123"}]}\n'),
+            stdout=self.stdout)
+        response = self.stdout.getvalue()
+        self.assertEqual(response[-1:], b'\n')
+        timstamp, action, error, data = json.loads(response.decode('UTF-8'))
+        self.assertEqual(action, 'update')
+        self.assertEqual(error, "Important attributes missing in resources")
+        self.assertEqual(data, 'something-updated')
+
+    def test_update_with_complete_resources(self):
+        load_things_worker(self.ckan, 'datasets', {
+                '--create-only': False,
+                '--update-only': False,
+                },
+            stdin=BytesIO(
+                 b'{"name": "30ish","title":"3.4 times ten",'
+                 b'"resources":[{"id":"123","url_type":"","url":"http://example.com"}]}\n'),
             stdout=self.stdout)
         response = self.stdout.getvalue()
         self.assertEqual(response[-1:], b'\n')
@@ -241,6 +305,8 @@ class TestCLILoad(unittest.TestCase):
                 '--update-only': False,
                 '--start-record': '1',
                 '--max-records': None,
+                '--upload-resources': False,
+                '--upload-logo':False
             },
             worker_pool=self._mock_worker_pool,
             stdin=BytesIO(
@@ -273,6 +339,8 @@ class TestCLILoad(unittest.TestCase):
                 '--update-only': False,
                 '--start-record': '2',
                 '--max-records': '2',
+                '--upload-resources': False,
+                '--upload-logo':False,
             },
             worker_pool=self._mock_worker_pool,
             stdin=BytesIO(
@@ -308,6 +376,8 @@ class TestCLILoad(unittest.TestCase):
                 '--update-only': False,
                 '--start-record': '1',
                 '--max-records': None,
+                '--upload-resources': False,
+                '--upload-logo':False,
             },
             worker_pool=self._mock_worker_pool,
             stdin=BytesIO(
@@ -328,5 +398,3 @@ class TestCLILoad(unittest.TestCase):
             jname = json.loads(j.decode('UTF-8'))
             yield [[], i, json.dumps(['some-date', None, None, {'id':jname}]
                 ).encode('UTF-8') + b'\n']
-
-

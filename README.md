@@ -34,6 +34,40 @@ commands. When connecting to a local CKAN instance the site user
 (sysadmin) is used by default.
 
 
+### Action Arguments
+
+Simple action arguments may be passed in KEY=STRING form for string
+values or in KEY:JSON form for JSON values.
+
+E.g. to view a dataset using a KEY=STRING parameter:
+
+```
+$ ckanapi action package_show id=my-dataset-name
+{
+  "name": "my-dataset-name",
+  ...
+}
+
+```
+
+E.g. to get the number of datasets for each organization
+using KEY:JSON parameters:
+
+```
+$ ckanapi action package_search 'facet.field:["organization"]' rows:0
+{
+  "facets": {
+    "organization": {
+      "org1": 42,
+      "org2": 21,
+      ...
+    }
+  },
+  ...
+}
+```
+
+
 ### Bulk operations
 
 Datasets, groups and organizations may be dumped to

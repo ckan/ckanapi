@@ -23,6 +23,10 @@ class CKANAPIError(Exception):
         return self.extra_msg
 
 
+class CLIError(Exception):
+    pass
+
+
 try:
     import ckan
 
