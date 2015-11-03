@@ -253,12 +253,6 @@ def load_things_worker(ckan, thing, arguments, stdin=None, stdout=None):
                 reply(act, 'NotAuthorized', unicode(e))
             except NotFound:
                 reply(act, 'NotFound', obj)
-            except KeyError:
-                reply(
-                    act,
-                    'Important attributes missing in resources',
-                    r.get('name', r.get('id'))
-                )
             else:
                 reply(act, None, r.get('name', r.get('id')))
 
