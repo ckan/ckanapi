@@ -1,6 +1,5 @@
 import shutil
 import os
-from ckan.lib.uploader import ResourceUpload
 from ckanapi.errors import CKANAPIError
 from ckanapi.common import ActionShortcut
 
@@ -16,7 +15,9 @@ class LocalCKAN(object):
     """
     def __init__(self, username=None, context=None):
         from ckan.logic import get_action
+        from ckan.lib.uploader import ResourceUpload
         self._get_action = get_action
+        self._ResourceUpload = ResourceUpload
 
         if username is None:
             username = self.get_site_username()
@@ -61,7 +62,7 @@ class LocalCKAN(object):
         else:
             resource = dict(data_dict)
 
-        resource_upload = ResourceUpload({'id': resource['id']})
+        resource_upload = self._ResourceUpload({'id': resource['id']})
 
         # get first upload, ignore key
         source_file = list(files.values())[0]
