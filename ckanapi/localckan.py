@@ -57,10 +57,13 @@ class LocalCKAN(object):
         if action not in ['resource_create', 'resource_update']:
             raise CKANAPIError("LocalCKAN.call_action only supports file uploads for resources.")
 
+        new_data_dict = dict(data_dict)
         if action == 'resource_create':
-            resource = self._get_action(action)(dict(context), dict(data_dict))
+            if 'url' not in new_data_dict or not new_data_dict['url']:
+                new_data_dict['url'] = '/tmp-file' # url needs to be set, otherwise there is a ValidationError
+            resource = self._get_action(action)(dict(context), new_data_dict)
         else:
-            resource = dict(data_dict)
+            resource = new_data_dict
 
         resource_upload = self._ResourceUpload({'id': resource['id']})
 
