@@ -1,3 +1,6 @@
+import shutil
+import os
+from ckan.lib.uploader import ResourceUpload
 from ckanapi.errors import CKANAPIError
 from ckanapi.common import ActionShortcut
 
@@ -58,7 +61,6 @@ class LocalCKAN(object):
         else:
             resource = dict(data_dict)
 
-        from ckan.lib.uploader import ResourceUpload
         resource_upload = ResourceUpload({'id': resource['id']})
 
         # get first upload, ignore key
