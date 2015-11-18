@@ -64,7 +64,7 @@ class LocalCKAN(object):
         resource_upload = ResourceUpload({'id': resource['id']})
 
         # get first upload, ignore key
-        source_file = files.values()[0]
+        source_file = list(files.values())[0]
         if not resource_upload.storage_path:
             raise CKANAPIError("No storage configured, unable to upload files")
 
@@ -72,7 +72,7 @@ class LocalCKAN(object):
         filepath = resource_upload.get_path(resource['id'])
         try:
             os.makedirs(directory)
-        except OSError, e:
+        except OSError as e:
             ## errno 17 is file already exists
             if e.errno != 17:
                 raise
