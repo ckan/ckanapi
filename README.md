@@ -24,7 +24,7 @@ $ ckanapi action group_list -r http://demo.ckan.org
   "example-group",
   "geo-examples",
   ...
-]
+] 
 ```
 
 Local CKAN actions may be run by specifying the config file with -c.
@@ -73,16 +73,23 @@ $ ckanapi action package_search 'facet.field:["organization"]' rows:0
 Datasets, groups and organizations may be dumped to
 [JSON lines](http://jsonlines.org)
 text files and created or updated from JSON lines text files.
-These bulk dumping and loading jobs can be run in parallel with
-multiple worker processes. The jobs in progress, the rate of job
-completion and any individual errors are shown on STDERR while
-the jobs run.
 
-e.g. load datasets from a dataset dump file with 3 processes in parallel:
+Example: dumping datasets from CKAN into a local file with 4 processes:
+
+```
+$ ckanapi dump datasets --all -O datasets.jsonl.gz -z -p 4 -r http://localhost
+```
+
+Example: load datasets from a dataset dump file with 3 processes in parallel:
 
 ```
 $ ckanapi load datasets -I datasets.jsonl.gz -z -p 3 -c /etc/ckan/production.ini
 ```
+
+These bulk dumping and loading jobs can be run in parallel with
+multiple worker processes. The jobs in progress, the rate of job
+completion and any individual errors are shown on STDERR while
+the jobs run.
 
 Bulk loading jobs may be resumed from the last completed
 record or split across multiple servers by specifying record
