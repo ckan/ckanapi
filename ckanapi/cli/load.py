@@ -13,10 +13,18 @@ try:
 except ImportError:
     from urlparse import urlparse
 
-from ckanapi.errors import (NotFound, NotAuthorized, ValidationError,
-    SearchIndexError)
+from ckanapi.errors import (
+    NotFound,
+    NotAuthorized,
+    ValidationError,
+    SearchIndexError
+)
 from ckanapi.cli import workers
-from ckanapi.cli.utils import completion_stats, compact_json, quiet_int_pipe
+from ckanapi.cli.utils import (
+    completion_stats,
+    compact_json,
+    quiet_int_pipe
+)
 
 try:
     unicode
@@ -25,7 +33,7 @@ except NameError:
 
 
 def load_things(ckan, thing, arguments,
-        worker_pool=None, stdin=None, stdout=None, stderr=None):
+                worker_pool=None, stdin=None, stdout=None, stderr=None):
     """
     create and update datasets, groups, orgs and users
 
@@ -64,7 +72,9 @@ def load_things(ckan, thing, arguments,
         max_records = arguments['--max-records']
         if max_records is not None:
             max_records = int(max_records)
-        for num, line in enumerate(jsonl_input, 1): # records start from 1
+
+        # records start from 1
+        for num, line in enumerate(jsonl_input, 1):
             if num < start_record:
                 continue
             if max_records is not None and num >= start_record + max_records:
@@ -112,8 +122,7 @@ def load_things(ckan, thing, arguments,
         return 2
 
 
-def load_things_worker(ckan, thing, arguments,
-        stdin=None, stdout=None):
+def load_things_worker(ckan, thing, arguments, stdin=None, stdout=None):
     """
     a process that accepts lines of json on stdin which is parsed and
     passed to the {thing}_create/update actions.  it produces lines of json
@@ -135,15 +144,30 @@ def load_things_worker(ckan, thing, arguments,
 
     thing_show, thing_create, thing_update = {
         'datasets': (
-            'package_show', 'package_create', 'package_update'),
+            'package_show',
+            'package_create',
+            'package_update'
+        ),
         'groups': (
-            'group_show', 'group_create', 'group_update'),
+            'group_show',
+            'group_create',
+            'group_update'
+        ),
         'organizations': (
-            'organization_show', 'organization_create', 'organization_update'),
+            'organization_show',
+            'organization_create',
+            'organization_update'
+        ),
         'users': (
-            'user_show', 'user_create', 'user_update'),
-        'related':(
-            'related_show','related_create','related_update'),
+            'user_show',
+            'user_create',
+            'user_update'
+        ),
+        'related': (
+            'related_show',
+            'related_create',
+            'related_update'
+        ),
         }[thing]
 
     def reply(action, error, response):
@@ -172,11 +196,11 @@ def load_things_worker(ckan, thing, arguments,
                 name = obj.get('id')
                 if name:
                     try:
-                        existing = ckan.call_action(thing_show,
-                            {'id': name,
-                             'include_datasets': False,
-                             'include_password_hash': True,
-                            })
+                        existing = ckan.call_action(thing_show, {
+                            'id': name,
+                            'include_datasets': False,
+                            'include_password_hash': True
+                        })
                     except NotFound:
                         pass
                     except NotAuthorized as e:
@@ -207,15 +231,20 @@ def load_things_worker(ckan, thing, arguments,
                     r = ckan.call_action(thing_update, obj)
                 else:
                     r = ckan.call_action(thing_create, obj)
-                if thing == 'datasets' and 'resources' in obj:# check if it is needed to upload resources when creating/updating packages
-                    _upload_resources(ckan,obj,arguments)
-                elif thing in ['groups','organizations'] and 'image_display_url' in obj:   #load images for groups and organizations
-                    if arguments['--upload-logo']:
-                        users = obj['users']
-                        _upload_logo(ckan,obj)
-                        obj.pop('image_upload')
-                        obj['users'] = users
-                        ckan.call_action(thing_update,obj)
+
+                # check if it is needed to upload resources when
+                # creating/updating packages
+                if thing == 'datasets' and 'resources' in obj:
+                    _upload_resources(ckan, obj, arguments)
+                elif thing in ['groups', 'organizations']:
+                    # load images for groups and organizations
+                    if 'image_display_url' in obj:
+                        if arguments['--upload-logo']:
+                            users = obj['users']
+                            _upload_logo(ckan, obj)
+                            obj.pop('image_upload')
+                            obj['users'] = users
+                            ckan.call_action(thing_update, obj)
             except ValidationError as e:
                 reply(act, 'ValidationError', e.error_dict)
             except SearchIndexError as e:
@@ -225,9 +254,11 @@ def load_things_worker(ckan, thing, arguments,
             except NotFound:
                 reply(act, 'NotFound', obj)
             except KeyError:
-                reply(act, 'Important attributes missing in resources', r.get('name',r.get('id')) )
+               reply(act, 'Important attributes missing in resources',
+                     r.get('name',r.get('id')))
             else:
-                reply(act, None, r.get('name',r.get('id')))
+                reply(act, None, r.get('name', r.get('id')))
+
 
 def _worker_command_line(thing, arguments):
     """
@@ -237,9 +268,11 @@ def _worker_command_line(thing, arguments):
     def a(name):
         "options with values"
         return [name, arguments[name]] * (arguments[name] is not None)
+
     def b(name):
         "boolean options"
         return [name] * bool(arguments[name])
+
     return (
         ['ckanapi', 'load', thing, '--worker']
         + a('--config')
@@ -269,36 +302,44 @@ def _copy_from_existing_for_update(obj, existing, thing):
         if 'users' not in obj and 'users' in existing:
             obj['users'] = existing['users']
 
-def _upload_resources(ckan,obj,arguments):
+
+def _upload_resources(ckan, obj, arguments):
     resources = obj['resources']
-    if len(resources)==0:
+    if not resources:
         return
+
     for resource in resources:
-        if resource['url_type'] == 'upload':      # check for same domain resources
+        # check for same domain resources
+        if resource['url_type'] == 'upload':
             for key in resource.keys():
-                if isinstance(resource[key],(dict,list)):
-                    resource.pop(key)                # dict/list objects can't be encoded
+                if isinstance(resource[key], (dict, list)):
+                    # dict/list objects can't be encoded
+                    resource.pop(key)
             if arguments['--upload-resources']:
-                f = requests.get(resource['url'],stream=True)
-                new_url = resource['url'].rsplit('/',1)[-1]
-                resource['upload'] = (new_url,f.raw)
+                f = requests.get(resource['url'], stream=True)
+                new_url = resource['url'].rsplit('/', 1)[-1]
+                resource['upload'] = (new_url, f.raw)
             else:
-                resource['url_type'] = ''           # hack url_type so that url can be modified
+                # hack url_type so that url can be modified
+                resource['url_type'] = ''
                 resource['package_id'] = obj['name']
             ckan.action.resource_update(**resource)
 
 
-def _upload_logo(ckan,obj):
+def _upload_logo(ckan, obj):
     for key in obj.keys():
-        if isinstance(obj[key],(dict,list)):
-            obj.pop(key)                            #dict/list objects can't be encoded
-    if urlparse(obj['image_url']).netloc:                  # logo is an external link
+        if isinstance(obj[key], (dict, list)):
+            # dict/list objects can't be encoded
+            obj.pop(key)
+    # logo is an external link
+    if urlparse(obj['image_url']).netloc:
         obj['clear_upload'] = True
         obj['image_upload'] = obj['image_url']
     else:
-        f = requests.get(obj['image_display_url'],stream=True)
-        name,ext = obj['image_url'].rsplit('.',1)  #reformulate image_url for new site
-        new_name = re.sub('[0-9\.-]','',name)
+        f = requests.get(obj['image_display_url'], stream=True)
+        # reformulate image_url for new site
+        name, ext = obj['image_url'].rsplit('.', 1)
+        new_name = re.sub('[0-9\.-]', '', name)
         new_url = new_name+'.'+ext
         obj['image_upload'] = (new_url, f.raw)
     ckan.action.group_update(**obj)
