@@ -81,7 +81,7 @@ def prepare_action(action, data_dict=None, apikey=None, files=None):
                 v = unicode(v)
             data_dict[k.encode('utf-8')] = v.encode('utf-8')
     else:
-        data_dict = json.dumps(data_dict)
+        data_dict = json.dumps(data_dict).encode('ascii')
         headers['Content-Type'] = 'application/json'
     if apikey:
         apikey = str(apikey)
