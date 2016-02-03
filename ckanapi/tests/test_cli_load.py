@@ -125,6 +125,21 @@ class TestCLILoad(unittest.TestCase):
         self.assertEqual(error, None)
         self.assertEqual(data, 'something-new')
 
+    def test_create_empty_dict(self):
+        load_things_worker(self.ckan, 'datasets', {
+                '--create-only': False,
+                '--update-only': False,
+                '--upload-resources':False,
+                },
+            stdin=BytesIO(b'{}\n'),
+            stdout=self.stdout)
+        response = self.stdout.getvalue()
+        self.assertEqual(response[-1:], b'\n')
+        timstamp, action, error, data = json.loads(response.decode('UTF-8'))
+        self.assertEqual(action, 'create')
+        self.assertEqual(error, None)
+        self.assertEqual(data, 'something-new')
+
     def test_create_bad_option(self):
         load_things_worker(self.ckan, 'datasets', {
                 '--create-only': False,
