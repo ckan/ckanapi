@@ -165,7 +165,7 @@ def load_things_worker(ckan, thing, arguments,
             reply('read', 'UnicodeDecodeError', unicode(e))
             continue
 
-        if obj:
+        if obj is not None:
             existing = None
             if not arguments['--create-only']:
                 # use either id or name to locate existing records
