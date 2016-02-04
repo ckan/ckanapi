@@ -12,7 +12,7 @@ class MockCKAN(object):
     def call_action(self, name, data_dict):
         if name == 'package_show' and data_dict['id'] == 'seekrit':
             raise NotAuthorized('naughty user')
-        if name == 'package_create' and data_dict['name'] == '34':
+        if name == 'package_create' and data_dict.get('name') == '34':
             raise ValidationError({'name': 'That URL is already in use.'})
         if name == 'organization_update':
             if data_dict['id'] == 'used' and data_dict.get('users') != [
@@ -90,7 +90,7 @@ class TestCLILoad(unittest.TestCase):
         self.assertEqual(response[-1:], b'\n')
         timstamp, action, error, data = json.loads(response.decode('UTF-8'))
         self.assertEqual(action, 'create')
-        self.assertEqual(error, 'Important attributes missing in resources')
+        self.assertEqual(error, None)
         self.assertEqual(data, 'something-new')
 
     def test_create_with_complete_resources(self):
@@ -117,6 +117,21 @@ class TestCLILoad(unittest.TestCase):
                 '--upload-resources':False,
                 },
             stdin=BytesIO(b'{"name": "45","title":"Forty-five"}\n'),
+            stdout=self.stdout)
+        response = self.stdout.getvalue()
+        self.assertEqual(response[-1:], b'\n')
+        timstamp, action, error, data = json.loads(response.decode('UTF-8'))
+        self.assertEqual(action, 'create')
+        self.assertEqual(error, None)
+        self.assertEqual(data, 'something-new')
+
+    def test_create_empty_dict(self):
+        load_things_worker(self.ckan, 'datasets', {
+                '--create-only': False,
+                '--update-only': False,
+                '--upload-resources':False,
+                },
+            stdin=BytesIO(b'{}\n'),
             stdout=self.stdout)
         response = self.stdout.getvalue()
         self.assertEqual(response[-1:], b'\n')
@@ -164,7 +179,7 @@ class TestCLILoad(unittest.TestCase):
         self.assertEqual(response[-1:], b'\n')
         timstamp, action, error, data = json.loads(response.decode('UTF-8'))
         self.assertEqual(action, 'update')
-        self.assertEqual(error, "Important attributes missing in resources")
+        self.assertEqual(error, None)
         self.assertEqual(data, 'something-updated')
 
     def test_update_with_complete_resources(self):

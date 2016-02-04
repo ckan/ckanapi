@@ -165,7 +165,7 @@ def load_things_worker(ckan, thing, arguments,
             reply('read', 'UnicodeDecodeError', unicode(e))
             continue
 
-        if obj:
+        if obj is not None:
             existing = None
             if not arguments['--create-only']:
                 # use either id or name to locate existing records
@@ -224,8 +224,6 @@ def load_things_worker(ckan, thing, arguments,
                 reply(act, 'NotAuthorized', unicode(e))
             except NotFound:
                 reply(act, 'NotFound', obj)
-            except KeyError:
-                reply(act, 'Important attributes missing in resources', r.get('name',r.get('id')) )
             else:
                 reply(act, None, r.get('name',r.get('id')))
 
@@ -274,7 +272,7 @@ def _upload_resources(ckan,obj,arguments):
     if len(resources)==0:
         return
     for resource in resources:
-        if resource['url_type'] == 'upload':      # check for same domain resources
+        if resource.get('url_type') == 'upload':      # check for same domain resources
             for key in resource.keys():
                 if isinstance(resource[key],(dict,list)):
                     resource.pop(key)                # dict/list objects can't be encoded
