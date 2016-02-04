@@ -12,7 +12,7 @@ class MockCKAN(object):
     def call_action(self, name, data_dict):
         if name == 'package_show' and data_dict['id'] == 'seekrit':
             raise NotAuthorized('naughty user')
-        if name == 'package_create' and data_dict['name'] == '34':
+        if name == 'package_create' and data_dict.get('name') == '34':
             raise ValidationError({'name': 'That URL is already in use.'})
         if name == 'organization_update':
             if data_dict['id'] == 'used' and data_dict.get('users') != [
