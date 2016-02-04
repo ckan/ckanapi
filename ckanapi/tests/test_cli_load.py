@@ -90,7 +90,7 @@ class TestCLILoad(unittest.TestCase):
         self.assertEqual(response[-1:], b'\n')
         timstamp, action, error, data = json.loads(response.decode('UTF-8'))
         self.assertEqual(action, 'create')
-        self.assertEqual(error, 'Important attributes missing in resources')
+        self.assertEqual(error, None)
         self.assertEqual(data, 'something-new')
 
     def test_create_with_complete_resources(self):
@@ -179,7 +179,7 @@ class TestCLILoad(unittest.TestCase):
         self.assertEqual(response[-1:], b'\n')
         timstamp, action, error, data = json.loads(response.decode('UTF-8'))
         self.assertEqual(action, 'update')
-        self.assertEqual(error, "Important attributes missing in resources")
+        self.assertEqual(error, None)
         self.assertEqual(data, 'something-updated')
 
     def test_update_with_complete_resources(self):
