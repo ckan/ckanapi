@@ -5,17 +5,24 @@ Usage:
           [(KEY=STRING | KEY:JSON) ... | -i | -I JSON_INPUT] [-j | -J]
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g]]
   ckanapi load datasets
-          [--upload-resources] [-I JSONL_INPUT] [-s START] [-m MAX] [-p PROCESSES]
-          [-l LOG_FILE] [-n | -o] [-qwz] [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
+          [--upload-resources] [-I JSONL_INPUT] [-s START] [-m MAX]
+          [-p PROCESSES] [-l LOG_FILE] [-n | -o] [-qwz]
+          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
   ckanapi load (groups | organizations)
-          [--upload-logo] [-I JSONL_INPUT] [-s START] [-m MAX] [-p PROCESSES] [-l LOG_FILE]
-          [-n | -o] [-qwz] [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
+          [--upload-logo] [-I JSONL_INPUT] [-s START] [-m MAX]
+          [-p PROCESSES] [-l LOG_FILE] [-n | -o] [-qwz]
+          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
   ckanapi load (users | related)
           [-I JSONL_INPUT] [-s START] [-m MAX] [-p PROCESSES] [-l LOG_FILE]
           [-n | -o] [-qwz] [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
   ckanapi dump (datasets | groups | organizations | users | related)
           (ID_OR_NAME ... | --all) ([-O JSONL_OUTPUT] | [-D DIRECTORY])
-          [-p PROCESSES] [-qwz] [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g]]
+          [-p PROCESSES] [-qwz]
+          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g]]
+  ckanapi delete (datasets | groups | organizations | users | related)
+          [ID_OR_NAME ... | -I JSONL_INPUT] [-s START] [-m MAX]
+          [-p PROCESSES] [-l LOG_FILE] [-qwz]
+          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
   ckanapi (-h | --help)
   ckanapi --version
 
@@ -68,6 +75,7 @@ from ckanapi.localckan import LocalCKAN
 from ckanapi.errors import CLIError
 from ckanapi.cli.load import load_things
 from ckanapi.cli.dump import dump_things
+from ckanapi.cli.delete import delete_things
 from ckanapi.cli.action import action
 
 
@@ -107,19 +115,20 @@ def main(running_with_paster=False):
 
     things = ['datasets', 'groups', 'organizations', 'users', 'related']
     thing = [x for x in things if arguments[x]]
-    if (arguments['load'] or arguments['dump']
+    if (arguments['load'] or arguments['dump'] or arguments['delete']
             ) and arguments['--processes'] != '1' and os.name == 'nt':
         sys.stderr.write(
             "multiple worker processes are not supported on windows\n")
         arguments['--processes'] = '1'
 
     if arguments['load']:
-        assert len(thing) == 1, thing
         return load_things(ckan, thing[0], arguments)
 
     if arguments['dump']:
-        assert len(thing) == 1, thing
         return dump_things(ckan, thing[0], arguments)
+
+    if arguments['delete']:
+        return delete_things(ckan, thing[0], arguments)
 
     assert 0, arguments # we shouldn't be here
 
