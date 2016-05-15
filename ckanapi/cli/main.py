@@ -20,7 +20,7 @@ Usage:
           [-p PROCESSES] [-qwz]
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g]]
   ckanapi delete (datasets | groups | organizations | users | related)
-          [ID_OR_NAME ... | -I JSONL_INPUT] [-s START] [-m MAX]
+          (ID_OR_NAME ... | [-I JSONL_INPUT] [-s START] [-m MAX])
           [-p PROCESSES] [-l LOG_FILE] [-qwz]
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
   ckanapi (-h | --help)
