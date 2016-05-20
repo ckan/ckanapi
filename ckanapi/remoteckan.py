@@ -83,7 +83,12 @@ class RemoteCKAN(object):
         return reverse_apicontroller_action(url, status, response)
 
     def _request_fn(self, url, data, headers, files, requests_kwargs):
-        r = requests.post(url, data=data, headers=headers, files=files, **requests_kwargs)
+        r = requests.post(url, data=data, headers=headers, files=files, allow_redirects=False, **requests_kwargs)
+        # allow_redirects=False because: if a post is redirected (e.g. 301 due
+        # to a http to https redirect), then the second request is made to the
+        # new URL, but *without* the data. This gives a confusing "No request
+        # body data" error. It is better to just return the 301 to the user, so
+        # we disallow redirects.
         return r.status_code, r.text
 
     def _request_fn_get(self, url, data_dict, headers, requests_kwargs):
