@@ -208,6 +208,10 @@ mysite.action.resource_create(
     package_id='my-dataset-with-files',
     upload=open('/path/to/file/to/upload.csv'))
 ```
+NOTE: Binary files (Zip, etc) may need to be opened in binary mode. In this case, the following code is required instead of the above;
+```
+    upload=open('/path/to/file/to/upload.csv','rb'))
+```
 
 When using `call_action` you must pass file objects separately:
 
