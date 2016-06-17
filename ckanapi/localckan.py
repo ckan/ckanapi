@@ -1,3 +1,5 @@
+import shutil
+import os
 from ckanapi.errors import CKANAPIError
 from ckanapi.common import ActionShortcut
 
@@ -13,7 +15,9 @@ class LocalCKAN(object):
     """
     def __init__(self, username=None, context=None):
         from ckan.logic import get_action
+        from ckan.lib.uploader import ResourceUpload
         self._get_action = get_action
+        self._ResourceUpload = ResourceUpload
 
         if username is None:
             username = self.get_site_username()
@@ -33,7 +37,7 @@ class LocalCKAN(object):
         :param context: an override for the context to use for this action,
                         remember to include a 'user' when necessary
         :param apikey: not supported
-        :param files: not supported
+        :param files: None or {field-name: file-to-be-sent, ...}
         """
         if not data_dict:
             data_dict = []
@@ -44,7 +48,45 @@ class LocalCKAN(object):
             raise CKANAPIError("LocalCKAN.call_action does not support "
                 "use of apikey parameter, use context['user'] instead")
         if files:
-            raise CKANAPIError("TestAppCKAN.call_action does not support "
-                "file uploads, consider contributing it if you need it")
+            return self._handle_files(action, data_dict, context, files)
+
         # copy dicts because actions may modify the dicts they are passed
         return self._get_action(action)(dict(context), dict(data_dict))
+
+    def _handle_files(self, action, data_dict, context, files):
+        if action not in ['resource_create', 'resource_update']:
+            raise CKANAPIError("LocalCKAN.call_action only supports file uploads for resources.")
+
+        new_data_dict = dict(data_dict)
+        if action == 'resource_create':
+            if 'url' not in new_data_dict or not new_data_dict['url']:
+                new_data_dict['url'] = '/tmp-file' # url needs to be set, otherwise there is a ValidationError
+            resource = self._get_action(action)(dict(context), new_data_dict)
+        else:
+            resource = new_data_dict
+
+        resource_upload = self._ResourceUpload({'id': resource['id']})
+
+        # get first upload, ignore key
+        source_file = list(files.values())[0]
+        if not resource_upload.storage_path:
+            raise CKANAPIError("No storage configured, unable to upload files")
+
+        directory = resource_upload.get_directory(resource['id'])
+        filepath = resource_upload.get_path(resource['id'])
+        try:
+            os.makedirs(directory)
+        except OSError as e:
+            ## errno 17 is file already exists
+            if e.errno != 17:
+                raise
+
+        with open(filepath, 'wb+') as dest:
+            shutil.copyfileobj(source_file, dest)
+
+        resource['url'] = ('/dataset/%s/resource/%s/download/%s' 
+                           % (resource['package_id'], resource['id'], os.path.basename(source_file.name)))
+        resource['url_type'] = 'upload'
+        self._get_action('resource_update')(dict(context), resource)
+        source_file.close()
+        return resource
