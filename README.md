@@ -213,6 +213,7 @@ mysite = ckanapi.RemoteCKAN('http://myckan.example.com',
     user_agent='ckanapiexample/1.0 (+http://example.com/my/website)')
 mysite.action.resource_create(
     package_id='my-dataset-with-files',
+    url='dummy-value',  # ignored but required by CKAN<=2.5.x
     upload=open('/path/to/file/to/upload.csv'))
 ```
 NOTE: Binary files (Zip, etc) may need to be opened in binary mode. In this case, the following code is required instead of the above;
