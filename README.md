@@ -85,9 +85,9 @@ $ ckanapi action package_search 'facet.field:["organization"]' rows:0
 ```
 
 
-### Bulk operations
+### Bulk Dumping and Loading Operations
 
-Datasets, groups and organizations may be dumped to
+Datasets, groups, organizations, users and related items may be dumped to
 [JSON lines](http://jsonlines.org)
 text files and created or updated from JSON lines text files.
 
@@ -112,12 +112,47 @@ Bulk loading jobs may be resumed from the last completed
 record or split across multiple servers by specifying record
 start and max values.
 
+
+### Bulk Delete
+
+Datasets, groups, organizations, users and related items may be deleted in
+bulk with the delete command. This command accepts ids or names on the
+command line or a number of different formats piped on standard input.
+
+Delete all the datasets (JSON list of "id" or "name" values)
+```
+$ ckanapi action package_list -j | ckanapi delete datasets
+```
+
+Selective delete (JSON object with "results" list containing "id" values)
+```
+$ ckanapi action package_search q=ponies | ckanapi delete datasets
+```
+
+Processed JSON Lines (JSON objects with "id" or "name" value, one per line)
+```
+$ ckanapi dump groups --all > groups.jsonl
+$ grep ponies groups.jsonl | ckanapi delete groups
+```
+
+Simple list of "id" or "name" values (one per line)
+```
+$ cat users_to_remove.txt
+fred
+bill
+larry
+$ ckanapi delete users < users_to_remove.txt
+```
+
+
 ### Bulk Dataset and Resource Export - datapackage.json format
 
-Datasets may be exported to the [datapackage.json format](http://dataprotocols.org/data-packages/) (which includes the actual resources, where available).
+Datasets may be exported to a simplified
+[datapackage.json format](http://dataprotocols.org/data-packages/)
+(which includes the actual resources, where available).
 
-If the resource url is not available, the resource will be included in the datapackage.json file
-but the actual resource data will not be downloaded.
+If the resource url is not available, the resource will be included
+in the datapackage.json file but the actual resource data will not be downloaded.
 
 ```
 $ ckanapi dump datasets --all --datapackages=./output_directory/ -r http://sourceckan.example.com
