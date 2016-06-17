@@ -6,6 +6,13 @@ A [command line interface](#ckanapi-cli) and
 
 [![Build Status](https://travis-ci.org/ckan/ckanapi.png?branch=master)](https://travis-ci.org/ckan/ckanapi) tested under Python 2.6, 2.7, 3.2, 3.3 and pypy
 
+## Installation
+
+```
+pip install ckanapi
+```
+
+
 ## ckanapi CLI
 
 The ckanapi command line interface lets you access local and
