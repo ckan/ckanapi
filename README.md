@@ -34,11 +34,21 @@ $ ckanapi action group_list -r http://demo.ckan.org
 ] 
 ```
 
+Use -r to specify the remote CKAN instance, and -a to provide an
+API KEY. Remote actions connect as an anonymous user by default.
+
 Local CKAN actions may be run by specifying the config file with -c.
 If no remote server or config file is specified the CLI will look for
 a development.ini file in the current directory, much like paster
-commands. When connecting to a local CKAN instance the site user
-(sysadmin) is used by default.
+commands.
+
+Local CKAN actions are performed by the site user (default system
+administrator) when -u is not specified.
+
+To perform local actions with a less privileged user use
+the -u option with a user name or a name that doesn't exist. This is
+useful if you don't want things like deleted datasets or private
+information to be returned.
 
 
 ### Action Arguments
