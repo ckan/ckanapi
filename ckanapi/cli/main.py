@@ -2,8 +2,8 @@
 
 Usage:
   ckanapi action ACTION_NAME
-          [(KEY=STRING | KEY:JSON) ... | -i | -I JSON_INPUT] [-j | -J]
-          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g]]
+          [(KEY=STRING | KEY:JSON | KEY@FILE ) ... | -i | -I JSON_INPUT]
+          [-j | -J] [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g]]
   ckanapi load datasets
           [--upload-resources] [-I JSONL_INPUT] [-s START] [-m MAX]
           [-p PROCESSES] [-l LOG_FILE] [-n | -o] [-qwz]

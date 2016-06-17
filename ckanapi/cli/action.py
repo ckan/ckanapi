@@ -4,6 +4,8 @@ implementation of the action cli command
 
 import sys
 import json
+from os.path import expanduser
+
 from ckanapi.cli.utils import compact_json, pretty_json
 from ckanapi.errors import CLIError
 
@@ -19,27 +21,36 @@ def action(ckan, arguments, stdin=None):
         action_args = json.loads(stdin.read().decode('utf-8'))
     elif arguments['--input']:
         action_args = json.loads(open(
-            arguments['--input']).read().decode('utf-8'))
+            expanduserr(arguments['--input'])).read().decode('utf-8'))
     else:
         action_args = {}
+        file_args = {}
         for kv in arguments['KEY=STRING']:
             skey, p, svalue = kv.partition('=')
             jkey, p, jvalue = kv.partition(':')
-            if len(skey) < len(jkey):
+            fkey, p, fvalue = kv.partition('@')
+            if len(jkey) > len(skey) < len(fkey):
                 action_args[skey] = svalue
-                continue
-            if len(jkey) < len(skey):
+            elif len(skey) > len(jkey) < len(fkey):
                 try:
                     value = json.loads(jvalue)
                 except ValueError:
                     raise CLIError("KEY:JSON argument %r has invalid JSON "
                         "value %r" % (jkey, jvalue))
                 action_args[jkey] = value
-                continue
-            raise CLIError("argument not in the form KEY=STRING or KEY:JSON "
-                "%r" % kv)
+            elif len(jkey) > len(fkey) < len(skey):
+                try:
+                    f = open(expanduser(fvalue), 'rb')
+                except IOError as e:
+                    raise CLIError("Error opening %r: %s" %
+                        (expanduser(fvalue), e.args[1]))
+                file_args[fkey] = f
+            else:
+                raise CLIError("argument not in the form KEY=STRING, "
+                    "KEY:JSON or KEY@FILE %r" % kv)
 
-    result = ckan.call_action(arguments['ACTION_NAME'], action_args)
+    result = ckan.call_action(arguments['ACTION_NAME'], action_args,
+        files=file_args)
 
     if arguments['--output-jsonl']:
         if isinstance(result, list):

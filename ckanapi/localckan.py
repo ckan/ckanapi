@@ -1,3 +1,5 @@
+from cgi import FieldStorage
+
 from ckanapi.errors import CKANAPIError
 from ckanapi.common import ActionShortcut
 
@@ -33,18 +35,27 @@ class LocalCKAN(object):
         :param context: an override for the context to use for this action,
                         remember to include a 'user' when necessary
         :param apikey: not supported
-        :param files: not supported
+        :param files: None or {field-name: file-to-be-sent, ...}
         """
-        if not data_dict:
-            data_dict = []
-        if context is None:
-            context = self.context
+        # copy dicts because actions may modify the dicts they are passed
+        # (CKAN...you so crazy)
+        data_dict = dict(data_dict or [])
+        context = dict(self.context if context is None else context)
         if apikey:
             # FIXME: allow use of apikey to set a user in context?
             raise CKANAPIError("LocalCKAN.call_action does not support "
                 "use of apikey parameter, use context['user'] instead")
-        if files:
-            raise CKANAPIError("TestAppCKAN.call_action does not support "
-                "file uploads, consider contributing it if you need it")
-        # copy dicts because actions may modify the dicts they are passed
-        return self._get_action(action)(dict(context), dict(data_dict))
+        for fieldname in files or []:
+            f = files[fieldname]
+            try:
+                f.tell()
+            except IOError:
+                raise CKANAPIError("LocalCKAN.call_action only supports "
+                    "files with random access, not streams. Consider "
+                    "writing your file disk or using StringIO.")
+            field_storage = FieldStorage()
+            field_storage.file = f
+            field_storage.filename = f.name
+            data_dict[fieldname] = field_storage
+
+        return self._get_action(action)(context, data_dict)
