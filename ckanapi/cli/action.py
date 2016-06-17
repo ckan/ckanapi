@@ -17,14 +17,14 @@ def action(ckan, arguments, stdin=None):
     if stdin is None:
         stdin = getattr(sys.stdin, 'buffer', sys.stdin)
 
+    file_args = {}
     if arguments['--input-json']:
         action_args = json.loads(stdin.read().decode('utf-8'))
     elif arguments['--input']:
         action_args = json.loads(open(
-            expanduserr(arguments['--input'])).read().decode('utf-8'))
+            expanduser(arguments['--input'])).read().decode('utf-8'))
     else:
         action_args = {}
-        file_args = {}
         for kv in arguments['KEY=STRING']:
             skey, p, svalue = kv.partition('=')
             jkey, p, jvalue = kv.partition(':')

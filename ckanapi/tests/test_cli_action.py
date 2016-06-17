@@ -9,16 +9,21 @@ from io import BytesIO
 
 
 class MockCKAN(object):
-    def __init__(self, expected_name, expected_args, response):
+    def __init__(self, expected_name, expected_args, response,
+            expected_files=None):
         self._expected_name = expected_name
         self._expected_args = expected_args
+        self._expected_files = expected_files or {}
         self._response = response
 
-    def call_action(self, name, args):
+    def call_action(self, name, args, context=None, apikey=None, files=None):
         if name != self._expected_name:
             return ["wrong name", name, self._expected_name]
         if args != self._expected_args:
             return ["wrong args", args, self._expected_args]
+        files = dict((f, v.name) for f,v in files.items())
+        if files != self._expected_files:
+            return ["wrong files", files, self._expected_files]
         return self._response
 
 
