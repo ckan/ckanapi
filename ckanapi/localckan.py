@@ -47,10 +47,11 @@ class LocalCKAN(object):
                 "use of apikey parameter, use context['user'] instead")
         for fieldname in files or []:
             f = files[fieldname]
-            filename = f.name
             if isinstance(f, tuple):
                 # requests accepts (filename, file, mimetype) tuples
                 filename, f = f[:2]
+            else:
+                filename = f.name
             try:
                 f.tell()
             except AttributeError, IOError:
