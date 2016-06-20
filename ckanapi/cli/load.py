@@ -269,21 +269,15 @@ def _copy_from_existing_for_update(obj, existing, thing):
 
 def _upload_resources(ckan,obj,arguments):
     resources = obj['resources']
-    if len(resources)==0:
+    if not arguments['--upload-resources']:
         return
     for resource in resources:
-        if resource.get('url_type') == 'upload':      # check for same domain resources
-            for key in resource.keys():
-                if isinstance(resource[key],(dict,list)):
-                    resource.pop(key)                # dict/list objects can't be encoded
-            if arguments['--upload-resources']:
-                f = requests.get(resource['url'],stream=True)
-                new_url = resource['url'].rsplit('/',1)[-1]
-                resource['upload'] = (new_url,f.raw)
-            else:
-                resource['url_type'] = ''           # hack url_type so that url can be modified
-                resource['package_id'] = obj['name']
-            ckan.action.resource_update(**resource)
+        if resource.get('url_type') != 'upload':
+            continue
+
+        f = requests.get(resource['url'],stream=True)
+        name = resource['url'].rsplit('/',1)[-1]
+        ckan.action.resource_patch(id=resource['id'], upload=(name, f))
 
 
 def _upload_logo(ckan,obj):
