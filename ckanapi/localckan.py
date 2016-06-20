@@ -47,15 +47,19 @@ class LocalCKAN(object):
                 "use of apikey parameter, use context['user'] instead")
         for fieldname in files or []:
             f = files[fieldname]
+            filename = f.name
+            if isinstance(f, tuple):
+                # requests accepts (filename, file, mimetype) tuples
+                filename, f = f[:2]
             try:
                 f.tell()
-            except IOError:
+            except AttributeError, IOError:
                 raise CKANAPIError("LocalCKAN.call_action only supports "
                     "files with random access, not streams. Consider "
                     "writing your file disk or using StringIO.")
             field_storage = FieldStorage()
             field_storage.file = f
-            field_storage.filename = f.name
+            field_storage.filename = filename
             data_dict[fieldname] = field_storage
 
         return self._get_action(action)(context, data_dict)
