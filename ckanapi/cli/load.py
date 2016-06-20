@@ -279,7 +279,7 @@ def _upload_resources(ckan,obj,arguments):
         name = resource['url'].rsplit('/',1)[-1]
         ckan.call_action('resource_patch',
             {'id':resource['id']},
-            files={'upload':(name, f)})
+            files={'upload':(name, f.raw)})
 
 
 def _upload_logo(ckan,obj):
