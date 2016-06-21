@@ -186,6 +186,7 @@ class TestCLILoad(unittest.TestCase):
         load_things_worker(self.ckan, 'datasets', {
                 '--create-only': False,
                 '--update-only': False,
+                '--upload-resources': False,
                 },
             stdin=BytesIO(
                  b'{"name": "30ish","title":"3.4 times ten",'
@@ -202,6 +203,7 @@ class TestCLILoad(unittest.TestCase):
         load_things_worker(self.ckan, 'datasets', {
                 '--create-only': False,
                 '--update-only': True,
+                '--upload-resources': False,
                 },
             stdin=BytesIO(b'{"name": "34","title":"3.4 times ten"}\n'),
             stdout=self.stdout)

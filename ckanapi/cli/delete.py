@@ -1,5 +1,5 @@
 """
-implementation of load cli command
+implementation of delete cli command
 """
 
 import sys
