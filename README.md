@@ -12,14 +12,6 @@ A [command line interface](#ckanapi-cli) and
 pip install ckanapi
 ```
 
-## License
-
-🇨🇦 Government of Canada / Gouvernement du Canada
-
-The project files are covered under Crown Copyright, Government of Canada
-and is distributed under the MIT license. Please see [COPYING](COPYING) /
-[COPYING.fr](COPYING.fr) for full details.
-
 
 ## ckanapi CLI
 
@@ -312,3 +304,12 @@ test_app = webtest.TestApp(...)
 demo = ckanapi.TestAppCKAN(test_app, apikey='my-test-key')
 groups = demo.action.group_list(id='data-explorer')
 ```
+
+
+## License
+
+🇨🇦 Government of Canada / Gouvernement du Canada
+
+The project files are covered under Crown Copyright, Government of Canada
+and is distributed under the MIT license. Please see [COPYING](COPYING) /
+[COPYING.fr](COPYING.fr) for full details.
