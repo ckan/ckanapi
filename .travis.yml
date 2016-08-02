@@ -5,6 +5,8 @@ python:
   - "2.7"
   - "3.2"
   - "3.3"
+  - "3.4"
+  - "3.5"
   - "pypy"
 install:
   - "pip install 'requests<2.5.1'" # workaround https://github.com/kennethreitz/requests/issues/2462
