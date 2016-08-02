@@ -331,3 +331,12 @@ test_app = TestApp(...)
 demo = TestAppCKAN(test_app, apikey='my-test-key')
 groups = demo.action.group_list(id='data-explorer')
 ```
+
+
+## License
+
+🇨🇦 Government of Canada / Gouvernement du Canada
+
+The project files are covered under Crown Copyright, Government of Canada
+and is distributed under the MIT license. Please see [COPYING](COPYING) /
+[COPYING.fr](COPYING.fr) for full details.
