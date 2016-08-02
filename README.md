@@ -271,9 +271,9 @@ mysite.call_action('resource_create',
 ### Session Control
 
 As of ckanapi 4.0 RemoteCKAN will keep your HTTP connection open using a
-(requests session)[http://docs.python-requests.org/en/master/user/advanced/].
+[requests session](http://docs.python-requests.org/en/master/user/advanced/).
 
-For long-running scripts you should make sure to close your connections by using
+For long-running scripts make sure to close your connections by using
 RemoteCKAN as a context manager:
 
 ```python
@@ -291,7 +291,7 @@ Or by explicitly calling `RemoteCKAN.close()`.
 
 A similar class is provided for accessing local CKAN instances from a plugin in
 the same way as remote CKAN instances.
-Unlike (CKAN's get_action)[http://docs.ckan.org/en/latest/extensions/plugins-toolkit.html?highlight=get_action#ckan.plugins.toolkit.get_action]
+Unlike [CKAN's get_action](http://docs.ckan.org/en/latest/extensions/plugins-toolkit.html?highlight=get_action#ckan.plugins.toolkit.get_action)
 LocalCKAN prevents data from one action
 call leaking into the next which can cause issues that are very hard do debug.
 
