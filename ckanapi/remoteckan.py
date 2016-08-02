@@ -34,6 +34,7 @@ class RemoteCKAN(object):
         self.address = address
         self.apikey = apikey
         self.get_only = get_only
+        self.session = None
         if not user_agent:
             user_agent = "ckanapi/{version} (+{url})".format(
                 version=__version__,
@@ -76,6 +77,8 @@ class RemoteCKAN(object):
         headers['User-Agent'] = self.user_agent
         url = self.address.rstrip('/') + '/' + url
         requests_kwargs = requests_kwargs or {}
+        if not self.session:
+            self.session = requests.Session()
         if self.get_only:
             status, response = self._request_fn_get(url, data_dict, headers, requests_kwargs)
         else:
@@ -83,7 +86,8 @@ class RemoteCKAN(object):
         return reverse_apicontroller_action(url, status, response)
 
     def _request_fn(self, url, data, headers, files, requests_kwargs):
-        r = requests.post(url, data=data, headers=headers, files=files, allow_redirects=False, **requests_kwargs)
+        r = self.session.post(url, data=data, headers=headers, files=files,
+            allow_redirects=False, **requests_kwargs)
         # allow_redirects=False because: if a post is redirected (e.g. 301 due
         # to a http to https redirect), then the second request is made to the
         # new URL, but *without* the data. This gives a confusing "No request
@@ -92,6 +96,18 @@ class RemoteCKAN(object):
         return r.status_code, r.text
 
     def _request_fn_get(self, url, data_dict, headers, requests_kwargs):
-        r = requests.get(url, params=data_dict, headers=headers, **requests_kwargs)
+        r = self.session.get(url, params=data_dict, headers=headers,
+            **requests_kwargs)
         return r.status_code, r.text
 
+    def close(self):
+        """Close session"""
+        if self.session:
+            self.session.close()
+            self.session = None
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        self.close()
