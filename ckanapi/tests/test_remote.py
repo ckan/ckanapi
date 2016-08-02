@@ -5,7 +5,7 @@ import atexit
 import socket
 import requests
 
-import ckanapi
+from ckanapi import RemoteCKAN, NotFound
 try:
     import unittest2 as unittest
 except ImportError:
@@ -53,57 +53,68 @@ class TestRemoteAction(unittest.TestCase):
                 pass
             time.sleep(0.1)
 
-    def setUp(self):
-        self.ckan = ckanapi.RemoteCKAN(TEST_CKAN)
+    def test_good_oldstyle(self):
+        ckan = RemoteCKAN(TEST_CKAN)
+        self.assertEqual(
+            ckan.action.organization_list(),
+            ['aa', 'bb', 'cc'])
+        ckan.close()
 
     def test_good(self):
-        self.assertEqual(
-            self.ckan.action.organization_list(),
-            ['aa', 'bb', 'cc'])
+        with RemoteCKAN(TEST_CKAN) as ckan:
+            self.assertEqual(
+                ckan.action.organization_list(),
+                ['aa', 'bb', 'cc'])
 
     def test_missing(self):
-        self.assertRaises(
-            ckanapi.NotFound,
-            self.ckan.action.organization_show,
-            id='qqq')
+        with RemoteCKAN(TEST_CKAN) as ckan:
+            self.assertRaises(
+                NotFound,
+                ckan.action.organization_show,
+                id='qqq')
 
     def test_default_ua(self):
-        self.assertTrue(
-            self.ckan.action.test_echo_user_agent().startswith('ckanapi'))
+        with RemoteCKAN(TEST_CKAN) as ckan:
+            self.assertTrue(
+                ckan.action.test_echo_user_agent().startswith('ckanapi'))
 
     def test_custom_ua(self):
         ua = 'testckanapibot/1.0 (+https://github.com/ckan/ckanapi)'
-        ckan = ckanapi.RemoteCKAN('http://localhost:8901', user_agent=ua)
-
-        self.assertEqual(ckan.action.test_echo_user_agent(), ua)
+        with RemoteCKAN(TEST_CKAN, user_agent=ua) as ckan:
+            self.assertEqual(ckan.action.test_echo_user_agent(), ua)
 
     def test_default_content_type(self):
-        self.assertEqual(self.ckan.action.test_echo_content_type(),
-            "application/json")
+        with RemoteCKAN(TEST_CKAN) as ckan:
+            self.assertEqual(ckan.action.test_echo_content_type(),
+                "application/json")
 
     def test_resource_upload(self):
-        res = self.ckan.call_action('test_upload',
-            {'option': "42"},
-            files={'upload': StringIO(NUMBER_THING_CSV)})
+        with RemoteCKAN(TEST_CKAN) as ckan:
+            res = ckan.call_action('test_upload',
+                {'option': "42"},
+                files={'upload': StringIO(NUMBER_THING_CSV)})
         self.assertEqual(res.get('last_row'), ['5', 'sasquach'])
 
     def test_resource_upload_extra_param(self):
-        res = self.ckan.call_action('test_upload',
-            {'option': "42"},
-            files={'upload': StringIO(NUMBER_THING_CSV)})
+        with RemoteCKAN(TEST_CKAN) as ckan:
+            res = ckan.call_action('test_upload',
+                {'option': "42"},
+                files={'upload': StringIO(NUMBER_THING_CSV)})
         self.assertEqual(res.get('option'), "42")
 
     def test_resource_upload_unicode_param(self):
         uname = b't\xc3\xab\xc3\x9ft resource'.decode('utf-8')
-        res = self.ckan.call_action('test_upload',
-            {'option': uname},
-            files={'upload': StringIO(NUMBER_THING_CSV)})
+        with RemoteCKAN(TEST_CKAN) as ckan:
+            res = ckan.call_action('test_upload',
+                {'option': uname},
+                files={'upload': StringIO(NUMBER_THING_CSV)})
         self.assertEqual(res.get('option'), uname)
 
     def test_resource_upload_content_type(self):
-        res = self.ckan.call_action('test_echo_content_type',
-            {'option': "42"},
-            files={'upload': StringIO(NUMBER_THING_CSV)})
+        with RemoteCKAN(TEST_CKAN) as ckan:
+            res = ckan.call_action('test_echo_content_type',
+                {'option': "42"},
+                files={'upload': StringIO(NUMBER_THING_CSV)})
         self.assertEqual(res.split(';')[0], "multipart/form-data")
 
     @classmethod
