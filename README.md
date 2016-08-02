@@ -188,10 +188,10 @@ or in a Python 2 or Python 3 application separate from CKAN.
 Making a request:
 
 ```python
-import ckanapi
+from ckanapi import RemoteCKAN
+ua = 'ckanapiexample/1.0 (+http://example.com/my/website)'
 
-demo = ckanapi.RemoteCKAN('http://demo.ckan.org',
-    user_agent='ckanapiexample/1.0 (+http://example.com/my/website)')
+demo = RemoteCKAN('http://demo.ckan.org', user_agent=ua)
 groups = demo.action.group_list(id='data-explorer')
 print groups
 ```
@@ -230,14 +230,13 @@ failures are raised as exceptions just like when calling `get_action` from a
 CKAN plugin:
 
 ```python
-import ckanapi
+from ckanapi import RemoteCKAN, NotAuthorized
+ua = 'ckanapiexample/1.0 (+http://example.com/my/website)'
 
-demo = ckanapi.RemoteCKAN('http://demo.ckan.org',
-    apikey='phony-key',
-    user_agent='ckanapiexample/1.0 (+http://example.com/my/website)')
+demo = RemoteCKAN('http://demo.ckan.org', apikey='phony-key', user_agent=ua)
 try:
     pkg = demo.action.package_create(name='my-dataset', title='not going to work')
-except ckanapi.NotAuthorized:
+except NotAuthorized:
     print 'denied'
 ```
 
@@ -251,19 +250,14 @@ File uploads for CKAN 2.2+ are supported by passing file-like objects to action
 shortcut methods:
 
 ```python
-import ckanapi
+from ckanapi import RemoteCKAN
+ua = 'ckanapiexample/1.0 (+http://example.com/my/website)'
 
-mysite = ckanapi.RemoteCKAN('http://myckan.example.com',
-    apikey='real-key',
-    user_agent='ckanapiexample/1.0 (+http://example.com/my/website)')
+mysite = RemoteCKAN('http://myckan.example.com', apikey='real-key', user_agent=ua)
 mysite.action.resource_create(
     package_id='my-dataset-with-files',
     url='dummy-value',  # ignored but required by CKAN<=2.5.x
-    upload=open('/path/to/file/to/upload.csv'))
-```
-NOTE: Binary files (Zip, etc) may need to be opened in binary mode. In this case, the following code is required instead of the above;
-```
-    upload=open('/path/to/file/to/upload.csv','rb'))
+    upload=open('/path/to/file/to/upload.csv', 'rb'))
 ```
 
 When using `call_action` you must pass file objects separately:
@@ -271,23 +265,56 @@ When using `call_action` you must pass file objects separately:
 ```python
 mysite.call_action('resource_create',
     {'package_id': 'my-dataset-with-files'},
-    files={'upload': open('/path/to/file/to/upload.csv')})
+    files={'upload': open('/path/to/file/to/upload.csv', 'rb')})
 ```
+
+### Session Control
+
+As of ckanapi 4.0 RemoteCKAN will keep your HTTP connection open using a
+(requests session)[http://docs.python-requests.org/en/master/user/advanced/].
+
+For long-running scripts you should make sure to close your connections by using
+RemoteCKAN as a context manager:
+
+```python
+from ckanapi import RemoteCKAN
+ua = 'ckanapiexample/1.0 (+http://example.com/my/website)'
+
+with RemoteCKAN('http://demo.ckan.org', user_agent=ua) as demo:
+    groups = demo.action.group_list(id='data-explorer')
+print groups
+```
+
+Or by explicitly calling `RemoteCKAN.close()`.
 
 ### LocalCKAN
 
 A similar class is provided for accessing local CKAN instances from a plugin in
-the same way as remote CKAN instances.  This class defaults to using the site
-user with full access.
+the same way as remote CKAN instances.
+Unlike (CKAN's get_action)[http://docs.ckan.org/en/latest/extensions/plugins-toolkit.html?highlight=get_action#ckan.plugins.toolkit.get_action]
+LocalCKAN prevents data from one action
+call leaking into the next which can cause issues that are very hard do debug.
+
+This class defaults to using the site user with full access.
 
 ```python
-import ckanapi
+from ckanapi import LocalCKAN, ValidationError
 
-registry = ckanapi.LocalCKAN()
+registry = LocalCKAN()
 try:
     registry.action.package_create(name='my-dataset', title='this will work fine')
-except ckanapi.ValidationError:
+except ValidationError:
     print 'unless my-dataset already exists'
+```
+
+For extra caution pass a blank username to LocalCKAN and only actions allowed
+by anonymous users will be permitted.
+
+```python
+from ckanapi import LocalCKAN
+
+anon = LocalCKAN(username='')
+print anon.action.status_show()
 ```
 
 ### TestAppCKAN
@@ -297,10 +324,10 @@ A class is provided for making action requests to a
 instance for use in CKAN tests:
 
 ```python
-import ckanapi
-import webtest
+from ckanapi import TestAppCKAN
+from webtest import TestApp
 
-test_app = webtest.TestApp(...)
-demo = ckanapi.TestAppCKAN(test_app, apikey='my-test-key')
+test_app = TestApp(...)
+demo = TestAppCKAN(test_app, apikey='my-test-key')
 groups = demo.action.group_list(id='data-explorer')
 ```
