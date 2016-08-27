@@ -107,9 +107,9 @@ def main(running_with_paster=False):
     if arguments['action']:
         try:
             for r in action(ckan, arguments):
-                sys.stdout.write(r)
+                sys.stdout.write(str(r))
             return
-        except CLIError, e:
+        except CLIError as e:
             sys.stderr.write(e.args[0] + '\n')
             return 1
 
