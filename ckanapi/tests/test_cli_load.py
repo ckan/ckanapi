@@ -172,6 +172,7 @@ class TestCLILoad(unittest.TestCase):
         load_things_worker(self.ckan, 'datasets', {
                 '--create-only': False,
                 '--update-only': False,
+                '--upload-resources': False,
                 },
             stdin=BytesIO(b'{"name": "30ish","title":"3.4 times ten","resources":[{"id":"123"}]}\n'),
             stdout=self.stdout)
@@ -186,6 +187,7 @@ class TestCLILoad(unittest.TestCase):
         load_things_worker(self.ckan, 'datasets', {
                 '--create-only': False,
                 '--update-only': False,
+                '--upload-resources': False,
                 },
             stdin=BytesIO(
                  b'{"name": "30ish","title":"3.4 times ten",'
@@ -202,6 +204,7 @@ class TestCLILoad(unittest.TestCase):
         load_things_worker(self.ckan, 'datasets', {
                 '--create-only': False,
                 '--update-only': True,
+                '--upload-resources': False,
                 },
             stdin=BytesIO(b'{"name": "34","title":"3.4 times ten"}\n'),
             stdout=self.stdout)
@@ -216,6 +219,7 @@ class TestCLILoad(unittest.TestCase):
         load_things_worker(self.ckan, 'datasets', {
                 '--create-only': True,
                 '--update-only': False,
+                '--upload-resources': False,
                 },
             stdin=BytesIO(b'{"name": "34","title":"3.4 times ten"}\n'),
             stdout=self.stdout)
@@ -230,6 +234,7 @@ class TestCLILoad(unittest.TestCase):
         load_things_worker(self.ckan, 'datasets', {
                 '--create-only': False,
                 '--update-only': False,
+                '--upload-resources': False,
                 },
             stdin=BytesIO(b'{"name": "seekrit", "title": "Things"}\n'),
             stdout=self.stdout)
@@ -244,6 +249,7 @@ class TestCLILoad(unittest.TestCase):
         load_things_worker(self.ckan, 'groups', {
                 '--create-only': False,
                 '--update-only': False,
+                '--upload-resources': False,
                 },
             stdin=BytesIO(b'{"id": "ab","title":"a balloon"}\n'),
             stdout=self.stdout)
@@ -258,6 +264,7 @@ class TestCLILoad(unittest.TestCase):
         load_things_worker(self.ckan, 'organizations', {
                 '--create-only': False,
                 '--update-only': False,
+                '--upload-resources': False,
                 },
             stdin=BytesIO(
                 b'{"name": "cd", "title": "Go"}\n'
@@ -280,6 +287,7 @@ class TestCLILoad(unittest.TestCase):
         load_things_worker(self.ckan, 'organizations', {
                 '--create-only': False,
                 '--update-only': False,
+                '--upload-resources': False,
                 },
             stdin=BytesIO(b'{"id": "used", "title": "here"}\n'),
             stdout=self.stdout)
@@ -294,6 +302,7 @@ class TestCLILoad(unittest.TestCase):
         load_things_worker(self.ckan, 'organizations', {
                 '--create-only': False,
                 '--update-only': False,
+                '--upload-resources': False,
                 },
             stdin=BytesIO(b'{"id": "unused", "users": []}\n'),
             stdout=self.stdout)
