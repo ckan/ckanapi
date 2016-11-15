@@ -11,14 +11,17 @@ import os
 from ckanapi.cli.utils import compact_json, \
     quiet_int_pipe, pretty_json
 
-PAGINATION = 50
+DEFAULT_PAGINATION = 50
 
-def dump_metadata(ckan, arguments, stdout=None, stderr=None):
+def dump_metadata(ckan, arguments, pagination=DEFAULT_PAGINATION,
+        stdout=None, stderr=None):
     '''
     Dump all the JSON metadata records.
 
     The package_search API is used with pagination.
     '''
+    if pagination < 1:
+        raise ValueError("Pagination size must be greater or equal to 1")
     if stdout is None:
         stdout = getattr(sys.stdout, 'buffer', sys.stdout)
     if stderr is None:
@@ -35,8 +38,8 @@ def dump_metadata(ckan, arguments, stdout=None, stderr=None):
         total_count = 0
         total_known = False
         while not total_known or total_count > count:
-            response = ckan.call_action("package_search", rows=PAGINATION, 
-                    start=count)
+            response = ckan.call_action("package_search", rows=pagination, 
+                    start=count, sort="id asc")
             total_count = response["count"]
             total_known = True
             for record in response["results"]:

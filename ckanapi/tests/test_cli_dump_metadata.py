@@ -13,29 +13,33 @@ from io import BytesIO
 
 
 class MockCKAN(object):
+
+    def __init__(self):
+
+        self.data = [{'id': '12',
+                 'name': 'twelve',
+                 'title': "Twelve"},
+                {'id': '34',
+                 'name': 'thirtyfour',
+                 'title': "Thirty-four"},
+                {'id': '56',
+                 'name': 'fiftysix',
+                 'title': "Fifty-Six"},
+                {'id': '67',
+                 'name': 'sixtyseven',
+                 'title': "Sixty-Seven"},
+                {'id': 'dp',
+                 'name': 'dp',
+                 'title': 'Test for datapackage',
+                 'resources':[ {'name': 'resource1',
+                         'format': 'html',
+                         'url':'http://example.com/test-file'}]}]
+
     def call_action(self, name, **kwargs):
-        try:
-            return {
-                'package_search': {
-                    'count' : 3,
-                    'results' : [
-                        {'id': '12',
-                         'name': 'twelve',
-                         'title': "Twelve"},
-                        {'id': '34',
-                         'name': 'thirtyfour',
-                         'title': "Thirty-four"},
-                        {'id': 'dp',
-                         'name': 'dp',
-                         'title': 'Test for datapackage',
-                         'resources':[ {'name': 'resource1',
-                                 'format': 'html',
-                                 'url':'http://example.com/test-file'}]},
-                        ],
-                    },
-                }[name]
-        except KeyError:
-            raise NotFound()
+        start = kwargs["start"]
+        rows = kwargs["rows"]
+        return {"count" : 5,
+                "results" : self.data[start:start+rows]}
 
 
 class TestCLIDumpMetadata(unittest.TestCase):
@@ -52,11 +56,11 @@ class TestCLIDumpMetadata(unittest.TestCase):
                 '--apikey': None,
                 '--output': None,
                 '--gzip': False,
-            },
+            }, 2,
             stdout=self.stdout,
             stderr=self.stderr)
         output = self.stdout.getvalue().decode("UTF-8")
-        self.assertEqual(output.count("\n"), 3)
+        self.assertEqual(output.count("\n"), 5)
         self.assertTrue(r'{"id":"12","name":"twelve","title":"Twelve"}' in output)
         self.assertTrue(r'{"id":"34","name":"thirtyfour","title":"Thirty-four"}' in output)
         self.assertTrue(r'id":"dp"' in output)
