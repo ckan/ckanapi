@@ -35,7 +35,7 @@ class MockCKAN(object):
                          'format': 'html',
                          'url':'http://example.com/test-file'}]}]
 
-    def call_action(self, name, **kwargs):
+    def call_action(self, name, kwargs):
         start = kwargs["start"]
         rows = kwargs["rows"]
         return {"count" : 5,

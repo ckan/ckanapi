@@ -38,8 +38,8 @@ def dump_metadata(ckan, arguments, pagination=DEFAULT_PAGINATION,
         total_count = 0
         total_known = False
         while not total_known or total_count > count:
-            response = ckan.call_action("package_search", rows=pagination, 
-                    start=count, sort="id asc")
+            response = ckan.call_action("package_search", dict(rows=pagination, 
+                    start=count, sort="id asc"))
             total_count = response["count"]
             total_known = True
             for record in response["results"]:
