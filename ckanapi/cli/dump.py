@@ -31,7 +31,7 @@ def dump_things(ckan, thing, arguments,
     if worker_pool is None:
         worker_pool = workers.worker_pool
     if stdout is None:
-        stdout = getattr(sys.stdout, 'buffer', sys.stdout)
+        stdout = getattr(sys.__stdout__, 'buffer', sys.__stdout__)
     if stderr is None:
         stderr = getattr(sys.stderr, 'buffer', sys.stderr)
 
