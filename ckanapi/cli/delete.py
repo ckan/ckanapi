@@ -38,7 +38,7 @@ def delete_things(ckan, thing, arguments,
     if stdin is None:
         stdin = getattr(sys.stdin, 'buffer', sys.stdin)
     if stdout is None:
-        stdout = getattr(sys.stdout, 'buffer', sys.stdout)
+        stdout = getattr(sys.__stdout__, 'buffer', sys.__stdout__)
     if stderr is None:
         stderr = getattr(sys.stderr, 'buffer', sys.stderr)
 
@@ -176,7 +176,7 @@ def delete_things_worker(ckan, thing, arguments,
         except IOError:
             pass
     if stdout is None:
-        stdout = getattr(sys.stdout, 'buffer', sys.stdout)
+        stdout = getattr(sys.__stdout__, 'buffer', sys.__stdout__)
         # hack so that "print debugging" can work in extension/ckan
         # code called by this worker
         sys.stdout = sys.stderr
