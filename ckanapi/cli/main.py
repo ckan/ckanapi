@@ -19,7 +19,7 @@ Usage:
           (ID_OR_NAME ... | --all) ([-O JSONL_OUTPUT] | [-D DIRECTORY])
           [-p PROCESSES] [-qwz]
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g]]
-  ckanapi dump_metadata
+  ckanapi dump_datasets2
           [-O JSONL_OUTPUT]
           [-z]
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g]]
@@ -135,7 +135,7 @@ def main(running_with_paster=False):
     if arguments['delete']:
         return delete_things(ckan, thing[0], arguments)
 
-    if arguments['dump_metadata']:
+    if arguments['dump_datasets2']:
         return dump_metadata(ckan, arguments)
 
     assert 0, arguments # we shouldn't be here

@@ -17,6 +17,8 @@ def dump_metadata(ckan, arguments, pagination=DEFAULT_PAGINATION,
         stdout=None, stderr=None):
     '''
     Dump all the JSON metadata records.
+    This is often a better than using dump_things with thing=datasets,
+    as sites like catalog.data.gov do not support package_list api.
 
     The package_search API is used with pagination.
     '''
