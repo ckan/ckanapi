@@ -109,7 +109,7 @@ def main(running_with_paster=False):
             for r in action(ckan, arguments):
                 sys.stdout.write(r)
             return
-        except CLIError, e:
+        except CLIError as e:
             sys.stderr.write(e.args[0] + '\n')
             return 1
 
