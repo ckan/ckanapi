@@ -12,6 +12,7 @@ try:
     from urllib.parse import urlparse
 except ImportError:
     from urlparse import urlparse
+from collections import defaultdict
 
 from ckanapi.errors import (NotFound, NotAuthorized, ValidationError,
     SearchIndexError)
@@ -77,6 +78,7 @@ def load_things(ckan, thing, arguments,
         # add your sites to ckanapi.remoteckan.MY_SITES instead of removing
         processes = min(processes, ckan.parallel_limit)
     stats = completion_stats(processes)
+    result_stats = defaultdict(list)
     pool = worker_pool(cmd, processes, line_reader())
 
     with quiet_int_pipe() as errors:
@@ -86,6 +88,8 @@ def load_things(ckan, thing, arguments,
                 return 1
             timestamp, action, error, response = json.loads(
                 result.decode('utf-8'))
+
+            result_stats[error].append('%s %s %s' % (job_ids, error, response))
 
             if not arguments['--quiet']:
                 stderr.write(('%s %s %s %s %s %s\n' % (
@@ -106,6 +110,20 @@ def load_things(ckan, thing, arguments,
                     response,
                     ]) + b'\n')
                 log.flush()
+
+    if not arguments['--quiet']:
+        total = sum(len(i) for i in result_stats.values())
+        successes = len(result_stats.get(None, []))
+        if successes == total:
+            stderr.write('All successful\n')
+        else:
+            percent = int(successes / float(total))
+            stderr.write('Not all successful: {}/{} {}%\n'.format(
+                         successes, total, percent))
+            stderr.write('Example error(s):\n')
+            for err_type in result_stats.keys():
+                stderr.write('   %s\n' % (result_stats[err_type][0]))
+
     if 'pipe' in errors:
         return 1
     if 'interrupt' in errors:
