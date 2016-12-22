@@ -57,7 +57,10 @@ def dump_things(ckan, thing, arguments,
             'users': 'user_list',
             'related' :'related_list',
             }[thing]
-        names = ckan.call_action(get_thing_list, {})
+        params = dict(
+            all_fields=False,  # for user_list
+            )
+        names = ckan.call_action(get_thing_list, params)
 
     else:
         names = arguments['ID_OR_NAME']
