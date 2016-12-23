@@ -8,6 +8,8 @@ install_requires=[
     'setuptools',
     'docopt',
     'requests',
+    'requests-toolbelt',
+    'clint',
 ]
 
 if sys.version_info <= (3,):

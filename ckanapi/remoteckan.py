@@ -17,6 +17,8 @@ MY_SITES = ['localhost', '127.0.0.1', '[::1]']
 PARALLEL_LIMIT = 3
 
 import requests
+from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
+from clint.textui.progress import Bar
 
 
 class RemoteCKAN(object):
@@ -51,8 +53,22 @@ class RemoteCKAN(object):
             # add your sites to MY_SITES above instead of removing this
             self.parallel_limit = PARALLEL_LIMIT
 
+    def _mkcallback(self, encoder):
+        expected_size = encoder.len
+        bar = Bar(expected_size=expected_size, filled_char = '=')
+        waiting = [False]
+    
+        def callback(monitor):
+            if monitor.bytes_read < expected_size:
+                bar.show(monitor.bytes_read)
+            elif not waiting[0]:
+                waiting[0] = True
+                print ('\nwaiting for server-side processing ...')
+
+        return callback
+
     def call_action(self, action, data_dict=None, context=None, apikey=None,
-            files=None, requests_kwargs=None):
+                    files=None, progress=None, requests_kwargs=None):
         """
         :param action: the action name, e.g. 'package_create'
         :param data_dict: the dict to pass to the action as JSON,
@@ -82,12 +98,24 @@ class RemoteCKAN(object):
         if self.get_only:
             status, response = self._request_fn_get(url, data_dict, headers, requests_kwargs)
         else:
-            status, response = self._request_fn(url, data, headers, files, requests_kwargs)
+            status, response = self._request_fn(url, data, headers, files,
+                                                progress, requests_kwargs)
         return reverse_apicontroller_action(url, status, response)
 
-    def _request_fn(self, url, data, headers, files, requests_kwargs):
-        r = self.session.post(url, data=data, headers=headers, files=files,
-            allow_redirects=False, **requests_kwargs)
+    def _request_fn(self, url, data, headers, files, progress, requests_kwargs):
+        # use streaming
+        if files:
+            files['upload'] = (files['upload'].name, files['upload'])
+            data.update(files)
+            m = MultipartEncoder(data)
+            if progress:
+                m = MultipartEncoderMonitor(m, self._mkcallback(m))
+            headers.update({'Content-Type': m.content_type})
+            r = self.session.post(url, data=m, headers=headers,
+                                  allow_redirects=False, **requests_kwargs)
+        else:
+            r = self.session.post(url, data=data, headers=headers, files=files,
+                    allow_redirects=False, **requests_kwargs)
         # allow_redirects=False because: if a post is redirected (e.g. 301 due
         # to a http to https redirect), then the second request is made to the
         # new URL, but *without* the data. This gives a confusing "No request
