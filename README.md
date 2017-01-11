@@ -265,8 +265,16 @@ When using `call_action` you must pass file objects separately:
 ```python
 mysite.call_action('resource_create',
     {'package_id': 'my-dataset-with-files'},
-    files={'upload': open('/path/to/file/to/upload.csv', 'rb')})
+    files={'upload': open('/path/to/file/to/upload.csv', 'rb')},
+	progress=True)
 ```
+
+If 'resource_create' is called using `call_action`, the file will be
+streamed and not fully loaded into memory before being uploaded to the
+server. With this usage an additional keyword argument 'progress' is
+provided. If `progress=True` a progress bar is displayed during
+upload.
+
 
 ### Session Control
 
