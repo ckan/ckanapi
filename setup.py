@@ -32,6 +32,7 @@ setup(
         'ckanapi.tests.mock',
         'ckanapi.cli',
         ],
+    setup_requires='requests',
     install_requires=install_requires,
     test_suite='ckanapi.tests',
     zip_safe=False,

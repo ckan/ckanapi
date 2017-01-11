@@ -105,7 +105,8 @@ class RemoteCKAN(object):
     def _request_fn(self, url, data, headers, files, progress, requests_kwargs):
         # use streaming
         if files:
-            files['upload'] = (files['upload'].name, files['upload'])
+            files['upload'] = (getattr(files['upload'], 'name', 'upload'),
+                               files['upload'])
             data.update(files)
             m = MultipartEncoder(data)
             if progress:
