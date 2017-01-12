@@ -18,7 +18,6 @@ PARALLEL_LIMIT = 3
 
 import requests
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
-from clint.textui.progress import Bar
 
 
 class RemoteCKAN(object):
@@ -53,19 +52,6 @@ class RemoteCKAN(object):
             # add your sites to MY_SITES above instead of removing this
             self.parallel_limit = PARALLEL_LIMIT
 
-    def _mkcallback(self, encoder):
-        expected_size = encoder.len
-        bar = Bar(expected_size=expected_size, filled_char = '=')
-        waiting = [False]
-    
-        def callback(monitor):
-            if monitor.bytes_read < expected_size:
-                bar.show(monitor.bytes_read)
-            elif not waiting[0]:
-                waiting[0] = True
-                print ('\nwaiting for server-side processing ...')
-
-        return callback
 
     def call_action(self, action, data_dict=None, context=None, apikey=None,
                     files=None, progress=None, requests_kwargs=None):
@@ -76,7 +62,13 @@ class RemoteCKAN(object):
         :param context: always set to None for RemoteCKAN
         :param apikey: API key for authentication
         :param files: None or {field-name: file-to-be-sent, ...}
-        :param progess: If True shows a progress bar if files are uploaded
+        :param progress: A callable that takes an instance of
+            :class:`requests_toolbelt.MultipartEncoder` as parameter and returns
+            a callback funtion. The callback function will be called every time
+            data is read from the file-to-be-sent and it will be passed the
+            instance of :class:`requests_toolbelt.MultipartEncoderMonitor`. This
+            monitor has the attribute `bytes_read` that can be used to display
+            a progress bar. An example is implemented in ckanapi.cli.
 
         This function parses the response from the server as JSON and
         returns the decoded value.  When an error is returned this
@@ -104,14 +96,13 @@ class RemoteCKAN(object):
         return reverse_apicontroller_action(url, status, response)
 
     def _request_fn(self, url, data, headers, files, progress, requests_kwargs):
-        # use streaming
-        if files:
+        if files:  # use streaming
             files['upload'] = (getattr(files['upload'], 'name', 'upload'),
                                files['upload'])
             data.update(files)
             m = MultipartEncoder(data)
             if progress:
-                m = MultipartEncoderMonitor(m, self._mkcallback(m))
+                m = MultipartEncoderMonitor(m, progress(m))
             headers.update({'Content-Type': m.content_type})
             r = self.session.post(url, data=m, headers=headers,
                                   allow_redirects=False, **requests_kwargs)
