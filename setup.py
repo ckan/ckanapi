@@ -32,6 +32,8 @@ setup(
         'ckanapi.tests.mock',
         'ckanapi.cli',
         ],
+    # A workaround for a bug in setuptools that prevents correct installation
+    # of "requests". See http://stackoverflow.com/questions/27497470.
     setup_requires='requests',
     install_requires=install_requires,
     test_suite='ckanapi.tests',
