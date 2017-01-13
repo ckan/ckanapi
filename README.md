@@ -266,14 +266,22 @@ When using `call_action` you must pass file objects separately:
 mysite.call_action('resource_create',
     {'package_id': 'my-dataset-with-files'},
     files={'upload': open('/path/to/file/to/upload.csv', 'rb')},
-	progress=True)
+	progress=make_callback)
 ```
 
 If 'resource_create' is called using `call_action`, the file will be
 streamed and not fully loaded into memory before being uploaded to the
-server. With this usage an additional keyword argument 'progress' is
-provided. If `progress=True` a progress bar is displayed during
-upload.
+server.
+
+With this usage the additional keyword argument `progress` can be used
+to pass in a callable that takes an instance of
+`requests_toolbelt.MultipartEncoder` as parameter and returns a
+callback funtion. The callback function will be called every time data
+is read from the file-to-be-sent and it will be passed the instance of
+`requests_toolbelt.MultipartEncoderMonitor`. This monitor has the
+attribute `bytes_read` that can be used to display a progress bar. An
+example is implemented in
+[ckanapi.cli.progressbar](https://github.com/eawag-rdm/ckanapi/blob/streaming_upload/ckanapi/cli/progressbar.py).
 
 
 ### Session Control
