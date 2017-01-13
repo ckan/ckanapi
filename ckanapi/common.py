@@ -79,7 +79,7 @@ def prepare_action(action, data_dict=None, apikey=None, files=None):
                 continue  # assuming missing will work the same as None
             if isinstance(v, (int, float)):
                 v = str(v)
-            data_dict[k] = v
+            data_dict[k.encode('utf-8')] = v.encode('utf-8')
     else:
         data_dict = json.dumps(data_dict).encode('ascii')
         headers['Content-Type'] = 'application/json'
