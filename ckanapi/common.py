@@ -65,7 +65,7 @@ def is_file_like(v):
 def _encodehack(s):
     """
     :param s: input string
-    :type s: :class:str or :class:bytes:
+    :type s: :class:str or :class:bytes: or :class:unicode
 
     Yields either UTF-8 decodeable bytestring (PY2) or PY3 unicode str.
     """
