@@ -3,6 +3,7 @@ Code shared by LocalCKAN, RemoteCKAN and TestCKAN
 """
 
 import json
+import sys
 
 from ckanapi.errors import (CKANAPIError, NotAuthorized, NotFound,
     ValidationError, SearchQueryError, SearchError, SearchIndexError,
@@ -61,7 +62,24 @@ def is_file_like(v):
     return hasattr(v, 'read') or (
         isinstance(v, tuple) and len(v) >= 2 and hasattr(v[1], 'read'))
 
+def _encodehack(s):
+    """
+    :param s: input string
+    :type s: :class:str or :class:bytes:
 
+    Yields either UTF-8 decodeable bytestring (PY2) or PY3 unicode str.
+    """
+    if sys.version_info[0] > 2:
+        if type(s) == str:
+            return s                  # type(s) is PY3<str>
+        else:
+            return s.decode('utf-8')  # type(s) is PY3<bytes> or illegal 
+    elif type(s) == unicode:          
+        return s.encode('utf-8')      # It is PY2 :class:unicode
+    else:
+        return s.decode('utf-8').encode('utf-8') #type(s) is PY2<str> or illegal
+    
+        
 def prepare_action(action, data_dict=None, apikey=None, files=None):
     """
     Return action_url, data_json, http_headers
@@ -79,7 +97,7 @@ def prepare_action(action, data_dict=None, apikey=None, files=None):
                 continue  # assuming missing will work the same as None
             if isinstance(v, (int, float)):
                 v = str(v)
-            data_dict[k.encode('utf-8')] = v.encode('utf-8')
+            data_dict[_encodehack(k)] = _encodehack(v)
     else:
         data_dict = json.dumps(data_dict).encode('ascii')
         headers['Content-Type'] = 'application/json'
