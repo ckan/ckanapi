@@ -84,6 +84,15 @@ $ ckanapi action package_search 'facet.field:["organization"]' rows:0
 }
 ```
 
+Files may be passed for upload using the KEY@FILE form.
+
+E.g. create a resource with a file attached
+
+```
+$ ckanapi resource_create package_id=my-dataset-with-files \
+          upload=@/path/to/file/to/upload.csv \
+          url=dummy-value  # ignored but required by CKAN<2.6
+```
 
 ### Bulk Dumping and Loading Operations
 
@@ -91,13 +100,13 @@ Datasets, groups, organizations, users and related items may be dumped to
 [JSON lines](http://jsonlines.org)
 text files and created or updated from JSON lines text files.
 
-Example: dumping datasets from CKAN into a local file with 4 processes:
+E.g. dumping datasets from CKAN into a local file with 4 processes:
 
 ```
 $ ckanapi dump datasets --all -O datasets.jsonl.gz -z -p 4 -r http://localhost
 ```
 
-Example: load datasets from a dataset dump file with 3 processes in parallel:
+E.g. load datasets from a dataset dump file with 3 processes in parallel:
 
 ```
 $ ckanapi load datasets -I datasets.jsonl.gz -z -p 3 -c /etc/ckan/production.ini
@@ -256,7 +265,7 @@ ua = 'ckanapiexample/1.0 (+http://example.com/my/website)'
 mysite = RemoteCKAN('http://myckan.example.com', apikey='real-key', user_agent=ua)
 mysite.action.resource_create(
     package_id='my-dataset-with-files',
-    url='dummy-value',  # ignored but required by CKAN<=2.5.x
+    url='dummy-value',  # ignored but required by CKAN<2.6
     upload=open('/path/to/file/to/upload.csv', 'rb'))
 ```
 
