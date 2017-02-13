@@ -195,7 +195,7 @@ def create_datapackage(record, base_path, stderr):
     try:
         os.makedirs(target_dir)
     except Exception as e:
-        stderr.write(e.message)
+        stderr.write(str(e.args[0]) if len(e.args) > 0 else '')
 
     for resource in record.get('resources', ''):
         if resource.get('name') is not None:
@@ -225,7 +225,7 @@ def create_datapackage(record, base_path, stderr):
         except requests.ConnectionError:
             stderr.write('URL {url} refused connection. The resource will not be downloaded\n'.format(url=resource['url']))
         except requests.exceptions.RequestException as e:
-            stderr.write(e.message)
+            stderr.write(str(e.args[0]) if len(e.args) > 0 else '')
             stderr.write('\n')
 
     json_output_name = '{base_path}/{dataset_name}/datapackage.json'.format(
