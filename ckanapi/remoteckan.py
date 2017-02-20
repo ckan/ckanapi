@@ -97,8 +97,8 @@ class RemoteCKAN(object):
 
     def _request_fn(self, url, data, headers, files, requests_kwargs, progress):
         if files:  # use streaming
-            newfiles = {k: (getattr(files[k], 'name', 'upload_filename'),
-                            files[k]) for k in files}
+            newfiles = dict([(k, (getattr(files[k], 'name', 'upload_filename'),
+                            files[k])) for k in files])
             intersect = set(data.keys()) & set(newfiles.keys())
             if intersect:
                 raise CKANAPIError('field-name for files ("{}")'
