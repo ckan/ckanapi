@@ -34,6 +34,7 @@ class MockCKAN(object):
                         'title': 'Test for datapackage',
                         'resources':[
                             {'name': 'resource1',
+                             'id': 'd902fafc-5717-4dd0-87f2-7a6fc96989b7',
                              'format': 'html',
                              'url':'http://example.com/test-file'}]}
                     },
@@ -237,7 +238,7 @@ class TestCLIDump(unittest.TestCase):
             assert exists(target + '/twelve/datapackage.json')
             assert exists(target + '/thirtyfour/datapackage.json')
             assert exists(target + '/dp/datapackage.json')
-            assert exists(target + '/dp/data/test-file')
+            assert exists(target + '/dp/data/d902fafc-5717-4dd0-87f2-7a6fc96989b7')
         finally:
             shutil.rmtree(target)
 
