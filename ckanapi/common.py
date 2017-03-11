@@ -69,6 +69,12 @@ def prepare_action(action, data_dict=None, apikey=None, files=None):
     if not data_dict:
         data_dict = {}
     headers = {}
+
+    # resource_create requires url, even if it's never used.
+    # https://github.com/ckan/ckan/issues/2769
+    if action == 'resource_create':
+        data_dict['url'] = data_dict.get('url', '')
+
     if files:
         # when uploading files all parameters must be strings and
         # no nesting is allowed because request is sent as multipart
