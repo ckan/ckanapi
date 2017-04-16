@@ -67,7 +67,7 @@ def load_things(ckan, thing, arguments,
         for num, line in enumerate(jsonl_input, 1): # records start from 1
             if num < start_record:
                 continue
-            if max_records is not None and num >= start_record + max_records:
+            if max_records is not None and max_records > -1 and num >= start_record + max_records:
                 break
             yield num, line
 
