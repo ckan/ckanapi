@@ -20,7 +20,7 @@ class CKANAPIError(Exception):
         self.extra_msg = extra_msg
 
     def __str__(self):
-        return self.extra_msg
+        return str(self.extra_msg)
 
 
 class CLIError(Exception):
