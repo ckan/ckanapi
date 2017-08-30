@@ -29,12 +29,13 @@ class RemoteCKAN(object):
                     when actions are called, stored as self.apikey
     :param user_agent: the User-agent to report when making requests
     :param get_only: only use GET requests (default: False)
+    :param session: session to use (default: None)
     """
-    def __init__(self, address, apikey=None, user_agent=None, get_only=False):
+    def __init__(self, address, apikey=None, user_agent=None, get_only=False, session=None):
         self.address = address
         self.apikey = apikey
         self.get_only = get_only
-        self.session = None
+        self.session = session
         if not user_agent:
             user_agent = "ckanapi/{version} (+{url})".format(
                 version=__version__,
