@@ -107,7 +107,7 @@ def main(running_with_paster=False):
     if arguments['action']:
         try:
             for r in action(ckan, arguments):
-                sys.stdout.write(r)
+                sys.stdout.write(r.decode('utf-8'))
             return
         except CLIError as e:
             sys.stderr.write(e.args[0] + '\n')
