@@ -104,10 +104,11 @@ def main(running_with_paster=False):
     else:
         ckan = LocalCKAN(username=arguments['--ckan-user'])
 
+    stdout = getattr(sys.stdout, 'buffer', sys.stdout)
     if arguments['action']:
         try:
             for r in action(ckan, arguments):
-                sys.stdout.write(r)
+                stdout.write(r)
             return
         except CLIError as e:
             sys.stderr.write(e.args[0] + '\n')
