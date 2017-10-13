@@ -219,7 +219,7 @@ the method name used ("group_list" above) and converts it to a normal
 groups = demo.call_action('group_list', {'id': 'data-explorer'})
 ```
 
-All actions in the [CKAN Action API](http://docs.ckan.org/en/latest/api.html)
+All actions in the [CKAN Action API](http://docs.ckan.org/en/latest/api/index.html#action-api-reference)
 and actions added by CKAN plugins are supported by action shortcuts and
 `call_action` calls.
 
