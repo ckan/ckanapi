@@ -26,6 +26,8 @@ def action(ckan, arguments, stdin=None):
     else:
         action_args = {}
         for kv in arguments['KEY=STRING']:
+            if hasattr(kv, 'decode'):
+                kv = kv.decode('utf-8')
             skey, p, svalue = kv.partition('=')
             jkey, p, jvalue = kv.partition(':')
             fkey, p, fvalue = kv.partition('@')
