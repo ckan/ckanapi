@@ -223,6 +223,11 @@ All actions in the [CKAN Action API](http://docs.ckan.org/en/latest/api/index.ht
 and actions added by CKAN plugins are supported by action shortcuts and
 `call_action` calls.
 
+Many CKAN API functions can only be used by authenticated users. Use the
+`apikey` parameter to supply your CKAN API key to `RemoteCKAN`:
+
+    demo = RemoteCKAN('http://demo.ckan.org', apikey='MY-SECRET-API-KEY')
+
 
 ### Exceptions
 
