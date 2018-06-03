@@ -19,8 +19,7 @@ def action(ckan, arguments, stdin=None):
 
     file_args = {}
     if arguments['--input-json']:
-        action_args = json.loads(
-            stdin.read().decode('utf-8') if sys.version_info.major == 2 else stdin.read())
+        action_args = json.loads(stdin.read().decode('utf-8'))
     elif arguments['--input']:
         action_args = {}
         with open(expanduser(arguments['--input'])) as in_f:
