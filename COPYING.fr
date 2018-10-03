@@ -7,7 +7,8 @@ sous la licence MIT.
 
 Licence MIT
 
-(c) Droit d'auteur – Gouvernement du Canada, 2013
+(c) Droit d'auteur – Sa Majesté la Reine du chef du Canada, représentée par le président du Conseil
+du Trésor, 2013-2018
 
 La présente autorise toute personne d'obtenir gratuitement une copie du présent logiciel et des
 documents connexes (le « logiciel »), de traiter le logiciel sans restriction, y compris, mais sans
