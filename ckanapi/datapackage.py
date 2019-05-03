@@ -1,12 +1,11 @@
 import os
 import requests
 
-from ckan_datapackage_tools import converter
+from ckan_datapackage_tools.converter import dataset_to_datapackage
 
 from ckanapi.cli.utils import pretty_json
 
 DL_CHUNK_SIZE = 100 * 1024
-DATAPACKAGE_VERSION = '1.0-beta.10'
 
 
 def create_resource(resource, datapackage_dir, stderr):
@@ -48,4 +47,4 @@ def create_datapackage(record, base_path, stderr):
 
     json_path = os.path.join(datapackage_dir, 'datapackage.json')
     with open(json_path, 'wb') as out:
-        out.write(pretty_json(dict(record, resources=resources, version=DATAPACKAGE_VERSION)))
+        out.write(pretty_json(dataset_to_datapackage(dict(record, resources=resources))))
