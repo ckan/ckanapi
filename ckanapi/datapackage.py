@@ -1,5 +1,9 @@
 import os
 import requests
+import json
+
+import six
+import slugify
 
 from ckanapi.cli.utils import pretty_json
 

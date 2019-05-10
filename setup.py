@@ -8,6 +8,8 @@ install_requires=[
     'setuptools',
     'docopt',
     'requests',
+    'slugify',
+    'six',
 ]
 
 if sys.version_info <= (3,):
