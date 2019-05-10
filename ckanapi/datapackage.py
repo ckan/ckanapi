@@ -45,11 +45,27 @@ def create_datapackage(record, base_path, stderr):
     datapackage_dir = os.path.join(base_path, dataset_name)
     os.makedirs(os.path.join(datapackage_dir, 'data'))
 
-    resources = [(resource if resource['format'] in resource_formats_to_ignore else create_resource(resource, datapackage_dir, stderr)) for resource in record.get('resources', [])]
+    resources = []
+    resource_ids = []
+    for resource in record.get('resources', []):
+        if resource['format'] in resource_formats_to_ignore:
+            continue
+        resources.append(create_resource(resource, datapackage_dir, stderr))
+        resource_ids.append(resource['id'])
 
     json_path = os.path.join(datapackage_dir, 'datapackage.json')
+    datapackage = dataset_to_datapackage(dict(record, resources=resources))
     with open(json_path, 'wb') as out:
-        out.write(pretty_json(dataset_to_datapackage(dict(record, resources=resources))))
+        out.write(pretty_json(datapackage))
+
+    # prefer resource names from datapackage metadata
+    for resid, res in zip(resource_ids, resources):
+        try:
+            os.rename(
+                os.path.join(datapackage_dir, 'data', resid),
+                os.path.join(datapackage_dir, 'data', res['name']))
+        except OSError:
+            pass
 
 
 # functions below are from https://github.com/frictionlessdata/ckan-datapackage-tools
