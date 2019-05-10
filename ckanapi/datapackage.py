@@ -8,6 +8,11 @@ import slugify
 from ckanapi.cli.utils import pretty_json
 
 DL_CHUNK_SIZE = 100 * 1024
+DATAPACKAGE_TYPES = {  # map datastore types to datapackage types
+    'text': 'string',
+    'numeric': 'number',
+    'timestamp': 'datetime',
+}
 
 
 def create_resource(resource, datapackage_dir, stderr):
@@ -46,30 +51,50 @@ def create_datapackage(record, base_path, stderr):
     os.makedirs(os.path.join(datapackage_dir, 'data'))
 
     resources = []
-    resource_ids = []
+    ckan_resources = []
     for resource in record.get('resources', []):
         if resource['format'] in resource_formats_to_ignore:
             continue
         resources.append(create_resource(resource, datapackage_dir, stderr))
-        resource_ids.append(resource['id'])
+        ckan_resources.append(resource)
 
     json_path = os.path.join(datapackage_dir, 'datapackage.json')
     datapackage = dataset_to_datapackage(dict(record, resources=resources))
 
     # prefer resource names from datapackage metadata
-    for resid, res in zip(resource_ids, datapackage.get('resources', [])):
-        name = res['name']
-        ext = slugify.slugify(res['format'])
+    for cres, dres in zip(ckan_resources, datapackage.get('resources', [])):
+        name = dres['name']
+        ext = slugify.slugify(dres['format'])
         if name.endswith(ext):
             name = name[:-len(ext)]
         try:
             os.rename(
-                os.path.join(datapackage_dir, 'data', resid),
+                os.path.join(datapackage_dir, 'data', cres['id']),
                 os.path.join(datapackage_dir, 'data', name + '.' + ext))
             # successful local download
-            res['path'] = 'data/' + name + '.' + ext
+            dres['path'] = 'data/' + name + '.' + ext
         except OSError:
             pass
+
+        # convert datastore data dictionary to datapackage schema
+        if 'schema' not in dres and 'datastore_fields' in cres:
+            fields = []
+            for f in cres['datastore_fields']:
+                if f['id'] == '_id':
+                    continue
+                df = {'name': f['id']}
+                dtyp = DATAPACKAGE_TYPES.get(f['type'])
+                if dtyp:
+                    df['type'] = dtyp
+                dtit = f.get('info', {}).get('label', '')
+                if dtit:
+                    df['title'] = dtit
+                ddesc = f.get('info', {}).get('notes', '')
+                if ddesc:
+                    df['description'] = ddesc
+                fields.append(df)
+            dres['schema'] = {'fields': fields}
+
 
     with open(json_path, 'wb') as out:
         out.write(pretty_json(datapackage))
