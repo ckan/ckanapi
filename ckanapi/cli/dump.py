@@ -65,6 +65,8 @@ def dump_things(ckan, thing, arguments,
     if names and isinstance(names[0], dict):
         names = [rec.get('name',rec.get('id')) for rec in names]
 
+    if arguments['--datapackages']:
+        arguments['--datastore-fields'] = True
     cmd = _worker_command_line(thing, arguments)
     processes = int(arguments['--processes'])
     if hasattr(ckan, 'parallel_limit'):
@@ -170,12 +172,20 @@ def dump_things_worker(ckan, thing, arguments,
                 'include_datasets': False,
                 'include_password_hash': True,
                 })
-            reply(None, obj)
+            if thing == 'datasets' and arguments['--datastore-fields']:
+                for res in obj.get('resources', []):
+                    if not res.get('datastore_active', False):
+                        continue
+                    ds = ckan.action.datastore_search(
+                        resource_id=res['id'],
+                        limit=0)
+                    res['datastore_fields'] = ds['fields']
         except NotFound:
             reply('NotFound')
         except NotAuthorized:
             reply('NotAuthorized')
-
+        else:
+            reply(None, obj)
 
 def _worker_command_line(thing, arguments):
     """
@@ -195,5 +205,6 @@ def _worker_command_line(thing, arguments):
         + a('--remote')
         + a('--apikey')
         + b('--get-request')
+        + b('--datastore-fields')
         + ['value-here-to-make-docopt-happy']
         )

@@ -17,7 +17,7 @@ Usage:
           [-n | -o] [-qwz] [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
   ckanapi dump (datasets | groups | organizations | users | related)
           (ID_OR_NAME ... | --all) ([-O JSONL_OUTPUT] | [-D DIRECTORY])
-          [-p PROCESSES] [-qwz]
+          [-p PROCESSES] [-dqwz]
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g]]
   ckanapi delete (datasets | groups | organizations | users | related)
           (ID_OR_NAME ... | [-I JSONL_INPUT] [-s START] [-m MAX])
@@ -39,6 +39,8 @@ Options:
   -j --output-json          output plain json instead of pretty-printed json
   -J --output-jsonl         output list responses as json lines instead of
                             pretty-printed json
+  -d --datastore-fields     export datastore field information along with
+                            resource metadata as datastore_fields lists
   -D --datapackages=DIR     download resources and output as datapackages
                             in DIR instead of metadata-only json lines
   -l --log=LOG_FILE         append messages generated to LOG_FILE
