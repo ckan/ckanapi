@@ -1,8 +1,6 @@
 import os
 import requests
 
-from ckan_datapackage_tools.converter import dataset_to_datapackage
-
 from ckanapi.cli.utils import pretty_json
 
 DL_CHUNK_SIZE = 100 * 1024
@@ -48,3 +46,197 @@ def create_datapackage(record, base_path, stderr):
     json_path = os.path.join(datapackage_dir, 'datapackage.json')
     with open(json_path, 'wb') as out:
         out.write(pretty_json(dataset_to_datapackage(dict(record, resources=resources))))
+
+
+# functions below are from https://github.com/frictionlessdata/ckan-datapackage-tools
+# commit c87e07d0d0
+# we can't import and use until dependency issue is resolved:
+# https://github.com/frictionlessdata/ckan-datapackage-tools/issues/11
+
+def _convert_to_datapackage_resource(resource_dict):
+    '''Convert a CKAN resource dict into a Data Package resource dict.
+
+    from https://github.com/frictionlessdata/ckan-datapackage-tools
+    '''
+    resource = {}
+
+    if resource_dict.get('url'):
+        resource['path'] = resource_dict['url']
+    # TODO: DataStore only resources?
+
+    if resource_dict.get('description'):
+        resource['description'] = resource_dict['description']
+
+    if resource_dict.get('format'):
+        resource['format'] = resource_dict['format']
+
+    if resource_dict.get('hash'):
+        resource['hash'] = resource_dict['hash']
+
+    if resource_dict.get('name'):
+        resource['name'] = slugify.slugify(resource_dict['name']).lower()
+        resource['title'] = resource_dict['name']
+    else:
+        resource['name'] = resource_dict['id']
+
+    schema = resource_dict.get('schema')
+    if isinstance(schema, six.string_types):
+        try:
+            resource['schema'] = json.loads(schema)
+        except ValueError:
+            # Assume it's a path or URL
+            resource['schema'] = schema
+    elif isinstance(schema, dict):
+        resource['schema'] = schema
+
+    return resource
+
+
+def dataset_to_datapackage(dataset_dict):
+    '''Convert the given CKAN dataset dict into a Data Package dict.
+
+    :returns: the datapackage dict
+    :rtype: dict
+
+    '''
+    PARSERS = [
+        _rename_dict_key('title', 'title'),
+        _rename_dict_key('version', 'version'),
+        _parse_ckan_url,
+        _parse_notes,
+        _parse_license,
+        _parse_author_and_source,
+        _parse_maintainer,
+        _parse_tags,
+        _parse_extras,
+    ]
+    dp = {
+        'name': dataset_dict['name']
+    }
+
+    for parser in PARSERS:
+        dp.update(parser(dataset_dict))
+
+    resources = dataset_dict.get('resources')
+    if resources:
+        dp['resources'] = [_convert_to_datapackage_resource(r)
+                           for r in resources]
+
+    # Ensure unique resource names
+    names = {}
+    for resource in dp.get('resources', []):
+        if resource['name'] in names.keys():
+            old_resource_name = resource['name']
+            resource['name'] = resource['name'] + str(names[old_resource_name])
+            names[old_resource_name] += 1
+        else:
+            names[resource['name']] = 0
+
+    return dp
+
+
+def _rename_dict_key(original_key, destination_key):
+    def _parser(the_dict):
+        result = {}
+
+        if the_dict.get(original_key):
+            result[destination_key] = the_dict[original_key]
+
+        return result
+    return _parser
+
+
+def _parse_ckan_url(dataset_dict):
+    result = {}
+
+    if dataset_dict.get('ckan_url'):
+        result['homepage'] = dataset_dict['ckan_url']
+
+    return result
+
+
+def _parse_notes(dataset_dict):
+    result = {}
+
+    if dataset_dict.get('notes'):
+        result['description'] = dataset_dict['notes']
+
+    return result
+
+
+def _parse_license(dataset_dict):
+    result = {}
+    license = {}
+
+    if dataset_dict.get('license_id'):
+        license['type'] = dataset_dict['license_id']
+    if dataset_dict.get('license_title'):
+        license['title'] = dataset_dict['license_title']
+    if dataset_dict.get('license_url'):
+        license['url'] = dataset_dict['license_url']
+
+    if license:
+        result['license'] = license
+
+    return result
+
+
+def _parse_author_and_source(dataset_dict):
+    result = {}
+    source = {}
+
+    if dataset_dict.get('author'):
+        source['name'] = dataset_dict['author']
+    if dataset_dict.get('author_email'):
+        source['email'] = dataset_dict['author_email']
+    if dataset_dict.get('url'):
+        source['web'] = dataset_dict['url']
+
+    if source:
+        result['sources'] = [source]
+
+    return result
+
+
+def _parse_maintainer(dataset_dict):
+    result = {}
+    author = {}
+
+    if dataset_dict.get('maintainer'):
+        author['name'] = dataset_dict['maintainer']
+    if dataset_dict.get('maintainer_email'):
+        author['email'] = dataset_dict['maintainer_email']
+
+    if author:
+        result['author'] = author
+
+    return result
+
+
+def _parse_tags(dataset_dict):
+    result = {}
+
+    keywords = [tag['name'] for tag in dataset_dict.get('tags', [])]
+
+    if keywords:
+        result['keywords'] = keywords
+
+    return result
+
+
+def _parse_extras(dataset_dict):
+    result = {}
+
+    extras = [[extra['key'], extra['value']] for extra
+              in dataset_dict.get('extras', [])]
+
+    for extra in extras:
+        try:
+            extra[1] = json.loads(extra[1])
+        except (ValueError, TypeError):
+            pass
+
+    if extras:
+        result['extras'] = dict(extras)
+
+    return result

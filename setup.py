@@ -8,7 +8,6 @@ install_requires=[
     'setuptools',
     'docopt',
     'requests',
-    'ckan-datapackage-tools',
 ]
 
 if sys.version_info <= (3,):
