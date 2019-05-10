@@ -55,17 +55,24 @@ def create_datapackage(record, base_path, stderr):
 
     json_path = os.path.join(datapackage_dir, 'datapackage.json')
     datapackage = dataset_to_datapackage(dict(record, resources=resources))
-    with open(json_path, 'wb') as out:
-        out.write(pretty_json(datapackage))
 
     # prefer resource names from datapackage metadata
-    for resid, res in zip(resource_ids, resources):
+    for resid, res in zip(resource_ids, datapackage.get('resources', [])):
+        name = res['name']
+        ext = slugify.slugify(res['format'])
+        if name.endswith(ext):
+            name = name[:-len(ext)]
         try:
             os.rename(
                 os.path.join(datapackage_dir, 'data', resid),
-                os.path.join(datapackage_dir, 'data', res['name']))
+                os.path.join(datapackage_dir, 'data', name + '.' + ext))
+            # successful local download
+            res['path'] = 'data/' + name + '.' + ext
         except OSError:
             pass
+
+    with open(json_path, 'wb') as out:
+        out.write(pretty_json(datapackage))
 
 
 # functions below are from https://github.com/frictionlessdata/ckan-datapackage-tools

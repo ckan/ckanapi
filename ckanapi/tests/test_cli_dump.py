@@ -238,7 +238,7 @@ class TestCLIDump(unittest.TestCase):
             assert exists(target + '/twelve/datapackage.json')
             assert exists(target + '/thirtyfour/datapackage.json')
             assert exists(target + '/dp/datapackage.json')
-            assert exists(target + '/dp/data/resource1')
+            assert exists(target + '/dp/data/resource1.html')
         finally:
             shutil.rmtree(target)
 
