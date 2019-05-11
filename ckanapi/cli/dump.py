@@ -176,9 +176,9 @@ def dump_things_worker(ckan, thing, arguments,
                 for res in obj.get('resources', []):
                     if not res.get('datastore_active', False):
                         continue
-                    ds = ckan.action.datastore_search(
-                        resource_id=res['id'],
-                        limit=0)
+                    ds = ckan.call_action('datastore_search', {
+                        'resource_id': res['id'],
+                        'limit':0})
                     res['datastore_fields'] = ds['fields']
         except NotFound:
             reply('NotFound')

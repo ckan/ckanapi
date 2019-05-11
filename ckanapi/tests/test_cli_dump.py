@@ -17,8 +17,7 @@ class MockCKAN(object):
         try:
             return {
                 'package_list': {
-                    None: ['12', '34', 'dp']
-                    },
+                    None: ['12', '34', 'dp']},
                 'package_show': {
                     '12': {
                         'id': '12',
@@ -32,19 +31,26 @@ class MockCKAN(object):
                         'id': 'dp',
                         'name': 'dp',
                         'title': 'Test for datapackage',
-                        'resources':[
+                        'resources': [
                             {'name': 'resource1',
                              'id': 'd902fafc-5717-4dd0-87f2-7a6fc96989b7',
-                             'format': 'html',
-                             'url':'https://google.com'}]}
-                    },
+                             'format': 'csv',
+                             'datastore_active': True,
+                             'url': 'https://google.com'}]}},
                 'group_show': {
-                    'ab': {'title': "ABBA"},
-                    },
+                    'ab': {'title': "ABBA"}},
                 'organization_show': {
-                    'cd': {'title': "Super Trouper"},
-                    },
-                }[name][data_dict.get('id')]
+                    'cd': {'title': "Super Trouper"}},
+                'datastore_search': {
+                    'd902fafc-5717-4dd0-87f2-7a6fc96989b7':
+                        {'fields': [{
+                            'id': 'col1',
+                            'type': 'text',
+                            'info': {
+                                'label': 'Column One',
+                                'notes': 'Description One',
+                            }}]}},
+            }[name][data_dict.get('id') or data_dict.get('resource_id')]
         except KeyError:
             raise NotFound()
 
@@ -239,13 +245,33 @@ class TestCLIDump(unittest.TestCase):
                     '--get-request': False,
                     '--datastore-fields': False,
                 },
-                worker_pool=self._mock_worker_pool_with_data,
+                worker_pool=self._worker_pool_with_data,
                 stdout=self.stdout,
                 stderr=self.stderr)
             assert exists(target + '/twelve/datapackage.json')
             assert exists(target + '/thirtyfour/datapackage.json')
             assert exists(target + '/dp/datapackage.json')
-            assert exists(target + '/dp/data/resource1.html')
+            assert exists(target + '/dp/data/resource1.csv')
+            with open(target + '/dp/datapackage.json') as dpf:
+                dp = json.load(dpf)
+            self.assertEqual(dp, {
+                'name': 'dp',
+                'title': 'Test for datapackage',
+                'resources': [{
+                    'name': 'resource1',
+                    'format': 'csv',
+                    'path': 'data/resource1.csv',
+                    'title': 'resource1',
+                    'schema': {
+                        'fields': [{
+                            'name': 'col1',
+                            'title': 'Column One',
+                            'description': 'Description One',
+                            'type': 'string',
+                        }],
+                    }
+                }]
+            })
         finally:
             shutil.rmtree(target)
 
@@ -263,13 +289,12 @@ class TestCLIDump(unittest.TestCase):
         return reversed(list(
             self._mock_worker_pool(cmd, processes, job_iter)))
 
-    def _mock_worker_pool_with_data(self, cmd, processes, job_iter):
-        self.worker_cmd = cmd
-        self.worker_processes = processes
-        self.worker_jobs = list(job_iter)
-        for i, j in self.worker_jobs:
-            jname = json.loads(j.decode('UTF-8'))
-            yield [[], i, json.dumps(['some-date', None,
-                self.ckan.call_action('package_show', {'id': jname})]
-                ).encode('UTF-8') + b'\n']
-
+    def _worker_pool_with_data(self, cmd, processes, job_iter):
+        worker_stdin = BytesIO(b''.join(v for i, v in job_iter))
+        worker_stdout = BytesIO()
+        dump_things_worker(self.ckan, 'datasets', {
+            '--datastore-fields': True},
+            stdin=worker_stdin,
+            stdout=worker_stdout)
+        for i, v in enumerate(worker_stdout.getvalue().strip().split(b'\n')):
+            yield [[], i, v]
