@@ -56,7 +56,8 @@ class TestCLIDump(unittest.TestCase):
         self.stderr = BytesIO()
 
     def test_worker_one(self):
-        rval = dump_things_worker(self.ckan, 'datasets', {},
+        rval = dump_things_worker(self.ckan, 'datasets',
+            {'--datastore-fields': False},
             stdin=BytesIO(b'"34"\n'), stdout=self.stdout)
         response = self.stdout.getvalue()
         self.assertEqual(response[-1:], b'\n')
@@ -65,7 +66,8 @@ class TestCLIDump(unittest.TestCase):
         self.assertEqual(data["title"], "Thirty-four")
 
     def test_worker_two(self):
-        rval = dump_things_worker(self.ckan, 'datasets', {},
+        rval = dump_things_worker(self.ckan, 'datasets',
+            {'--datastore-fields': False},
             stdin=BytesIO(b'"12"\n"34"\n'), stdout=self.stdout)
         response = self.stdout.getvalue()
         self.assertEqual(response.count(b'\n'), 2, response)
@@ -120,6 +122,7 @@ class TestCLIDump(unittest.TestCase):
                 '--all': True,
                 '--processes': '1',
                 '--get-request': False,
+                '--datastore-fields': False,
             },
             worker_pool=self._mock_worker_pool,
             stdout=self.stdout,
@@ -148,6 +151,7 @@ class TestCLIDump(unittest.TestCase):
                 'ID_OR_NAME': ['12'],
                 '--processes': '5',
                 '--get-request': False,
+                '--datastore-fields': False,
             },
             worker_pool=self._mock_worker_pool,
             stdout=self.stdout,
@@ -173,6 +177,7 @@ class TestCLIDump(unittest.TestCase):
                 'ID_OR_NAME': ['ab'],
                 '--processes': '1',
                 '--get-request': False,
+                '--datastore-fields': False,
             },
 
             worker_pool=self._mock_worker_pool,
@@ -200,6 +205,7 @@ class TestCLIDump(unittest.TestCase):
                 'ID_OR_NAME': ['P', 'Q', 'R', 'S'],
                 '--processes': '1',
                 '--get-request': False,
+                '--datastore-fields': False,
             },
             worker_pool=self._mock_worker_pool_reversed,
             stdout=self.stdout,
@@ -231,6 +237,7 @@ class TestCLIDump(unittest.TestCase):
                     '--all': True,
                     '--processes': '1',
                     '--get-request': False,
+                    '--datastore-fields': False,
                 },
                 worker_pool=self._mock_worker_pool_with_data,
                 stdout=self.stdout,
