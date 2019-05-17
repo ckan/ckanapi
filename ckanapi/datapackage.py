@@ -100,6 +100,21 @@ def create_datapackage(record, base_path, stderr):
         out.write(pretty_json(datapackage))
 
 
+def populate_datastore_fields(ckan, dataset):
+    """
+    update dataset dict in-place with datastore_fields values
+    in every resource with datastore active using ckan
+    LocalCKAN/RemoteCKAN instance
+    """
+    for res in dataset.get('resources', []):
+        if not res.get('datastore_active', False):
+            continue
+        ds = ckan.call_action('datastore_search', {
+            'resource_id': res['id'],
+            'limit':0})
+        res['datastore_fields'] = ds['fields']
+
+
 # functions below are from https://github.com/frictionlessdata/ckan-datapackage-tools
 # commit c87e07d0d0
 # we can't import and use until dependency issue is resolved:
