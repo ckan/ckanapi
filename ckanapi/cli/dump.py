@@ -173,7 +173,8 @@ def dump_things_worker(ckan, thing, arguments,
                 'include_password_hash': True,
                 })
             if thing == 'datasets' and arguments['--datastore-fields']:
-                populate_datastore_fields(ckan, obj)
+                for res in obj.get('resources', []):
+                    populate_datastore_fields(ckan, res)
         except NotFound:
             reply('NotFound')
         except NotAuthorized:
