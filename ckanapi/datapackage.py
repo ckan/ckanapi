@@ -6,6 +6,7 @@ import six
 import slugify
 
 from ckanapi.cli.utils import pretty_json
+from ckanapi.errors import CKANAPIError
 
 DL_CHUNK_SIZE = 100 * 1024
 DATAPACKAGE_TYPES = {  # map datastore types to datapackage types
@@ -109,10 +110,13 @@ def populate_datastore_fields(ckan, dataset):
     for res in dataset.get('resources', []):
         if not res.get('datastore_active', False):
             continue
-        ds = ckan.call_action('datastore_search', {
-            'resource_id': res['id'],
-            'limit':0})
-        res['datastore_fields'] = ds['fields']
+        try:
+            ds = ckan.call_action('datastore_search', {
+                'resource_id': res['id'],
+                'limit':0})
+            res['datastore_fields'] = ds['fields']
+        except CKANAPIError:
+            pass
 
 
 # functions below are from https://github.com/frictionlessdata/ckan-datapackage-tools
