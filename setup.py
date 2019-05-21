@@ -8,7 +8,7 @@ install_requires=[
     'setuptools',
     'docopt',
     'requests',
-    'python-slugify>=1.0,<2.0',
+    'python-slugify>=1.0',
     'six>=1.9,<2.0',
 ]
 
