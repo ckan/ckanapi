@@ -31,7 +31,7 @@ $ ckanapi action group_list -r http://demo.ckan.org
   "example-group",
   "geo-examples",
   ...
-] 
+]
 ```
 
 Use -r to specify the remote CKAN instance, and -a to provide an
@@ -345,6 +345,13 @@ test_app = TestApp(...)
 demo = TestAppCKAN(test_app, apikey='my-test-key')
 groups = demo.action.group_list(id='data-explorer')
 ```
+
+
+## Tests
+
+To run the tests:
+
+  python setup.py test
 
 
 ## License
