@@ -6,6 +6,7 @@ import six
 import slugify
 
 from ckanapi.cli.utils import pretty_json
+from ckanapi.errors import CKANAPIError
 
 DL_CHUNK_SIZE = 100 * 1024
 DATAPACKAGE_TYPES = {  # map datastore types to datapackage types
@@ -123,9 +124,12 @@ def populate_datastore_res_fields(ckan, res):
     """
     if not res.get('datastore_active', False):
         return
-    ds = ckan.call_action('datastore_search', {
-        'resource_id': res['id'],
-        'limit':0})
+    try:
+        ds = ckan.call_action('datastore_search', {
+            'resource_id': res['id'],
+            'limit':0})
+    except CKANAPIError:
+        pass
     res['datastore_fields'] = ds['fields']
 
 
