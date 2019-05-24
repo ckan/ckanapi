@@ -16,10 +16,6 @@ DATAPACKAGE_TYPES = {  # map datastore types to datapackage types
 
 
 def create_resource(resource, filename, datapackage_dir, stderr):
-    # Resources can have multiple sources with the same name, or names with
-    # filesystem-unfriendly characters, or URLs with a trailing slash, or
-    # multiple URLs with the same final path component, so we're just going to
-    # name all downloads using the resource's UID.
     path = os.path.join('data', filename)
 
     try:
@@ -80,20 +76,13 @@ def create_datapackage(record, base_path, stderr):
 
 
 def resource_filename(dres, existing_filenames):
-    # prefer resource names from datapackage metadata
+    # prefer resource names from datapackage metadata, because those have been
+    # made unique
     name = dres['name']
     ext = slugify.slugify(dres['format'])
     if name.endswith(ext):
         name = name[:-len(ext)]
-    # deduplicate
-    add_ext = lambda x: x + '.' + ext
-    name_with_ext = add_ext(name)
-    if name_with_ext in existing_filenames:
-        for i in range(1e6):
-            name_with_ext = add_ext('{}_{}'.format(name, i))
-            if add_ext(name_with_ext) not in existing_filenames:
-                break
-    return name_with_ext
+    return name + '.' + ext
 
 
 def populate_schema_from_datastore(cres, dres):
