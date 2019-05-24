@@ -100,7 +100,7 @@ def populate_schema_from_datastore(cres, dres):
     """
     populate the data schema in a datapackage resource, from the Datastore.
     This info must already be added to the cres using
-    'populate_datastore_fields'
+    'populate_datastore_res_fields'
 
     :param cres: CKAN resource dict
     :param dres: datapackage.json style resource dict, for the same resource as
@@ -125,7 +125,7 @@ def populate_schema_from_datastore(cres, dres):
             fields.append(df)
         dres['schema'] = {'fields': fields}
 
-def populate_datastore_fields(ckan, res):
+def populate_datastore_res_fields(ckan, res):
     """
     update resource dict in-place with datastore_fields values
     in every resource with datastore active using ckan

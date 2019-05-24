@@ -13,7 +13,8 @@ from ckanapi.errors import (NotFound, NotAuthorized, ValidationError,
 from ckanapi.cli import workers
 from ckanapi.cli.utils import completion_stats, compact_json, \
     quiet_int_pipe
-from ckanapi.datapackage import create_datapackage, populate_datastore_fields
+from ckanapi.datapackage import create_datapackage, \
+    populate_datastore_res_fields
 
 
 def dump_things(ckan, thing, arguments,
@@ -174,7 +175,7 @@ def dump_things_worker(ckan, thing, arguments,
                 })
             if thing == 'datasets' and arguments['--datastore-fields']:
                 for res in obj.get('resources', []):
-                    populate_datastore_fields(ckan, res)
+                    populate_datastore_res_fields(ckan, res)
         except NotFound:
             reply('NotFound')
         except NotAuthorized:
