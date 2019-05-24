@@ -16,6 +16,8 @@ DATAPACKAGE_TYPES = {  # map datastore types to datapackage types
 
 
 def create_resource(resource, filename, datapackage_dir, stderr):
+    '''Downloads the resource['url'] to disk.
+    '''
     path = os.path.join('data', filename)
 
     try:
@@ -57,9 +59,8 @@ def create_datapackage(record, base_path, stderr):
     # get the datapackage (metadata)
     datapackage = dataset_to_datapackage(dataset)
 
-    existing_filenames = []
     for cres, dres in zip(ckan_resources, datapackage.get('resources', [])):
-        filename = resource_filename(dres, existing_filenames)
+        filename = resource_filename(dres)
 
         # download the resource
         cres = \
@@ -75,7 +76,7 @@ def create_datapackage(record, base_path, stderr):
     return datapackage_dir, datapackage, json_path
 
 
-def resource_filename(dres, existing_filenames):
+def resource_filename(dres):
     # prefer resource names from datapackage metadata, because those have been
     # made unique
     name = dres['name']
