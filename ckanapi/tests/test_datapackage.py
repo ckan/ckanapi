@@ -1,4 +1,3 @@
-from ckan.tests import factories
 from ckanapi.datapackage import (
     dataset_to_datapackage, create_resource, create_datapackage,
     resource_filename, populate_schema_from_datastore)
