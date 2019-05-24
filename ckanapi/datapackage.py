@@ -16,12 +16,10 @@ DATAPACKAGE_TYPES = {  # map datastore types to datapackage types
 }
 
 
-def create_resource(resource, datapackage_dir, stderr):
-    # Resources can have multiple sources with the same name, or names with
-    # filesystem-unfriendly characters, or URLs with a trailing slash, or
-    # multiple URLs with the same final path component, so we're just going to
-    # name all downloads using the resource's UID.
-    path = os.path.join('data', resource['id'])
+def create_resource(resource, filename, datapackage_dir, stderr):
+    '''Downloads the resource['url'] to disk.
+    '''
+    path = os.path.join('data', filename)
 
     try:
         r = requests.get(resource['url'], stream=True)
@@ -51,72 +49,88 @@ def create_datapackage(record, base_path, stderr):
     datapackage_dir = os.path.join(base_path, dataset_name)
     os.makedirs(os.path.join(datapackage_dir, 'data'))
 
-    resources = []
+    # filter out some resources
     ckan_resources = []
     for resource in record.get('resources', []):
         if resource['format'] in resource_formats_to_ignore:
             continue
-        resources.append(create_resource(resource, datapackage_dir, stderr))
         ckan_resources.append(resource)
+    dataset = dict(record, resources=ckan_resources)
+
+    # get the datapackage (metadata)
+    datapackage = dataset_to_datapackage(dataset)
+
+    for cres, dres in zip(ckan_resources, datapackage.get('resources', [])):
+        filename = resource_filename(dres)
+
+        # download the resource
+        cres = \
+            create_resource(resource, filename, datapackage_dir, stderr)
+        dres['path'] = 'data/' + filename
+
+        populate_schema_from_datastore(cres, dres)
 
     json_path = os.path.join(datapackage_dir, 'datapackage.json')
-    datapackage = dataset_to_datapackage(dict(record, resources=resources))
-
-    # prefer resource names from datapackage metadata
-    for cres, dres in zip(ckan_resources, datapackage.get('resources', [])):
-        name = dres['name']
-        ext = slugify.slugify(dres['format'])
-        if name.endswith(ext):
-            name = name[:-len(ext)]
-        try:
-            os.rename(
-                os.path.join(datapackage_dir, 'data', cres['id']),
-                os.path.join(datapackage_dir, 'data', name + '.' + ext))
-            # successful local download
-            dres['path'] = 'data/' + name + '.' + ext
-        except OSError:
-            pass
-
-        # convert datastore data dictionary to datapackage schema
-        if 'schema' not in dres and 'datastore_fields' in cres:
-            fields = []
-            for f in cres['datastore_fields']:
-                if f['id'] == '_id':
-                    continue
-                df = {'name': f['id']}
-                dtyp = DATAPACKAGE_TYPES.get(f['type'])
-                if dtyp:
-                    df['type'] = dtyp
-                dtit = f.get('info', {}).get('label', '')
-                if dtit:
-                    df['title'] = dtit
-                ddesc = f.get('info', {}).get('notes', '')
-                if ddesc:
-                    df['description'] = ddesc
-                fields.append(df)
-            dres['schema'] = {'fields': fields}
-
-
     with open(json_path, 'wb') as out:
         out.write(pretty_json(datapackage))
 
+    return datapackage_dir, datapackage, json_path
 
-def populate_datastore_fields(ckan, dataset):
+
+def resource_filename(dres):
+    # prefer resource names from datapackage metadata, because those have been
+    # made unique
+    name = dres['name']
+    ext = slugify.slugify(dres['format'])
+    if name.endswith(ext):
+        name = name[:-len(ext)]
+    return name + '.' + ext
+
+
+def populate_schema_from_datastore(cres, dres):
     """
-    update dataset dict in-place with datastore_fields values
+    populate the data schema in a datapackage resource, from the Datastore.
+    This info must already be added to the cres using
+    'populate_datastore_res_fields'
+
+    :param cres: CKAN resource dict
+    :param dres: datapackage.json style resource dict, for the same resource as
+                 the cres
+    """
+    # convert datastore data dictionary to datapackage schema
+    if 'schema' not in dres and 'datastore_fields' in cres:
+        fields = []
+        for f in cres['datastore_fields']:
+            if f['id'] == '_id':
+                continue
+            df = {'name': f['id']}
+            dtyp = DATAPACKAGE_TYPES.get(f['type'])
+            if dtyp:
+                df['type'] = dtyp
+            dtit = f.get('info', {}).get('label', '')
+            if dtit:
+                df['title'] = dtit
+            ddesc = f.get('info', {}).get('notes', '')
+            if ddesc:
+                df['description'] = ddesc
+            fields.append(df)
+        dres['schema'] = {'fields': fields}
+
+def populate_datastore_res_fields(ckan, res):
+    """
+    update resource dict in-place with datastore_fields values
     in every resource with datastore active using ckan
     LocalCKAN/RemoteCKAN instance
     """
-    for res in dataset.get('resources', []):
-        if not res.get('datastore_active', False):
-            continue
-        try:
-            ds = ckan.call_action('datastore_search', {
-                'resource_id': res['id'],
-                'limit':0})
-            res['datastore_fields'] = ds['fields']
-        except CKANAPIError:
-            pass
+    if not res.get('datastore_active', False):
+        return
+    try:
+        ds = ckan.call_action('datastore_search', {
+            'resource_id': res['id'],
+            'limit':0})
+    except CKANAPIError:
+        pass
+    res['datastore_fields'] = ds['fields']
 
 
 # functions below are from https://github.com/frictionlessdata/ckan-datapackage-tools

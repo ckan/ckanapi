@@ -11,6 +11,9 @@ install_requires=[
     'python-slugify>=1.0',
     'six>=1.9,<2.0',
 ]
+tests_require=[
+    'pyfakefs',
+]
 
 if sys.version_info <= (3,):
     install_requires.append('simplejson')
@@ -33,6 +36,7 @@ setup(
         'ckanapi.cli',
         ],
     install_requires=install_requires,
+    tests_require=tests_require,
     test_suite='ckanapi.tests',
     zip_safe=False,
     entry_points = """
