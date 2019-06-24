@@ -19,6 +19,10 @@ Usage:
           (ID_OR_NAME ... | --all) ([-O JSONL_OUTPUT] | [-D DIRECTORY])
           [-p PROCESSES] [-dqwz]
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g]]
+  ckanapi dump_datasets2
+          [-O JSONL_OUTPUT]
+          [-z]
+          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g]]
   ckanapi delete (datasets | groups | organizations | users | related)
           (ID_OR_NAME ... | [-I JSONL_INPUT] [-s START] [-m MAX])
           [-p PROCESSES] [-l LOG_FILE] [-qwz]
@@ -79,6 +83,7 @@ from ckanapi.cli.load import load_things
 from ckanapi.cli.dump import dump_things
 from ckanapi.cli.delete import delete_things
 from ckanapi.cli.action import action
+from ckanapi.cli.dump_metadata import dump_metadata
 
 
 def parse_arguments():
@@ -132,6 +137,9 @@ def main(running_with_paster=False):
 
     if arguments['delete']:
         return delete_things(ckan, thing[0], arguments)
+
+    if arguments['dump_datasets2']:
+        return dump_metadata(ckan, arguments)
 
     assert 0, arguments # we shouldn't be here
 
