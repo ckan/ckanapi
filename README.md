@@ -89,7 +89,7 @@ Files may be passed for upload using the KEY@FILE form.
 E.g. create a resource with a file attached
 
 ```
-$ ckanapi resource_create package_id=my-dataset-with-files \
+$ ckanapi action resource_create package_id=my-dataset-with-files \
           upload@/path/to/file/to/upload.csv \
           url=dummy-value  # ignored but required by CKAN<2.6
 ```
