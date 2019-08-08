@@ -37,6 +37,7 @@ class TestCLIAction(unittest.TestCase):
             '--output-jsonl': False,
             '--input-json': False,
             '--input': None,
+            '--no-verify': False
             })
         self.assertEqual(b''.join(rval), b"""
 {
@@ -56,6 +57,7 @@ class TestCLIAction(unittest.TestCase):
             '--output-jsonl': False,
             '--input-json': False,
             '--input': None,
+            '--no-verify': False
             })
         self.assertEqual(b''.join(rval), b'["right","on"]\n')
 
@@ -68,6 +70,7 @@ class TestCLIAction(unittest.TestCase):
             '--output-jsonl': True,
             '--input-json': False,
             '--input': None,
+            '--no-verify': False
             })
         self.assertEqual(b''.join(rval), b'{"oh":["right","on"]}\n')
 
@@ -80,6 +83,7 @@ class TestCLIAction(unittest.TestCase):
             '--output-jsonl': True,
             '--input-json': False,
             '--input': None,
+            '--no-verify': False
             })
         self.assertEqual(b''.join(rval), b'99\n98\n97\n')
 
@@ -92,6 +96,7 @@ class TestCLIAction(unittest.TestCase):
                 '--output-jsonl': False,
                 '--input-json': True,
                 '--input': None,
+                '--no-verify': False
             },
             stdin=BytesIO(b'{"who":["just","me"]}'),
             )
@@ -106,6 +111,7 @@ class TestCLIAction(unittest.TestCase):
             '--output-jsonl': False,
             '--input-json': False,
             '--input': None,
+            '--no-verify': False
             })
         self.assertEqual(b''.join(rval), b'"yeah"\n')
 
@@ -118,6 +124,7 @@ class TestCLIAction(unittest.TestCase):
             '--output-jsonl': False,
             '--input-json': False,
             '--input': None,
+            '--no-verify': False
             })
         self.assertRaises(CLIError, list, rval)
 
@@ -130,6 +137,7 @@ class TestCLIAction(unittest.TestCase):
             '--output-jsonl': False,
             '--input-json': False,
             '--input': None,
+            '--no-verify': False
             })
         self.assertRaises(CLIError, list, rval)
 
@@ -142,6 +150,7 @@ class TestCLIAction(unittest.TestCase):
             '--output-jsonl': False,
             '--input-json': False,
             '--input': None,
+            '--no-verify': False
             })
         self.assertEqual(b''.join(rval), b'"yeah"\n')
 
@@ -154,5 +163,6 @@ class TestCLIAction(unittest.TestCase):
             '--output-jsonl': False,
             '--input-json': False,
             '--input': None,
+            '--no-verify': False
             })
         self.assertEqual(b''.join(rval), b'"yeah"\n')
