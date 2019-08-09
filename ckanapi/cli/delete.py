@@ -207,7 +207,11 @@ def delete_things_worker(ckan, thing, arguments,
             continue
 
         try:
-            ckan.call_action(thing_delete, {'id': name})
+            requests_kwargs = None
+            if arguments['--insecure']:
+                requests_kwargs = {'verify': False}
+            ckan.call_action(thing_delete, {'id': name},
+                             requests_kwargs=requests_kwargs)
         except NotAuthorized as e:
             reply('NotAuthorized', unicode(e))
         except NotFound:
