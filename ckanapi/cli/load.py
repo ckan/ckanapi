@@ -165,6 +165,10 @@ def load_things_worker(ckan, thing, arguments,
             reply('read', 'UnicodeDecodeError', unicode(e))
             continue
 
+        requests_kwargs = None
+        if arguments['--insecure']:
+            requests_kwargs = {'verify': False}
+
         if obj is not None:
             existing = None
             if not arguments['--create-only']:
@@ -176,7 +180,8 @@ def load_things_worker(ckan, thing, arguments,
                             {'id': name,
                              'include_datasets': False,
                              'include_password_hash': True,
-                            })
+                            },
+                            requests_kwargs=requests_kwargs)
                     except NotFound:
                         pass
                     except NotAuthorized as e:
@@ -185,7 +190,8 @@ def load_things_worker(ckan, thing, arguments,
                 name = obj.get('name')
                 if not existing and name:
                     try:
-                        existing = ckan.call_action(thing_show, {'id': name})
+                        existing = ckan.call_action(thing_show, {'id': name},
+                                                    requests_kwargs=requests_kwargs)
                     except NotFound:
                         pass
                     except NotAuthorized as e:
@@ -204,7 +210,8 @@ def load_things_worker(ckan, thing, arguments,
             act = 'update' if existing else 'create'
             try:
                 if existing:
-                    r = ckan.call_action(thing_update, obj)
+                    r = ckan.call_action(thing_update, obj,
+                                         requests_kwargs=requests_kwargs)
                 else:
                     r = ckan.call_action(thing_create, obj)
                 if thing == 'datasets' and 'resources' in obj:# check if it is needed to upload resources when creating/updating packages
@@ -215,7 +222,8 @@ def load_things_worker(ckan, thing, arguments,
                         _upload_logo(ckan,obj)
                         obj.pop('image_upload')
                         obj['users'] = users
-                        ckan.call_action(thing_update,obj)
+                        ckan.call_action(thing_update, obj,
+                                         requests_kwargs=requests_kwargs)
             except ValidationError as e:
                 reply(act, 'ValidationError', e.error_dict)
             except SearchIndexError as e:
@@ -271,6 +279,9 @@ def _upload_resources(ckan,obj,arguments):
     resources = obj['resources']
     if not arguments['--upload-resources']:
         return
+    requests_kwargs = None
+    if arguments['--insecure']:
+        requests_kwargs = {'verify': False}
     for resource in resources:
         if resource.get('url_type') != 'upload':
             continue
@@ -279,7 +290,8 @@ def _upload_resources(ckan,obj,arguments):
         name = resource['url'].rsplit('/',1)[-1]
         ckan.call_action('resource_patch',
             {'id':resource['id']},
-            files={'upload':(name, f.raw)})
+            files={'upload':(name, f.raw)},
+            requests_kwargs=requests_kwargs)
 
 
 def _upload_logo(ckan,obj):

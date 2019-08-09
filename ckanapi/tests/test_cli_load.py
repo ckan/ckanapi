@@ -9,7 +9,7 @@ except ImportError:
 from io import BytesIO
 
 class MockCKAN(object):
-    def call_action(self, name, data_dict):
+    def call_action(self, name, data_dict, requests_kwargs=None):
         if name == 'package_show' and data_dict['id'] == 'seekrit':
             raise NotAuthorized('naughty user')
         if name == 'package_create' and data_dict.get('name') == '34':
@@ -67,7 +67,8 @@ class TestCLILoad(unittest.TestCase):
         load_things_worker(self.ckan, 'datasets', {
                 '--create-only': False,
                 '--update-only': False,
-                '--upload-resources':False,
+                '--upload-resources': False,
+                '--insecure': False
                 },
             stdin=BytesIO(b'{"name": "45","title":"Forty-five"}\n'),
             stdout=self.stdout)
@@ -82,7 +83,8 @@ class TestCLILoad(unittest.TestCase):
         load_things_worker(self.ckan, 'datasets', {
                 '--create-only': False,
                 '--update-only': False,
-                '--upload-resources':False,
+                '--upload-resources': False,
+                '--insecure': False
                 },
             stdin=BytesIO(b'{"name": "45","title":"Forty-five","resources":[{"id":"123"}]}\n'),
             stdout=self.stdout)
@@ -97,7 +99,8 @@ class TestCLILoad(unittest.TestCase):
         load_things_worker(self.ckan, 'datasets', {
                 '--create-only': False,
                 '--update-only': False,
-                '--upload-resources':False,
+                '--upload-resources': False,
+                '--insecure': False
                 },
             stdin=BytesIO(
                  b'{"name": "45","title":"Forty-five",'
@@ -114,7 +117,8 @@ class TestCLILoad(unittest.TestCase):
         load_things_worker(self.ckan, 'datasets', {
                 '--create-only': True,
                 '--update-only': False,
-                '--upload-resources':False,
+                '--upload-resources': False,
+                '--insecure': False
                 },
             stdin=BytesIO(b'{"name": "45","title":"Forty-five"}\n'),
             stdout=self.stdout)
@@ -129,7 +133,8 @@ class TestCLILoad(unittest.TestCase):
         load_things_worker(self.ckan, 'datasets', {
                 '--create-only': False,
                 '--update-only': False,
-                '--upload-resources':False,
+                '--upload-resources': False,
+                '--insecure': False
                 },
             stdin=BytesIO(b'{}\n'),
             stdout=self.stdout)
@@ -144,6 +149,7 @@ class TestCLILoad(unittest.TestCase):
         load_things_worker(self.ckan, 'datasets', {
                 '--create-only': False,
                 '--update-only': True,
+                '--insecure': False
                 },
             stdin=BytesIO(b'{"name": "45","title":"Forty-five"}\n'),
             stdout=self.stdout)
@@ -158,6 +164,7 @@ class TestCLILoad(unittest.TestCase):
         load_things_worker(self.ckan, 'datasets', {
                 '--create-only': False,
                 '--update-only': False,
+                '--insecure': False
                 },
             stdin=BytesIO(b'{"name": "30ish","title":"3.4 times ten"}\n'),
             stdout=self.stdout)
@@ -173,6 +180,7 @@ class TestCLILoad(unittest.TestCase):
                 '--create-only': False,
                 '--update-only': False,
                 '--upload-resources': False,
+                '--insecure': False
                 },
             stdin=BytesIO(b'{"name": "30ish","title":"3.4 times ten","resources":[{"id":"123"}]}\n'),
             stdout=self.stdout)
@@ -188,6 +196,7 @@ class TestCLILoad(unittest.TestCase):
                 '--create-only': False,
                 '--update-only': False,
                 '--upload-resources': False,
+                '--insecure': False
                 },
             stdin=BytesIO(
                  b'{"name": "30ish","title":"3.4 times ten",'
@@ -205,6 +214,7 @@ class TestCLILoad(unittest.TestCase):
                 '--create-only': False,
                 '--update-only': True,
                 '--upload-resources': False,
+                '--insecure': False
                 },
             stdin=BytesIO(b'{"name": "34","title":"3.4 times ten"}\n'),
             stdout=self.stdout)
@@ -220,6 +230,7 @@ class TestCLILoad(unittest.TestCase):
                 '--create-only': True,
                 '--update-only': False,
                 '--upload-resources': False,
+                '--insecure': False
                 },
             stdin=BytesIO(b'{"name": "34","title":"3.4 times ten"}\n'),
             stdout=self.stdout)
@@ -235,6 +246,7 @@ class TestCLILoad(unittest.TestCase):
                 '--create-only': False,
                 '--update-only': False,
                 '--upload-resources': False,
+                '--insecure': False
                 },
             stdin=BytesIO(b'{"name": "seekrit", "title": "Things"}\n'),
             stdout=self.stdout)
@@ -250,6 +262,7 @@ class TestCLILoad(unittest.TestCase):
                 '--create-only': False,
                 '--update-only': False,
                 '--upload-resources': False,
+                '--insecure': False
                 },
             stdin=BytesIO(b'{"id": "ab","title":"a balloon"}\n'),
             stdout=self.stdout)
@@ -265,6 +278,7 @@ class TestCLILoad(unittest.TestCase):
                 '--create-only': False,
                 '--update-only': False,
                 '--upload-resources': False,
+                '--insecure': False
                 },
             stdin=BytesIO(
                 b'{"name": "cd", "title": "Go"}\n'
@@ -288,6 +302,7 @@ class TestCLILoad(unittest.TestCase):
                 '--create-only': False,
                 '--update-only': False,
                 '--upload-resources': False,
+                '--insecure': False
                 },
             stdin=BytesIO(b'{"id": "used", "title": "here"}\n'),
             stdout=self.stdout)
@@ -303,6 +318,7 @@ class TestCLILoad(unittest.TestCase):
                 '--create-only': False,
                 '--update-only': False,
                 '--upload-resources': False,
+                '--insecure': False
                 },
             stdin=BytesIO(b'{"id": "unused", "users": []}\n'),
             stdout=self.stdout)
@@ -330,7 +346,8 @@ class TestCLILoad(unittest.TestCase):
                 '--start-record': '1',
                 '--max-records': None,
                 '--upload-resources': False,
-                '--upload-logo':False
+                '--upload-logo': False,
+                '--insecure': False
             },
             worker_pool=self._mock_worker_pool,
             stdin=BytesIO(
@@ -364,7 +381,8 @@ class TestCLILoad(unittest.TestCase):
                 '--start-record': '2',
                 '--max-records': '2',
                 '--upload-resources': False,
-                '--upload-logo':False,
+                '--upload-logo': False,
+                '--insecure': False
             },
             worker_pool=self._mock_worker_pool,
             stdin=BytesIO(
@@ -401,7 +419,8 @@ class TestCLILoad(unittest.TestCase):
                 '--start-record': '1',
                 '--max-records': None,
                 '--upload-resources': False,
-                '--upload-logo':False,
+                '--upload-logo': False,
+                '--insecure': False
             },
             worker_pool=self._mock_worker_pool,
             stdin=BytesIO(
