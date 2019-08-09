@@ -19,7 +19,7 @@ def action(ckan, arguments, stdin=None):
 
     file_args = {}
     requests_kwargs = None
-    if arguments['--no-verify']:
+    if arguments['--insecure']:
         requests_kwargs = {'verify': False}
     if arguments['--input-json']:
         action_args = json.loads(stdin.read().decode('utf-8'))
