@@ -169,10 +169,13 @@ def dump_things_worker(ckan, thing, arguments,
             continue
 
         try:
+            requests_kwargs = None
+            if arguments['--insecure']:
+                requests_kwargs = {'verify': False}
             obj = ckan.call_action(thing_show, {'id': name,
                 'include_datasets': False,
                 'include_password_hash': True,
-                })
+                }, requests_kwargs=requests_kwargs)
         except NotFound:
             reply('NotFound')
         except NotAuthorized:

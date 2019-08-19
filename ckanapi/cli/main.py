@@ -4,25 +4,31 @@ Usage:
   ckanapi action ACTION_NAME
           [(KEY=STRING | KEY:JSON | KEY@FILE ) ... | -i | -I JSON_INPUT]
           [-j | -J] [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g]]
+          [--insecure]
   ckanapi load datasets
           [--upload-resources] [-I JSONL_INPUT] [-s START] [-m MAX]
           [-p PROCESSES] [-l LOG_FILE] [-n | -o] [-qwz]
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
+          [--insecure]
   ckanapi load (groups | organizations)
           [--upload-logo] [-I JSONL_INPUT] [-s START] [-m MAX]
           [-p PROCESSES] [-l LOG_FILE] [-n | -o] [-qwz]
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
+          [--insecure]
   ckanapi load (users | related)
           [-I JSONL_INPUT] [-s START] [-m MAX] [-p PROCESSES] [-l LOG_FILE]
           [-n | -o] [-qwz] [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
+          [--insecure]
   ckanapi dump (datasets | groups | organizations | users | related)
           (ID_OR_NAME ... | --all) ([-O JSONL_OUTPUT] | [-D DIRECTORY])
           [-p PROCESSES] [-dqwz]
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g]]
+          [--insecure]
   ckanapi delete (datasets | groups | organizations | users | related)
           (ID_OR_NAME ... | [-I JSONL_INPUT] [-s START] [-m MAX])
           [-p PROCESSES] [-l LOG_FILE] [-qwz]
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
+          [--insecure]
   ckanapi (-h | --help)
   ckanapi --version
 
@@ -46,6 +52,8 @@ Options:
   -l --log=LOG_FILE         append messages generated to LOG_FILE
   -m --max-records=MAX      exit after processing MAX records
   -n --create-only          create new records, don't update existing records
+  --insecure                ignore verifying the SSL certificate for sites
+                            using https
   -o --update-only          update existing records, don't create new records
   -O --output=JSONL_OUTPUT  output to json lines file instead of stdout
   -p --processes=PROCESSES  set the number of worker processes [default: 1]

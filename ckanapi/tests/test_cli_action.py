@@ -16,7 +16,8 @@ class MockCKAN(object):
         self._expected_files = expected_files or {}
         self._response = response
 
-    def call_action(self, name, args, context=None, apikey=None, files=None):
+    def call_action(self, name, args, context=None, apikey=None, files=None,
+                    requests_kwargs=None):
         if name != self._expected_name:
             return ["wrong name", name, self._expected_name]
         if args != self._expected_args:
@@ -37,6 +38,7 @@ class TestCLIAction(unittest.TestCase):
             '--output-jsonl': False,
             '--input-json': False,
             '--input': None,
+            '--insecure': False
             })
         self.assertEqual(b''.join(rval), b"""
 {
@@ -56,6 +58,7 @@ class TestCLIAction(unittest.TestCase):
             '--output-jsonl': False,
             '--input-json': False,
             '--input': None,
+            '--insecure': False
             })
         self.assertEqual(b''.join(rval), b'["right","on"]\n')
 
@@ -68,6 +71,7 @@ class TestCLIAction(unittest.TestCase):
             '--output-jsonl': True,
             '--input-json': False,
             '--input': None,
+            '--insecure': False
             })
         self.assertEqual(b''.join(rval), b'{"oh":["right","on"]}\n')
 
@@ -80,6 +84,7 @@ class TestCLIAction(unittest.TestCase):
             '--output-jsonl': True,
             '--input-json': False,
             '--input': None,
+            '--insecure': False
             })
         self.assertEqual(b''.join(rval), b'99\n98\n97\n')
 
@@ -92,6 +97,7 @@ class TestCLIAction(unittest.TestCase):
                 '--output-jsonl': False,
                 '--input-json': True,
                 '--input': None,
+                '--insecure': False
             },
             stdin=BytesIO(b'{"who":["just","me"]}'),
             )
@@ -106,6 +112,7 @@ class TestCLIAction(unittest.TestCase):
             '--output-jsonl': False,
             '--input-json': False,
             '--input': None,
+            '--insecure': False
             })
         self.assertEqual(b''.join(rval), b'"yeah"\n')
 
@@ -118,6 +125,7 @@ class TestCLIAction(unittest.TestCase):
             '--output-jsonl': False,
             '--input-json': False,
             '--input': None,
+            '--insecure': False
             })
         self.assertRaises(CLIError, list, rval)
 
@@ -130,6 +138,7 @@ class TestCLIAction(unittest.TestCase):
             '--output-jsonl': False,
             '--input-json': False,
             '--input': None,
+            '--insecure': False
             })
         self.assertRaises(CLIError, list, rval)
 
@@ -142,6 +151,7 @@ class TestCLIAction(unittest.TestCase):
             '--output-jsonl': False,
             '--input-json': False,
             '--input': None,
+            '--insecure': False
             })
         self.assertEqual(b''.join(rval), b'"yeah"\n')
 
@@ -154,5 +164,6 @@ class TestCLIAction(unittest.TestCase):
             '--output-jsonl': False,
             '--input-json': False,
             '--input': None,
+            '--insecure': False
             })
         self.assertEqual(b''.join(rval), b'"yeah"\n')

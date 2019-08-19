@@ -13,7 +13,7 @@ from io import BytesIO
 
 
 class MockCKAN(object):
-    def call_action(self, name, data_dict):
+    def call_action(self, name, data_dict, requests_kwargs=None):
         try:
             return {
                 'package_list': {
@@ -63,7 +63,8 @@ class TestCLIDump(unittest.TestCase):
 
     def test_worker_one(self):
         rval = dump_things_worker(self.ckan, 'datasets',
-            {'--datastore-fields': False},
+            {'--datastore-fields': False,
+             '--insecure': False},
             stdin=BytesIO(b'"34"\n'), stdout=self.stdout)
         response = self.stdout.getvalue()
         self.assertEqual(response[-1:], b'\n')
@@ -73,7 +74,8 @@ class TestCLIDump(unittest.TestCase):
 
     def test_worker_two(self):
         rval = dump_things_worker(self.ckan, 'datasets',
-            {'--datastore-fields': False},
+            {'--datastore-fields': False,
+             '--insecure': False},
             stdin=BytesIO(b'"12"\n"34"\n'), stdout=self.stdout)
         response = self.stdout.getvalue()
         self.assertEqual(response.count(b'\n'), 2, response)
@@ -87,7 +89,8 @@ class TestCLIDump(unittest.TestCase):
         self.assertEqual(data["title"], "Thirty-four")
 
     def test_worker_error(self):
-        dump_things_worker(self.ckan, 'datasets', {},
+        dump_things_worker(self.ckan, 'datasets',
+            {'--insecure': False},
             stdin=BytesIO(b'"99"\n'), stdout=self.stdout)
         response = self.stdout.getvalue()
         self.assertEqual(response[-1:], b'\n')
@@ -96,7 +99,8 @@ class TestCLIDump(unittest.TestCase):
         self.assertEqual(data, None)
 
     def test_worker_group(self):
-        dump_things_worker(self.ckan, 'groups', {},
+        dump_things_worker(self.ckan, 'groups',
+            {'--insecure': False},
             stdin=BytesIO(b'"ab"\n'), stdout=self.stdout)
         response = self.stdout.getvalue()
         self.assertEqual(response[-1:], b'\n')
@@ -105,7 +109,8 @@ class TestCLIDump(unittest.TestCase):
         self.assertEqual(data, {"title":"ABBA"})
 
     def test_worker_organization(self):
-        dump_things_worker(self.ckan, 'organizations', {},
+        dump_things_worker(self.ckan, 'organizations',
+            {'--insecure': False},
             stdin=BytesIO(b'"cd"\n'), stdout=self.stdout)
         response = self.stdout.getvalue()
         self.assertEqual(response[-1:], b'\n')
@@ -129,6 +134,7 @@ class TestCLIDump(unittest.TestCase):
                 '--processes': '1',
                 '--get-request': False,
                 '--datastore-fields': False,
+                '--insecure': False
             },
             worker_pool=self._mock_worker_pool,
             stdout=self.stdout,
@@ -158,6 +164,7 @@ class TestCLIDump(unittest.TestCase):
                 '--processes': '5',
                 '--get-request': False,
                 '--datastore-fields': False,
+                '--insecure': False
             },
             worker_pool=self._mock_worker_pool,
             stdout=self.stdout,
@@ -184,6 +191,7 @@ class TestCLIDump(unittest.TestCase):
                 '--processes': '1',
                 '--get-request': False,
                 '--datastore-fields': False,
+                '--insecure': False
             },
 
             worker_pool=self._mock_worker_pool,
@@ -212,6 +220,7 @@ class TestCLIDump(unittest.TestCase):
                 '--processes': '1',
                 '--get-request': False,
                 '--datastore-fields': False,
+                '--insecure': False
             },
             worker_pool=self._mock_worker_pool_reversed,
             stdout=self.stdout,
@@ -244,6 +253,7 @@ class TestCLIDump(unittest.TestCase):
                     '--processes': '1',
                     '--get-request': False,
                     '--datastore-fields': False,
+                    '--insecure': False
                 },
                 worker_pool=self._worker_pool_with_data,
                 stdout=self.stdout,
@@ -293,7 +303,8 @@ class TestCLIDump(unittest.TestCase):
         worker_stdin = BytesIO(b''.join(v for i, v in job_iter))
         worker_stdout = BytesIO()
         dump_things_worker(self.ckan, 'datasets', {
-            '--datastore-fields': True},
+            '--datastore-fields': True,
+            '--insecure': False},
             stdin=worker_stdin,
             stdout=worker_stdout)
         for i, v in enumerate(worker_stdout.getvalue().strip().split(b'\n')):

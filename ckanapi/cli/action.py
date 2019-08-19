@@ -18,6 +18,9 @@ def action(ckan, arguments, stdin=None):
         stdin = getattr(sys.stdin, 'buffer', sys.stdin)
 
     file_args = {}
+    requests_kwargs = None
+    if arguments['--insecure']:
+        requests_kwargs = {'verify': False}
     if arguments['--input-json']:
         action_args = json.loads(stdin.read().decode('utf-8'))
     elif arguments['--input']:
@@ -54,7 +57,7 @@ def action(ckan, arguments, stdin=None):
                     "KEY:JSON or KEY@FILE %r" % kv)
 
     result = ckan.call_action(arguments['ACTION_NAME'], action_args,
-        files=file_args)
+                              files=file_args, requests_kwargs=requests_kwargs)
 
     if arguments['--output-jsonl']:
         if isinstance(result, list):
