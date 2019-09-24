@@ -31,7 +31,7 @@ class LocalCKAN(object):
         return user['name']
 
     def call_action(self, action, data_dict=None, context=None, apikey=None,
-            files=None):
+            files=None, requests_kwargs=None):
         """
         :param action: the action name, e.g. 'package_create'
         :param data_dict: the dict to pass to the action, defaults to {}
@@ -39,6 +39,7 @@ class LocalCKAN(object):
                         remember to include a 'user' when necessary
         :param apikey: not supported
         :param files: None or {field-name: file-to-be-sent, ...}
+        :param requests_kwargs: ignored for LocalCKAN (requests not used)
         """
         # copy dicts because actions may modify the dicts they are passed
         # (CKAN...you so crazy)

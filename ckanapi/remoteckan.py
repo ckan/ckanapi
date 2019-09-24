@@ -61,6 +61,7 @@ class RemoteCKAN(object):
         :param context: always set to None for RemoteCKAN
         :param apikey: API key for authentication
         :param files: None or {field-name: file-to-be-sent, ...}
+        :param requests_kwargs: kwargs for requests get/post calls
 
         This function parses the response from the server as JSON and
         returns the decoded value.  When an error is returned this
