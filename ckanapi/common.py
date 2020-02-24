@@ -111,7 +111,7 @@ def reverse_apicontroller_action(url, status, response):
         raise ServerIncompatibleError(repr([url, status, response]))
 
     etype = err.get('__type')
-    emessage = err.get('message', '').split(': ', 1)[-1]
+    emessage = str(err.get('message', ''))
     if etype == 'Search Query Error':
         # I refuse to eval(emessage), even if it would be more correct
         raise SearchQueryError(emessage)
