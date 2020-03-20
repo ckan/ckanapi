@@ -3,32 +3,32 @@
 Usage:
   ckanapi action ACTION_NAME
           [(KEY=STRING | KEY:JSON | KEY@FILE ) ... | -i | -I JSON_INPUT]
-          [-j | -J] [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g]]
-          [--insecure]
+          [-j | -J]
+          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g] [--insecure]]
   ckanapi load datasets
           [--upload-resources] [-I JSONL_INPUT] [-s START] [-m MAX]
           [-p PROCESSES] [-l LOG_FILE] [-n | -o] [-qwz]
-          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
-          [--insecure]
+          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [--insecure]]
   ckanapi load (groups | organizations)
           [--upload-logo] [-I JSONL_INPUT] [-s START] [-m MAX]
           [-p PROCESSES] [-l LOG_FILE] [-n | -o] [-qwz]
-          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
-          [--insecure]
+          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [--insecure]]
   ckanapi load (users | related)
           [-I JSONL_INPUT] [-s START] [-m MAX] [-p PROCESSES] [-l LOG_FILE]
-          [-n | -o] [-qwz] [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
-          [--insecure]
+          [-n | -o] [-qwz]
+          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [--insecure]]
   ckanapi dump (datasets | groups | organizations | users | related)
           (ID_OR_NAME ... | --all) ([-O JSONL_OUTPUT] | [-D DIRECTORY])
           [-p PROCESSES] [-dqwz]
-          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g]]
-          [--insecure]
+          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g] [--insecure]]
+  ckanapi search datasets
+          [(KEY=STRING | KEY:JSON ) ... | -i | -I JSON_INPUT]
+          [-O JSONL_OUTPUT] [-z]
+          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g] [--insecure]]
   ckanapi delete (datasets | groups | organizations | users | related)
           (ID_OR_NAME ... | [-I JSONL_INPUT] [-s START] [-m MAX])
           [-p PROCESSES] [-l LOG_FILE] [-qwz]
-          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY]]
-          [--insecure]
+          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [--insecure]]
   ckanapi (-h | --help)
   ckanapi --version
 
@@ -87,6 +87,7 @@ from ckanapi.cli.load import load_things
 from ckanapi.cli.dump import dump_things
 from ckanapi.cli.delete import delete_things
 from ckanapi.cli.action import action
+from ckanapi.cli.search import search_datasets
 
 
 def parse_arguments():
@@ -140,6 +141,9 @@ def main(running_with_paster=False):
 
     if arguments['delete']:
         return delete_things(ckan, thing[0], arguments)
+
+    if arguments['search']:
+        return search_datasets(ckan, arguments)
 
     assert 0, arguments # we shouldn't be here
 
