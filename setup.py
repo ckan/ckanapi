@@ -12,7 +12,7 @@ install_requires=[
     'six>=1.9,<2.0',
 ]
 tests_require=[
-    'pyfakefs',
+    'pyfakefs==3.6.1',
 ]
 
 if sys.version_info <= (3,):
