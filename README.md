@@ -25,7 +25,7 @@ Simple actions with string parameters may be called directly. The
 response is pretty-printed to STDOUT. e.g.:
 
 ```
-$ ckanapi action group_list -r http://demo.ckan.org
+$ ckanapi action group_list -r https://demo.ckan.org
 [
   "data-expolorer",
   "example-group",
@@ -200,7 +200,7 @@ Making a request:
 from ckanapi import RemoteCKAN
 ua = 'ckanapiexample/1.0 (+http://example.com/my/website)'
 
-demo = RemoteCKAN('http://demo.ckan.org', user_agent=ua)
+demo = RemoteCKAN('https://demo.ckan.org', user_agent=ua)
 groups = demo.action.group_list(id='data-explorer')
 print groups
 ```
@@ -226,7 +226,7 @@ and actions added by CKAN plugins are supported by action shortcuts and
 Many CKAN API functions can only be used by authenticated users. Use the
 `apikey` parameter to supply your CKAN API key to `RemoteCKAN`:
 
-    demo = RemoteCKAN('http://demo.ckan.org', apikey='MY-SECRET-API-KEY')
+    demo = RemoteCKAN('https://demo.ckan.org', apikey='MY-SECRET-API-KEY')
 
 
 ### Exceptions
@@ -247,7 +247,7 @@ CKAN plugin:
 from ckanapi import RemoteCKAN, NotAuthorized
 ua = 'ckanapiexample/1.0 (+http://example.com/my/website)'
 
-demo = RemoteCKAN('http://demo.ckan.org', apikey='phony-key', user_agent=ua)
+demo = RemoteCKAN('https://demo.ckan.org', apikey='phony-key', user_agent=ua)
 try:
     pkg = demo.action.package_create(name='my-dataset', title='not going to work')
 except NotAuthorized:
@@ -294,7 +294,7 @@ RemoteCKAN as a context manager:
 from ckanapi import RemoteCKAN
 ua = 'ckanapiexample/1.0 (+http://example.com/my/website)'
 
-with RemoteCKAN('http://demo.ckan.org', user_agent=ua) as demo:
+with RemoteCKAN('https://demo.ckan.org', user_agent=ua) as demo:
     groups = demo.action.group_list(id='data-explorer')
 print groups
 ```
