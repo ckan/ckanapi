@@ -22,7 +22,9 @@ remote CKAN instances for bulk operations and simple API actions.
 ### Actions
 
 Simple actions with string parameters may be called directly. The
-response is pretty-printed to STDOUT. e.g.:
+response is pretty-printed to STDOUT.
+
+#### 🔧 List names of datasets on a remote CKAN site
 
 ```
 $ ckanapi action group_list -r https://demo.ckan.org
@@ -139,7 +141,7 @@ $ ckanapi search datasets include_private=true -O -z datasets.jsonl.gz \
 `search` is faster than `dump` because it calls `package_search` to retrieve
 many records per call, paginating automatically.
 
-You may add parameters supported by `package_search` to limit the
+You may add parameters supported by `package_search` to filter the
 records returned.
 
 
