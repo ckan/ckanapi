@@ -56,7 +56,7 @@ information to be returned.
 Simple action arguments may be passed in KEY=STRING form for string
 values or in KEY:JSON form for JSON values.
 
-E.g. to view a dataset using a KEY=STRING parameter:
+#### 🔧 View a dataset using a KEY=STRING parameter
 
 ```
 $ ckanapi action package_show id=my-dataset-name
@@ -67,11 +67,10 @@ $ ckanapi action package_show id=my-dataset-name
 
 ```
 
-E.g. to get the number of datasets for each organization
-using KEY:JSON parameters:
+#### 🔧 Get the number of datasets for each organization using KEY:JSON parameters
 
 ```
-$ ckanapi action package_search 'facet.field:["organization"]' rows:0
+$ ckanapi action package_search facet.field:'["organization"]' rows:0
 {
   "facets": {
     "organization": {
@@ -84,42 +83,71 @@ $ ckanapi action package_search 'facet.field:["organization"]' rows:0
 }
 ```
 
-Files may be passed for upload using the KEY@FILE form.
+#### 🔧 Create a resource with a file attached
 
-E.g. create a resource with a file attached
+Files may be passed for upload using the KEY@FILE form.
 
 ```
 $ ckanapi action resource_create package_id=my-dataset-with-files \
-          upload@/path/to/file/to/upload.csv \
-          url=dummy-value  # ignored but required by CKAN<2.6
+          upload@/path/to/file/to/upload.csv
 ```
 
-### Bulk Dumping and Loading Operations
+#### 🔧 Edit a dataset with a text editor
+
+```
+$ ckanapi action package_show id=my-dataset-id > my-dataset.json
+$ nano my-dataset.json
+$ ckanapi action package_update -I my-dataset.json
+$ rm my-dataset.json
+```
+
+#### 🔧 Update a single resource field
+
+```
+$ ckanapi action resource_patch id=my-resource-id size:42000000
+```
+
+
+### Bulk Dumping and Loading
 
 Datasets, groups, organizations, users and related items may be dumped to
 [JSON lines](http://jsonlines.org)
 text files and created or updated from JSON lines text files.
 
-E.g. dumping datasets from CKAN into a local file with 4 processes:
+`dump` and `load` jobs can be run in parallel with
+multiple worker processes. The jobs in progress, the rate of job
+completion and any individual errors are shown on STDERR while
+the jobs run.
+
+`dump` and `load`jobs may be resumed from the last completed
+record or split across multiple servers by specifying record
+start and max values.
+
+#### 🔧 Dump datasets from CKAN into a local file with 4 processes
 
 ```
 $ ckanapi dump datasets --all -O datasets.jsonl.gz -z -p 4 -r http://localhost
 ```
 
-E.g. load datasets from a dataset dump file with 3 processes in parallel:
+#### 🔧 Export datasets including private ones using search
+
+```
+$ ckanapi search datasets include_private=true -O -z datasets.jsonl.gz \
+          -c /etc/ckan/production.ini
+```
+
+`search` is faster than `dump` because it calls `package_search` to retrieve
+many records per call, paginating automatically.
+
+You may add parameters supported by `package_search` to limit the
+records returned.
+
+
+#### 🔧 Load/update datasets from a dataset JSON lines file with 3 processes
 
 ```
 $ ckanapi load datasets -I datasets.jsonl.gz -z -p 3 -c /etc/ckan/production.ini
 ```
-
-These bulk dumping and loading jobs can be run in parallel with
-multiple worker processes. The jobs in progress, the rate of job
-completion and any individual errors are shown on STDERR while
-the jobs run.
-
-Bulk loading jobs may be resumed from the last completed
-record or split across multiple servers by specifying record
-start and max values.
 
 
 ### Bulk Delete
@@ -128,23 +156,23 @@ Datasets, groups, organizations, users and related items may be deleted in
 bulk with the delete command. This command accepts ids or names on the
 command line or a number of different formats piped on standard input.
 
-Delete all the datasets (JSON list of "id" or "name" values)
+#### 🔧 All datasets (JSON list of "id" or "name" values)
 ```
 $ ckanapi action package_list -j | ckanapi delete datasets
 ```
 
-Selective delete (JSON object with "results" list containing "id" values)
+#### 🔧 Selective delete (JSON object with "results" list containing "id" values)
 ```
 $ ckanapi action package_search q=ponies | ckanapi delete datasets
 ```
 
-Processed JSON Lines (JSON objects with "id" or "name" value, one per line)
+#### 🔧 Processed JSON Lines (JSON objects with "id" or "name" value, one per line)
 ```
 $ ckanapi dump groups --all > groups.jsonl
 $ grep ponies groups.jsonl | ckanapi delete groups
 ```
 
-Simple list of "id" or "name" values (one per line)
+#### 🔧 Text list of "id" or "name" values (one per line)
 ```
 $ cat users_to_remove.txt
 fred
@@ -169,17 +197,16 @@ $ ckanapi dump datasets --all --datapackages=./output_directory/ -r http://sourc
 
 ### Shell pipelines
 
-Simple shell pipelines are possible with the CLI. E.g. update the
-title of a dataset with the help of the 'jq' command-line json tool:
+Simple shell pipelines are possible with the CLI.
 
+#### 🔧 Copy the name of a dataset to its title with 'jq'
 ```
 $ ckanapi action package_show id=my-dataset \
-  | jq '.+{"title":"New title"}' \
+  | jq '.+{"title":.name}' \
   | ckanapi action package_update -i
 ```
 
-E.g. Copy all datasets from one CKAN instance to another:
-
+#### 🔧 Mirror all datasets from one CKAN instance to another
 ```
 $ ckanapi dump datasets --all -q -r http://sourceckan.example.com \
   | ckanapi load datasets
