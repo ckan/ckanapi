@@ -28,7 +28,9 @@ class CLIError(Exception):
 
 
 try:
-    import ckan
+    from ckan.logic import (NotAuthorized, NotFound, ValidationError)
+    from ckan.lib.search import (SearchQueryError, SearchError,
+                                 SearchIndexError)
 
 except ImportError:
     # Implement the minimum to be compatible with existing errors
@@ -57,10 +59,4 @@ except ImportError:
 
     class SearchIndexError(CKANAPIError):
         pass
-
-else:
-    # import ckan worked, so these must not fail
-    from ckan.logic import (NotAuthorized, NotFound, ValidationError)
-    from ckan.lib.search import (SearchQueryError, SearchError,
-                                 SearchIndexError)
 
