@@ -134,7 +134,7 @@ $ ckanapi dump datasets --all -O datasets.jsonl.gz -z -p 4 -r http://localhost
 #### 🔧 Export datasets including private ones using search
 
 ```
-$ ckanapi search datasets include_private=true -O -z datasets.jsonl.gz \
+$ ckanapi search datasets include_private=true -O datasets.jsonl.gz -z \
           -c /etc/ckan/production.ini
 ```
 
