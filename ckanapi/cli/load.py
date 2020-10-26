@@ -219,7 +219,7 @@ def load_things_worker(ckan, thing, arguments,
                 elif thing in ['groups','organizations'] and 'image_display_url' in obj:   #load images for groups and organizations
                     if arguments['--upload-logo']:
                         users = obj['users']
-                        _upload_logo(ckan,obj)
+                        obj = _upload_logo(ckan,obj)
                         obj.pop('image_upload')
                         obj['users'] = users
                         ckan.call_action(thing_update, obj,
@@ -294,8 +294,9 @@ def _upload_resources(ckan,obj,arguments):
             requests_kwargs=requests_kwargs)
 
 
-def _upload_logo(ckan,obj):
-    for key in obj.keys():
+def _upload_logo(ckan,obj_orig):
+    obj = obj_orig.copy()
+    for key in obj_orig.keys():
         if isinstance(obj[key],(dict,list)):
             obj.pop(key)                            #dict/list objects can't be encoded
     if urlparse(obj['image_url']).netloc:                  # logo is an external link
@@ -308,3 +309,4 @@ def _upload_logo(ckan,obj):
         new_url = new_name+'.'+ext
         obj['image_upload'] = (new_url, f.raw)
     ckan.action.group_update(**obj)
+    return obj
