@@ -8,7 +8,7 @@ install_requires=[
     'setuptools',
     'docopt',
     'requests',
-    'python-slugify>=1.0',
+    'python-slugify>=1.0,<4',
     'six>=1.9,<2.0',
 ]
 tests_require=[
@@ -21,7 +21,7 @@ if sys.version_info <= (3,):
 
 setup(
     name='ckanapi',
-    version='4.3',
+    version='4.4',
     description=
         'A command line interface and Python module for '
         'accessing the CKAN Action API',
