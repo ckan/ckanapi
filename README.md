@@ -24,12 +24,12 @@ remote CKAN instances for bulk operations and simple API actions.
 Simple actions with string parameters may be called directly. The
 response is pretty-printed to STDOUT.
 
-#### 🔧 List names of datasets on a remote CKAN site
+#### 🔧 List names of groups on a remote CKAN site
 
 ```
-$ ckanapi action group_list -r https://demo.ckan.org
+$ ckanapi action group_list -r https://demo.ckan.org --insecure
 [
-  "data-expolorer",
+  "data-explorer",
   "example-group",
   "geo-examples",
   ...
@@ -38,6 +38,8 @@ $ ckanapi action group_list -r https://demo.ckan.org
 
 Use -r to specify the remote CKAN instance, and -a to provide an
 API KEY. Remote actions connect as an anonymous user by default.
+For this example, we use --insecure as the CKAN demo uses a 
+self-signed certificate.
 
 Local CKAN actions may be run by specifying the config file with -c.
 If no remote server or config file is specified the CLI will look for
