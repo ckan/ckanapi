@@ -3,6 +3,7 @@ implementation of the search datasets cli command
 """
 
 import sys
+import gzip
 import json
 from os.path import expanduser
 
