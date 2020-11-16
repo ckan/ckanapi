@@ -9,12 +9,17 @@ from ckanapi.errors import CKANAPIError
 from ckanapi.common import (ActionShortcut, prepare_action,
     reverse_apicontroller_action)
 from ckanapi.version import __version__
+import os
 
-# add your sites here to remove parallel limits on ckanapi cli
+# add your sites to remove parallel limits on ckanapi cli
 MY_SITES = ['localhost', '127.0.0.1', '[::1]']
+CKANAPI_MY_SITES = os.getenv('CKANAPI_MY_SITES')
+if CKANAPI_MY_SITES:
+    additional_sites = CKANAPI_MY_SITES.split()
+    MY_SITES.extend(additional_sites)
 
 # add your site above instead of changing this
-PARALLEL_LIMIT = 3
+PARALLEL_LIMIT = os.getenv('CKANAPI_PARALLEL_LIMIT', default = 3)
 
 import requests
 
