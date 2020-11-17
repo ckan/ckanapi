@@ -126,8 +126,9 @@ while the jobs run.
 There are no parallel limits when running against a CKAN on localhost.  
 When running against a remote site, there's a default limit of 3 worker processes.
 
-The environment variables `CKANAPI_MY_SITES` (comma delimited list of CKAN urls) and
-`CKANAPI_PARALLEL_LIMIT` can be used to adjust these limits.
+The environment variables `CKANAPI_MY_SITES` and`CKANAPI_PARALLEL_LIMIT` can be 
+used to adjust these limits.  `CKANAPI_MY_SITES` (comma-delimited list of CKAN urls)
+will not have the `PARALLEL_LIMIT` applied. 
 
 `dump` and `load` jobs may be resumed from the last completed
 record or split across multiple servers by specifying record
