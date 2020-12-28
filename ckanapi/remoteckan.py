@@ -17,6 +17,7 @@ MY_SITES = ['localhost', '127.0.0.1', '[::1]']
 PARALLEL_LIMIT = 3
 
 import requests
+from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor 
 
 
 class RemoteCKAN(object):
@@ -53,7 +54,7 @@ class RemoteCKAN(object):
             self.parallel_limit = PARALLEL_LIMIT
 
     def call_action(self, action, data_dict=None, context=None, apikey=None,
-            files=None, requests_kwargs=None):
+            files=None, requests_kwargs=None, progress=None):
         """
         :param action: the action name, e.g. 'package_create'
         :param data_dict: the dict to pass to the action as JSON,
@@ -62,6 +63,13 @@ class RemoteCKAN(object):
         :param apikey: API key for authentication
         :param files: None or {field-name: file-to-be-sent, ...}
         :param requests_kwargs: kwargs for requests get/post calls
+        :param progress: A callable that takes an instance of
+            :class:`requests_toolbelt.MultipartEncoder` as parameter and returns
+            a callback funtion. The callback function will be called every time
+            data is read from the file-to-be-sent and it will be passed the
+            instance of :class:`requests_toolbelt.MultipartEncoderMonitor`. This
+            monitor has the attribute `bytes_read` that can be used to display
+            a progress bar. An example is implemented in ckanapi.cli.
 
         This function parses the response from the server as JSON and
         returns the decoded value.  When an error is returned this
@@ -84,12 +92,28 @@ class RemoteCKAN(object):
         if self.get_only:
             status, response = self._request_fn_get(url, data_dict, headers, requests_kwargs)
         else:
-            status, response = self._request_fn(url, data, headers, files, requests_kwargs)
+            status, response = self._request_fn(url, data, headers, files, requests_kwargs, progress)
         return reverse_apicontroller_action(url, status, response)
 
-    def _request_fn(self, url, data, headers, files, requests_kwargs):
-        r = self.session.post(url, data=data, headers=headers, files=files,
-            allow_redirects=False, **requests_kwargs)
+    def _request_fn(self, url, data, headers, files, requests_kwargs, progress):
+        if files:  # use streaming
+            newfiles = dict([(k, (getattr(files[k], 'name', 'upload_filename'),
+                            files[k])) for k in files])
+            intersect = set(data.keys()) & set(newfiles.keys())
+            if intersect:
+                raise CKANAPIError('field-name for files ("{}")'
+                                   .format(', '.join(list(intersect))) +
+                                   ' cannot also be field name in data_dict.')
+            data.update(newfiles)
+            m = MultipartEncoder(data)
+            if progress:
+                m = MultipartEncoderMonitor(m, progress(m))
+            headers.update({'Content-Type': m.content_type})
+            r = self.session.post(url, data=m, headers=headers,
+                                  allow_redirects=False, **requests_kwargs)
+        else:
+            r = self.session.post(url, data=data, headers=headers, files=files,
+                allow_redirects=False, **requests_kwargs)
         # allow_redirects=False because: if a post is redirected (e.g. 301 due
         # to a http to https redirect), then the second request is made to the
         # new URL, but *without* the data. This gives a confusing "No request

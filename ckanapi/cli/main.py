@@ -3,7 +3,7 @@
 Usage:
   ckanapi action ACTION_NAME
           [(KEY=STRING | KEY:JSON | KEY@FILE ) ... | -i | -I JSON_INPUT]
-          [-j | -J]
+          [-j | -J] [-P]
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g] [--insecure]]
   ckanapi load datasets
           [--upload-resources] [-I JSONL_INPUT] [-s START] [-m MAX]
@@ -57,6 +57,7 @@ Options:
   -o --update-only          update existing records, don't create new records
   -O --output=JSONL_OUTPUT  output to json lines file instead of stdout
   -p --processes=PROCESSES  set the number of worker processes [default: 1]
+  -P --progressbar          display progress bar for file uploads
   -q --quiet                don't display progress messages
   -r --remote=URL           URL of CKAN server for remote actions
   -s --start-record=START   start from record number START, where the first

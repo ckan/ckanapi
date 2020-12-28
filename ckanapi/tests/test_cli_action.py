@@ -16,8 +16,8 @@ class MockCKAN(object):
         self._expected_files = expected_files or {}
         self._response = response
 
-    def call_action(self, name, args, context=None, apikey=None, files=None,
-                    requests_kwargs=None):
+    def call_action(self, name, args, context=None, apikey=None, progress=None,
+                    files=None, requests_kwargs=None):
         if name != self._expected_name:
             return ["wrong name", name, self._expected_name]
         if args != self._expected_args:

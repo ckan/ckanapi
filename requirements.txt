@@ -1,4 +1,6 @@
 setuptools
 docopt
 requests
+requests-toolbelt
 simplejson
+clint
