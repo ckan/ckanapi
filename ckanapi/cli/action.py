@@ -8,6 +8,7 @@ from os.path import expanduser
 
 from ckanapi.cli.utils import compact_json, pretty_json
 from ckanapi.errors import CLIError
+from ckanapi.cli.progressbar import mkprogress
 
 
 def action(ckan, arguments, stdin=None):
@@ -18,6 +19,7 @@ def action(ckan, arguments, stdin=None):
         stdin = getattr(sys.stdin, 'buffer', sys.stdin)
 
     file_args = {}
+    progress = None
     requests_kwargs = None
     if arguments['--insecure']:
         requests_kwargs = {'verify': False}
@@ -52,12 +54,14 @@ def action(ckan, arguments, stdin=None):
                     raise CLIError("Error opening %r: %s" %
                         (expanduser(fvalue), e.args[1]))
                 file_args[fkey] = f
+                if arguments['--progressbar']:
+                    progress = mkprogress
             else:
                 raise CLIError("argument not in the form KEY=STRING, "
                     "KEY:JSON or KEY@FILE %r" % kv)
 
     result = ckan.call_action(arguments['ACTION_NAME'], action_args,
-                              files=file_args, requests_kwargs=requests_kwargs)
+                              progress=progress, files=file_args, requests_kwargs=requests_kwargs)
 
     if arguments['--output-jsonl']:
         if isinstance(result, list):
