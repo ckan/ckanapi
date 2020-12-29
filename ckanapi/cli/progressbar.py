@@ -26,6 +26,7 @@ def mkprogress(encoder):
         if monitor.bytes_read < expected_size:
             bar.show(monitor.bytes_read)
         elif not waiting[0]:
+            bar.show(expected_size)
             waiting[0] = True
             print ('\nwaiting for server-side processing ...')
 
