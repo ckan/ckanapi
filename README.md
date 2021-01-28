@@ -54,6 +54,9 @@ the -u option with a user name or a name that doesn't exist. This is
 useful if you don't want things like deleted datasets or private
 information to be returned.
 
+Note that all actions in the [CKAN Action API](http://docs.ckan.org/en/latest/api/index.html#action-api-reference)
+and actions added by CKAN plugins are supported.
+
 
 ### Action Arguments
 
@@ -69,6 +72,20 @@ $ ckanapi action package_show id=my-dataset-name
   ...
 }
 
+```
+
+#### 🔧 Get detailed info about a resource in the datastore
+
+```
+$ ckanapi action datastore_info id=my-resource-id-or-alias
+{
+  "meta": {
+    "aliases": [
+      "test_alias"
+    ],
+    "count": 1000,
+  ...
+}
 ```
 
 #### 🔧 Get the number of datasets for each organization using KEY:JSON parameters
@@ -250,9 +267,20 @@ the method name used ("group_list" above) and converts it to a normal
 groups = demo.call_action('group_list', {'id': 'data-explorer'})
 ```
 
-All actions in the [CKAN Action API](http://docs.ckan.org/en/latest/api/index.html#action-api-reference)
+Once again, all actions in the [CKAN Action API](http://docs.ckan.org/en/latest/api/index.html#action-api-reference)
 and actions added by CKAN plugins are supported by action shortcuts and
 `call_action` calls.
+
+For example, if the [Showcase](https://github.com/ckan/ckanext-showcase#api) extension is installed:
+
+```python
+from ckanapi import RemoteCKAN
+ua = 'ckanapiexample/1.0 (+http://example.com/my/website)'
+
+demo = RemoteCKAN('https://demo.ckan.org', user_agent=ua)
+showcases= demo.action.ckanext_showcase_list()
+print showcases
+```
 
 Many CKAN API functions can only be used by authenticated users. Use the
 `apikey` parameter to supply your CKAN API key to `RemoteCKAN`:
