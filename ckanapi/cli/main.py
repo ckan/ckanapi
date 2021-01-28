@@ -92,7 +92,12 @@ from ckanapi.cli.search import search_datasets
 
 def parse_arguments():
     # docopt is awesome
-    return docopt(__doc__, version=__version__)
+    arguments = docopt(__doc__, version=__version__)
+    if not arguments['--config']:
+        arguments['--config'] = os.getenv('CKAN_INI', '')
+    if not arguments['--apikey']:
+        arguments['--apikey'] = os.getenv('CKANAPI_KEY', '')
+    return arguments
 
 
 def main(running_with_paster=False):
