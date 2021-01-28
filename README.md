@@ -221,8 +221,8 @@ You may also specify the `--config` and `--apikey` CLI arguments using the
 **CKAN_INI** and **CKANAPI_KEY** environment variables respectively.
 
 ```
-export CKAN_INI=/etc/ckan/default/ckan.ini
-export CKANAPI_KEY=<YOUR CKAN API KEY>
+$ export CKAN_INI=/etc/ckan/default/ckan.ini
+$ export CKANAPI_KEY=<YOUR CKAN API KEY>
 ```
 
 
