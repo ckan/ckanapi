@@ -287,6 +287,7 @@ Many CKAN API functions can only be used by authenticated users. Use the
 
     demo = RemoteCKAN('https://demo.ckan.org', apikey='MY-SECRET-API-KEY')
 
+An example of updating a single field in an existing dataset can be seen in the [Examples directory](Examples/update_single_field.py)
 
 ### Exceptions
 
