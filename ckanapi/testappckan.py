@@ -51,6 +51,6 @@ class TestAppCKAN(object):
                 upload_files.append( (fieldname, filename, file_.read()) )
             kwargs['upload_files'] = upload_files
 
-        r = self.test_app.post('/' + url, data, headers, expect_errors=True,
-                               **kwargs)
+        r = self.test_app.post('/' + url, params=data, headers=headers,
+                               expect_errors=True, **kwargs)
         return reverse_apicontroller_action(url, r.status, r.body)
