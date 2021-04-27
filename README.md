@@ -136,11 +136,18 @@ Datasets, groups, organizations, users and related items may be dumped to
 text files and created or updated from JSON lines text files.
 
 `dump` and `load` jobs can be run in parallel with
-multiple worker processes. The jobs in progress, the rate of job
-completion and any individual errors are shown on STDERR while
-the jobs run.
+multiple worker processes using the `-p` parameter. The jobs in progress,
+the rate of job completion and any individual errors are shown on STDERR
+while the jobs run.
 
-`dump` and `load`jobs may be resumed from the last completed
+There are no parallel limits when running against a CKAN on localhost.  
+When running against a remote site, there's a default limit of 3 worker processes.
+
+The environment variables `CKANAPI_MY_SITES` and`CKANAPI_PARALLEL_LIMIT` can be 
+used to adjust these limits.  `CKANAPI_MY_SITES` (comma-delimited list of CKAN urls)
+will not have the `PARALLEL_LIMIT` applied. 
+
+`dump` and `load` jobs may be resumed from the last completed
 record or split across multiple servers by specifying record
 start and max values.
 
