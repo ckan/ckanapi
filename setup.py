@@ -45,6 +45,9 @@ setup(
 
         [paste.paster_command]
         ckanapi=ckanapi.cli.paster:CKANAPICommand
+
+        [ckan.click_command]
+        api=ckanapi.cli.ckan_click:api
         """
     )
 

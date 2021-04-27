@@ -90,6 +90,8 @@ from ckanapi.cli.action import action
 from ckanapi.cli.search import search_datasets
 
 
+PYTHON2 = str is bytes
+
 def parse_arguments():
     # docopt is awesome
     return docopt(__doc__, version=__version__)
@@ -102,7 +104,9 @@ def main(running_with_paster=False):
     arguments = parse_arguments()
 
     if not running_with_paster and not arguments['--remote']:
-        return _switch_to_paster(arguments)
+        if PYTHON2:
+            return _switch_to_paster(arguments)
+        return _switch_to_ckan_click(arguments)
 
     if arguments['--remote']:
         ckan = RemoteCKAN(arguments['--remote'],
@@ -150,7 +154,18 @@ def main(running_with_paster=False):
 
 def _switch_to_paster(arguments):
     """
+    ** legacy python2-only **
     With --config we switch to the paster command version of the cli
     """
     sys.argv[1:1] = ["--plugin=ckanapi", "ckanapi"]
     sys.exit(load_entry_point('PasteScript', 'console_scripts', 'paster')())
+
+
+def _switch_to_ckan_click(arguments):
+    """
+    Local commands must be run through ckan CLI to set up environment
+    """
+    if arguments['--config']:
+        # config needs to come before "api" for ckan click CLI
+        sys.exit(os.execvp("ckan", ["ckan", "-c", arguments['--config'], "api"] + sys.argv[1:]))
+    sys.exit(os.execvp("ckan", ["ckan", "api"] + sys.argv[1:]))
