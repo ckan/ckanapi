@@ -38,7 +38,7 @@ Options:
   -a --apikey=APIKEY        API key to use for remote actions
   --all                     all the things
   -c --config=CONFIG        CKAN configuration file for local actions,
-                            defaults to ./development.ini if that file exists
+                            defaults to $CKAN_INI or development.ini
   -g --get-request          use GET instead of POST for API calls
   -i --input-json           read json from stdin to send to action
   -I --input=INPUT          input json/ json lines from file instead of stdin
