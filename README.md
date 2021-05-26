@@ -8,8 +8,14 @@ A [command line interface](#ckanapi-cli) and
 
 ## Installation
 
+Installation with pip:
 ```
 pip install ckanapi
+```
+
+Installation with conda:
+```
+conda install -c conda-forge ckanapi
 ```
 
 
@@ -38,7 +44,7 @@ $ ckanapi action group_list -r https://demo.ckan.org --insecure
 
 Use -r to specify the remote CKAN instance, and -a to provide an
 API KEY. Remote actions connect as an anonymous user by default.
-For this example, we use --insecure as the CKAN demo uses a 
+For this example, we use --insecure as the CKAN demo uses a
 self-signed certificate.
 
 Local CKAN actions may be run by specifying the config file with -c.
@@ -143,9 +149,9 @@ while the jobs run.
 There are no parallel limits when running against a CKAN on localhost.  
 When running against a remote site, there's a default limit of 3 worker processes.
 
-The environment variables `CKANAPI_MY_SITES` and`CKANAPI_PARALLEL_LIMIT` can be 
+The environment variables `CKANAPI_MY_SITES` and`CKANAPI_PARALLEL_LIMIT` can be
 used to adjust these limits.  `CKANAPI_MY_SITES` (comma-delimited list of CKAN urls)
-will not have the `PARALLEL_LIMIT` applied. 
+will not have the `PARALLEL_LIMIT` applied.
 
 `dump` and `load` jobs may be resumed from the last completed
 record or split across multiple servers by specifying record
@@ -257,7 +263,7 @@ ua = 'ckanapiexample/1.0 (+http://example.com/my/website)'
 
 demo = RemoteCKAN('https://demo.ckan.org', user_agent=ua)
 groups = demo.action.group_list(id='data-explorer')
-print groups
+print(groups)
 ```
 
 result:
@@ -286,8 +292,21 @@ ua = 'ckanapiexample/1.0 (+http://example.com/my/website)'
 
 demo = RemoteCKAN('https://demo.ckan.org', user_agent=ua)
 showcases= demo.action.ckanext_showcase_list()
-print showcases
+print(showcases)
 ```
+
+Combining query parameters clauses is possible as in the following `package_search` action.  This query combines three clauses that are all satisfied by the single [example dataset](https://demo.ckan.org/dataset/sample-dataset-1) in the Demo CKAN site.
+
+More detailed complex query syntax examples can be found in the [SOLR documentation](https://solr.apache.org/guide/6_6/common-query-parameters.html).
+
+```python
+from ckanapi import RemoteCKAN
+ua = 'ckanapiexample/1.0 (+http://example.com/my/website)'
+
+demo = RemoteCKAN('https://demo.ckan.org', user_agent=ua)
+packages = demo.action.package_search(q='+organization:sample-organization +res_format:GeoJSON +tags:geojson')
+print(packages)
+```  
 
 Many CKAN API functions can only be used by authenticated users. Use the
 `apikey` parameter to supply your CKAN API key to `RemoteCKAN`:
@@ -318,7 +337,7 @@ demo = RemoteCKAN('https://demo.ckan.org', apikey='phony-key', user_agent=ua)
 try:
     pkg = demo.action.package_create(name='my-dataset', title='not going to work')
 except NotAuthorized:
-    print 'denied'
+    print('denied')
 ```
 
 When it is possible to `import ckan` all the ckanapi exception classes are
@@ -363,7 +382,7 @@ ua = 'ckanapiexample/1.0 (+http://example.com/my/website)'
 
 with RemoteCKAN('https://demo.ckan.org', user_agent=ua) as demo:
     groups = demo.action.group_list(id='data-explorer')
-print groups
+print(groups)
 ```
 
 Or by explicitly calling `RemoteCKAN.close()`.
@@ -385,7 +404,7 @@ registry = LocalCKAN()
 try:
     registry.action.package_create(name='my-dataset', title='this will work fine')
 except ValidationError:
-    print 'unless my-dataset already exists'
+    print('unless my-dataset already exists')
 ```
 
 For extra caution pass a blank username to LocalCKAN and only actions allowed
@@ -395,7 +414,7 @@ by anonymous users will be permitted.
 from ckanapi import LocalCKAN
 
 anon = LocalCKAN(username='')
-print anon.action.status_show()
+print(anon.action.status_show())
 ```
 
 ### TestAppCKAN
