@@ -8,8 +8,10 @@ install_requires=[
     'setuptools',
     'docopt',
     'requests',
+    'requests-toolbelt',
     'python-slugify>=1.0',
     'six>=1.9,<2.0',
+    'clint',
 ]
 tests_require=[
     'pyfakefs==3.6.1',
