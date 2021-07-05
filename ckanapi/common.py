@@ -63,7 +63,7 @@ def is_file_like(v):
 
 
 def prepare_action(action, data_dict=None, apikey=None, files=None,
-                   base_url='action/api'):
+                   base_url='action/api/'):
     """
     Return action_url, data_json, http_headers
     """
