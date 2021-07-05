@@ -37,7 +37,7 @@ class RemoteCKAN(object):
     :param session: session to use (default: None)
     """
 
-    base_url = 'api/action'
+    base_url = 'api/action/'
 
     def __init__(self, address, apikey=None, user_agent=None, get_only=False, session=None):
         self.address = address
