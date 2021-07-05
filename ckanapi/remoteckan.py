@@ -36,6 +36,9 @@ class RemoteCKAN(object):
     :param get_only: only use GET requests (default: False)
     :param session: session to use (default: None)
     """
+
+    base_url = 'api/action'
+
     def __init__(self, address, apikey=None, user_agent=None, get_only=False, session=None):
         self.address = address
         self.apikey = apikey
@@ -80,7 +83,8 @@ class RemoteCKAN(object):
             raise CKANAPIError("RemoteCKAN: files may not be sent when "
                 "get_only is True")
         url, data, headers = prepare_action(
-            action, data_dict, apikey or self.apikey, files)
+            action, data_dict, apikey or self.apikey, files,
+            base_url=self.base_url)
         headers['User-Agent'] = self.user_agent
         url = self.address.rstrip('/') + '/' + url
         requests_kwargs = requests_kwargs or {}
