@@ -62,7 +62,8 @@ def is_file_like(v):
         isinstance(v, tuple) and len(v) >= 2 and hasattr(v[1], 'read'))
 
 
-def prepare_action(action, data_dict=None, apikey=None, files=None):
+def prepare_action(action, data_dict=None, apikey=None, files=None,
+                   base_url='action/api/'):
     """
     Return action_url, data_json, http_headers
     """
@@ -87,7 +88,7 @@ def prepare_action(action, data_dict=None, apikey=None, files=None):
         apikey = str(apikey)
         headers['X-CKAN-API-Key'] = apikey
         headers['Authorization'] = apikey
-    url = 'api/action/' + action
+    url = base_url + action
     return url, data_dict, headers
 
 
