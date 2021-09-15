@@ -6,7 +6,7 @@ import six
 import slugify
 
 from ckanapi.cli.utils import pretty_json
-from ckanapi.errors import CKANAPIError
+from ckanapi.errors import CKANAPIError, NotFound
 
 DL_CHUNK_SIZE = 100 * 1024
 DATAPACKAGE_TYPES = {  # map datastore types to datapackage types
@@ -129,7 +129,9 @@ def populate_datastore_res_fields(ckan, res):
             'resource_id': res['id'],
             'limit':0})
     except CKANAPIError:
-        pass
+        return
+    except NotFound:
+        return  # with localckan we'll get the real CKAN exception not a CKANAPIError subclass
     res['datastore_fields'] = ds['fields']
 
 
