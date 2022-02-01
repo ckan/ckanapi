@@ -105,8 +105,9 @@ def dump_things(ckan, thing, arguments,
                     ]) + b'\n')
 
             datapackages_path = arguments['--datapackages']
+            apikey = arguments['--apikey']
             if datapackages_path:
-                create_datapackage(record, datapackages_path, stderr)
+                create_datapackage(record, datapackages_path, stderr, apikey)
 
             # keep the output in the same order as names
             while expecting_number in results:

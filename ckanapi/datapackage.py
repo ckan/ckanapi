@@ -16,13 +16,16 @@ DATAPACKAGE_TYPES = {  # map datastore types to datapackage types
 }
 
 
-def create_resource(resource, filename, datapackage_dir, stderr):
+def create_resource(resource, filename, datapackage_dir, stderr, apikey):
     '''Downloads the resource['url'] to disk.
     '''
     path = os.path.join('data', filename)
+    headers = {}
+    headers['X-CKAN-API-Key'] = apikey
+    headers['Authorization'] = apikey
 
     try:
-        r = requests.get(resource['url'], stream=True)
+        r = requests.get(resource['url'], headers=headers, stream=True)
         with open(os.path.join(datapackage_dir, path), 'wb') as f:
             for chunk in r.iter_content(chunk_size=DL_CHUNK_SIZE):
                 if chunk: # filter out keep-alive new chunks
@@ -38,7 +41,7 @@ def create_resource(resource, filename, datapackage_dir, stderr):
     return resource
 
 
-def create_datapackage(record, base_path, stderr):
+def create_datapackage(record, base_path, stderr, apikey):
     # TODO: how are we going to handle which resources to
     # leave alone? They're very inconsistent in some instances
     # And I can't imagine anyone wants to download a copy
@@ -65,7 +68,7 @@ def create_datapackage(record, base_path, stderr):
 
         # download the resource
         cres = \
-            create_resource(resource, filename, datapackage_dir, stderr)
+            create_resource(resource, filename, datapackage_dir, stderr, apikey)
         dres['path'] = 'data/' + filename
 
         populate_schema_from_datastore(cres, dres)
