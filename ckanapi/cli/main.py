@@ -8,7 +8,7 @@ Usage:
   ckanapi load datasets
           [--upload-resources] [-I JSONL_INPUT] [-s START] [-m MAX]
           [-p PROCESSES] [-l LOG_FILE] [-n | -o] [-qwz]
-          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [--insecure]]
+          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-k SOURCE_APIKEY] [--insecure]]
   ckanapi load (groups | organizations)
           [--upload-logo] [-I JSONL_INPUT] [-s START] [-m MAX]
           [-p PROCESSES] [-l LOG_FILE] [-n | -o] [-qwz]
@@ -45,6 +45,7 @@ Options:
   -j --output-json          output plain json instead of pretty-printed json
   -J --output-jsonl         output list responses as json lines instead of
                             pretty-printed json
+  -k --source-apikey        API key to use for loading external datasets
   -d --datastore-fields     export datastore field information along with
                             resource metadata as datastore_fields lists
   -D --datapackages=DIR     download resources and output as datapackages

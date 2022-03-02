@@ -285,8 +285,12 @@ def _upload_resources(ckan,obj,arguments):
     for resource in resources:
         if resource.get('url_type') != 'upload':
             continue
-
-        f = requests.get(resource['url'],stream=True)
+        headers = {}
+        source_apikey = arguments.get('--source-apikey')
+        if source_apikey:
+            headers['X-CKAN-API-Key'] = apikey
+            headers['Authorization'] = apikey
+        f = requests.get(resource['url'], headers=headers, stream=True)
         name = resource['url'].rsplit('/',1)[-1]
         ckan.call_action('resource_patch',
             {'id':resource['id']},
