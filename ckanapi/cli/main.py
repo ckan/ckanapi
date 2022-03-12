@@ -1,9 +1,20 @@
-"""ckanapi command line interface
+"""ckanapi command line inter face
 
 Usage:
   ckanapi action ACTION_NAME
           [(KEY=STRING | KEY:JSON | KEY@FILE ) ... | -i | -I JSON_INPUT]
           [-j | -J]
+          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g] [--insecure]]
+  ckanapi batch [-I JSONL_INPUT] [-s START] [-m MAX] [--local-files]
+          [-p PROCESSES] [-l LOG_FILE] [-qwz]
+          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [--insecure]]
+  ckanapi delete (datasets | groups | organizations | users | related)
+          (ID_OR_NAME ... | [-I JSONL_INPUT] [-s START] [-m MAX])
+          [-p PROCESSES] [-l LOG_FILE] [-qwz]
+          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [--insecure]]
+  ckanapi dump (datasets | groups | organizations | users | related)
+          (ID_OR_NAME ... | --all) ([-O JSONL_OUTPUT] | [-D DIRECTORY])
+          [-p PROCESSES] [-dqwz]
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g] [--insecure]]
   ckanapi load datasets
           [--upload-resources] [-I JSONL_INPUT] [-s START] [-m MAX]
@@ -17,18 +28,10 @@ Usage:
           [-I JSONL_INPUT] [-s START] [-m MAX] [-p PROCESSES] [-l LOG_FILE]
           [-n | -o] [-qwz]
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [--insecure]]
-  ckanapi dump (datasets | groups | organizations | users | related)
-          (ID_OR_NAME ... | --all) ([-O JSONL_OUTPUT] | [-D DIRECTORY])
-          [-p PROCESSES] [-dqwz]
-          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g] [--insecure]]
   ckanapi search datasets
           [(KEY=STRING | KEY:JSON ) ... | -i | -I JSON_INPUT]
           [-O JSONL_OUTPUT] [-z]
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g] [--insecure]]
-  ckanapi delete (datasets | groups | organizations | users | related)
-          (ID_OR_NAME ... | [-I JSONL_INPUT] [-s START] [-m MAX])
-          [-p PROCESSES] [-l LOG_FILE] [-qwz]
-          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [--insecure]]
   ckanapi (-h | --help)
   ckanapi --version
 
@@ -39,16 +42,18 @@ Options:
   --all                     all the things
   -c --config=CONFIG        CKAN configuration file for local actions,
                             defaults to $CKAN_INI or development.ini
+  -d --datastore-fields     export datastore field information along with
+                            resource metadata as datastore_fields lists
+  -D --datapackages=DIR     download resources and output as datapackages
+                            in DIR instead of metadata-only json lines
   -g --get-request          use GET instead of POST for API calls
   -i --input-json           read json from stdin to send to action
   -I --input=INPUT          input json/ json lines from file instead of stdin
   -j --output-json          output plain json instead of pretty-printed json
   -J --output-jsonl         output list responses as json lines instead of
                             pretty-printed json
-  -d --datastore-fields     export datastore field information along with
-                            resource metadata as datastore_fields lists
-  -D --datapackages=DIR     download resources and output as datapackages
-                            in DIR instead of metadata-only json lines
+  --local-files             allow batch instructions to reference local files
+                            for file uploads
   -l --log=LOG_FILE         append messages generated to LOG_FILE
   -m --max-records=MAX      exit after processing MAX records
   -n --create-only          create new records, don't update existing records
@@ -69,8 +74,8 @@ Options:
   --upload-resources        upload resources of a dataset that were uploaded to
                             server. Resources originally linked by external
                             urls will keep the urls,will not be uploaded
-  -w --worker               launch worker process, used internally by load
-                            and dump commands
+  -w --worker               launch worker process - used internally by load,
+                            dump, delete and batch commands
   -z --gzip                 read/write gzipped data
 """
 
@@ -88,6 +93,7 @@ from ckanapi.cli.dump import dump_things
 from ckanapi.cli.delete import delete_things
 from ckanapi.cli.action import action
 from ckanapi.cli.search import search_datasets
+from ckanapi.cli.batch import batch_actions
 
 
 PYTHON2 = str is bytes
@@ -148,6 +154,9 @@ def main(running_with_paster=False):
 
     if arguments['search']:
         return search_datasets(ckan, arguments)
+
+    if arguments['batch']:
+        return batch_actions(ckan, arguments)
 
     assert 0, arguments # we shouldn't be here
 
