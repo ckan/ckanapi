@@ -273,7 +273,7 @@ $ cat upload-files.jsonl
 $ ckanapi batch -I upload-files.jsonl --local-files
 ```
 
-The `"files"` values in the JSON lines file is ignored unless `--lcoal-files` parameter is passed.
+The `"files"` values in the JSON lines file is ignored unless the `--local-files` parameter is passed.
 Paths in the JSON lines file reference files on the local filesystems relative to the current working
 directory.
 
