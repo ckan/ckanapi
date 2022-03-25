@@ -134,7 +134,6 @@ $ rm my-dataset.json
 $ ckanapi action resource_patch id=my-resource-id size:42000000
 ```
 
-
 ### Bulk Dumping and Loading
 
 Datasets, groups, organizations, users and related items may be dumped to
@@ -227,6 +226,32 @@ in the datapackage.json file but the actual resource data will not be downloaded
 
 ```
 $ ckanapi dump datasets --all --datapackages=./output_directory/ -r http://sourceckan.example.com
+```
+
+### Batch Actions
+
+Run a set of actions from a JSON lines file. For local actions this is much faster than running
+`ckanapi action ...` in a shell loop because the local start-up time only happens once.
+
+Batch actions can also be run in parallel with multiple processes and errors logged, just like the
+dump and load commands.
+
+#### 🔧 Update a dataset field across a number of datasets
+```
+$ cat update-emails.jsonl
+{"action":"package_patch","data":{"id":"dataset-1","maintainer_email":"new@example.com"}}
+{"action":"package_patch","data":{"id":"dataset-2","maintainer_email":"new@example.com"}}
+{"action":"package_patch","data":{"id":"dataset-3","maintainer_email":"new@example.com"}}
+$ ckanapi batch -I update-emails.jsonl
+```
+
+#### 🔧 Replace a set of uploaded files
+```
+$ cat upload-files.jsonl
+{"action":"resource_patch","data":{"id":"408e1b1d-d0ca-50ca-9ae6-aedcee37aaa9"},"files":{"upload":"data1.csv"}}
+{"action":"resource_patch","data":{"id":"c1eab17f-c2d0-536d-a3f6-41a3dfe6a2c3"},"files":{"upload":"data2.csv"}}
+{"action":"resource_patch","data":{"id":"8ed068c2-4d4c-5f20-90db-39d2d596ce1a"},"files":{"upload":"data3.csv"}}
+$ ckanapi batch -I upload-files.jsonl --local-files
 ```
 
 ### Shell pipelines
