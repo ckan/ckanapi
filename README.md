@@ -1,10 +1,29 @@
 ## ckanapi
 
-A [command line interface](#ckanapi-cli) and
-[Python module](#ckanapi-python-module) for accessing the
+A command line interface and Python module for accessing the
 [CKAN Action API](http://docs.ckan.org/en/latest/api/index.html#action-api-reference)
 
 [![Build Status](https://travis-ci.org/ckan/ckanapi.png?branch=master)](https://travis-ci.org/ckan/ckanapi) tested under Python 2.7, 3.6 and pypy
+
+- [Installation](https://github.com/ckan/ckanapi/blob/master/README.md#installation)
+- [ckanapi CLI](https://github.com/ckan/ckanapi/blob/master/README.md#ckanapi-cli)
+  - [Actions](https://github.com/ckan/ckanapi/blob/master/README.md#actions)
+  - [Action Arguments](https://github.com/ckan/ckanapi/blob/master/README.md#action-arguments)
+  - [Bulk Dumping and Loading](https://github.com/ckan/ckanapi/blob/master/README.md#bulk-dumping-and-loading)
+  - [Bulk Delete](https://github.com/ckan/ckanapi/blob/master/README.md#bulk-delete)
+  - [Bulk Dataset and Resource Export](https://github.com/ckan/ckanapi/edit/master/README.md#bulk-dataset-and-resource-export---datapackagejson-format)
+  - [Batch Actions](https://github.com/ckan/ckanapi/blob/master/README.md#batch-actions)
+  - [Shell Pipelines](https://github.com/ckan/ckanapi/blob/master/README.md#shell-pipelines)
+- [ckanapi Python Module](https://github.com/ckan/ckanapi/blob/master/README.md#ckanapi-python-module)
+  - [RemoteCKAN](https://github.com/ckan/ckanapi/blob/master/README.md#remoteckan)
+  - [Exceptions](https://github.com/ckan/ckanapi/blob/master/README.md#exceptions)
+  - [File Uploads](https://github.com/ckan/ckanapi/blob/master/README.md#file-uploads)
+  - [Session Control](https://github.com/ckan/ckanapi/blob/master/README.md#session-control)
+  - [LocalCKAN](https://github.com/ckan/ckanapi/blob/master/README.md#localckan)
+  - [TestAppCKAN](https://github.com/ckan/ckanapi/blob/master/README.md#testappckan)
+- [Tests](https://github.com/ckan/ckanapi/blob/master/README.md#tests)
+- [License](https://github.com/ckan/ckanapi/blob/master/README.md#license)
+
 
 ## Installation
 
@@ -369,7 +388,7 @@ When it is possible to `import ckan` all the ckanapi exception classes are
 replaced with the CKAN exceptions with the same names.
 
 
-### File uploads
+### File Uploads
 
 File uploads for CKAN 2.2+ are supported by passing file-like objects to action
 shortcut methods:
