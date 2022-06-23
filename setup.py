@@ -10,13 +10,11 @@ install_requires=[
     'requests',
     'python-slugify>=1.0',
     'six>=1.9,<2.0',
+    'simplejson',
 ]
 tests_require=[
     'pyfakefs==3.6.1',
 ]
-
-if sys.version_info <= (3,):
-    install_requires.append('simplejson')
 
 
 setup(
