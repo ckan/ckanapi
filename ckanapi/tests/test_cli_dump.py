@@ -64,6 +64,7 @@ class TestCLIDump(unittest.TestCase):
     def test_worker_one(self):
         rval = dump_things_worker(self.ckan, 'datasets',
             {'--datastore-fields': False,
+             '--resource-views': False,
              '--insecure': False},
             stdin=BytesIO(b'"34"\n'), stdout=self.stdout)
         response = self.stdout.getvalue()
@@ -75,6 +76,7 @@ class TestCLIDump(unittest.TestCase):
     def test_worker_two(self):
         rval = dump_things_worker(self.ckan, 'datasets',
             {'--datastore-fields': False,
+             '--resource-views': False,
              '--insecure': False},
             stdin=BytesIO(b'"12"\n"34"\n'), stdout=self.stdout)
         response = self.stdout.getvalue()
@@ -134,6 +136,7 @@ class TestCLIDump(unittest.TestCase):
                 '--processes': '1',
                 '--get-request': False,
                 '--datastore-fields': False,
+                '--resource-views': False,
                 '--insecure': False
             },
             worker_pool=self._mock_worker_pool,
@@ -164,6 +167,7 @@ class TestCLIDump(unittest.TestCase):
                 '--processes': '5',
                 '--get-request': False,
                 '--datastore-fields': False,
+                '--resource-views': False,
                 '--insecure': False
             },
             worker_pool=self._mock_worker_pool,
@@ -191,6 +195,7 @@ class TestCLIDump(unittest.TestCase):
                 '--processes': '1',
                 '--get-request': False,
                 '--datastore-fields': False,
+                '--resource-views': False,
                 '--insecure': False
             },
 
@@ -220,6 +225,7 @@ class TestCLIDump(unittest.TestCase):
                 '--processes': '1',
                 '--get-request': False,
                 '--datastore-fields': False,
+                '--resource-views': False,
                 '--insecure': False
             },
             worker_pool=self._mock_worker_pool_reversed,
@@ -253,6 +259,7 @@ class TestCLIDump(unittest.TestCase):
                     '--processes': '1',
                     '--get-request': False,
                     '--datastore-fields': False,
+                    '--resource-views': False,
                     '--insecure': False
                 },
                 worker_pool=self._worker_pool_with_data,
@@ -304,6 +311,7 @@ class TestCLIDump(unittest.TestCase):
         worker_stdout = BytesIO()
         dump_things_worker(self.ckan, 'datasets', {
             '--datastore-fields': True,
+            '--resource-views': True,
             '--insecure': False},
             stdin=worker_stdin,
             stdout=worker_stdout)

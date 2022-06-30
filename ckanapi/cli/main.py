@@ -14,7 +14,7 @@ Usage:
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [--insecure]]
   ckanapi dump (datasets | groups | organizations | users | related)
           (ID_OR_NAME ... | --all) ([-O JSONL_OUTPUT] | [-D DIRECTORY])
-          [-p PROCESSES] [-dqwz]
+          [-p PROCESSES] [-dqwzR]
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g] [--insecure]]
   ckanapi load datasets
           [--upload-resources] [-I JSONL_INPUT] [-s START] [-m MAX]
@@ -64,6 +64,8 @@ Options:
   -p --processes=PROCESSES  set the number of worker processes [default: 1]
   -q --quiet                don't display progress messages
   -r --remote=URL           URL of CKAN server for remote actions
+  -R --resource-views       export resource views information along with
+                            resource metadata as resource_views lists
   -s --start-record=START   start from record number START, where the first
                             record is number 1 [default: 1]
   -u --ckan-user=USER       perform actions as user with this name, uses the

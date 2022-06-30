@@ -137,6 +137,25 @@ def populate_datastore_res_fields(ckan, res):
         return  # with localckan we'll get the real CKAN exception not a CKANAPIError subclass
     res['datastore_fields'] = ds['fields']
 
+def populate_datastore_res_views(ckan, res):
+    """
+    update resource dict in-place with resource_view_list values
+    in every resource with datastore active using ckan
+    LocalCKAN/RemoteCKAN instance
+    """
+    if not res.get('datastore_active', False):
+        return
+    try:
+        ds = ckan.call_action('resource_view_list', {
+            'id': res['id'],
+            'limit':0})
+    except CKANAPIError:
+        return
+    except NotFound:
+        return  # with localckan we'll get the real CKAN exception not a CKANAPIError subclass
+    if not ds:
+        return # return if the resource views list is empty
+    res['resource_views'] = ds
 
 # functions below are from https://github.com/frictionlessdata/ckan-datapackage-tools
 # commit c87e07d0d0
