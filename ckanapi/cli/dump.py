@@ -8,7 +8,7 @@ import json
 from datetime import datetime
 import os
 
-from ckanapi.errors import (NotFound, NotAuthorized, ValidationError,
+from ckanapi.errors import (CKANAPIError, NotFound, NotAuthorized, ValidationError,
     SearchIndexError)
 from ckanapi.cli import workers
 from ckanapi.cli.utils import completion_stats, compact_json, \
@@ -185,6 +185,9 @@ def dump_things_worker(ckan, thing, arguments,
             if thing == 'datasets' and arguments['--datastore-fields']:
                 for res in obj.get('resources', []):
                     populate_datastore_res_fields(ckan, res)
+            if thing == 'datasets' and arguments['--resource-views']:
+                for res in obj.get('resources', []):
+                    populate_datastore_res_views(ckan, res)
             reply(None, obj)
 
 def _worker_command_line(thing, arguments):
@@ -206,5 +209,28 @@ def _worker_command_line(thing, arguments):
         + a('--apikey')
         + b('--get-request')
         + b('--datastore-fields')
+        + b('--resource-views')
         + ['value-here-to-make-docopt-happy']
         )
+
+
+def populate_datastore_res_views(ckan, res):
+    """
+    update resource dict in-place with resource_view_list values
+    in every resource with datastore active using ckan
+    LocalCKAN/RemoteCKAN instance
+    """
+    if not res.get('datastore_active', False):
+        return
+    try:
+        ds = ckan.call_action('resource_view_list', {
+            'id': res['id'],
+            'limit':0})
+    except CKANAPIError:
+        return
+    except NotFound:
+        return  # with localckan we'll get the real CKAN exception not a CKANAPIError subclass
+    if not ds:
+        return # return if the resource views list is empty
+    res['resource_views'] = ds
+
