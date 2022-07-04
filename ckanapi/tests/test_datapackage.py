@@ -189,7 +189,8 @@ class TestCreateResource(fake_filesystem_unittest.TestCase):
 
         returned_resource = create_resource(
             resource, filename='image_saved.png',
-            datapackage_dir='/test', stderr=stderr)
+            datapackage_dir='/test', stderr=stderr,
+            apikey='')
 
         stderr.seek(0)
         assert not stderr.read()
@@ -229,7 +230,7 @@ class TestCreateDataPackage(fake_filesystem_unittest.TestCase):
 
         datapackage_dir, datapackage, json_path = \
             create_datapackage(record=dataset, base_path='/test/',
-                               stderr=stderr)
+                               stderr=stderr, apikey='')
 
         stderr.seek(0)
         assert not stderr.read()
