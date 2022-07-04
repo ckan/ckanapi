@@ -35,6 +35,9 @@ setup(
         'ckanapi.cli',
         ],
     install_requires=install_requires,
+    extras_require={
+        'testing': tests_require,
+    },
     tests_require=tests_require,
     test_suite='ckanapi.tests',
     zip_safe=False,
