@@ -1,0 +1,16 @@
+name: Tests
+on: [push, pull_request]
+jobs:
+  test:
+    strategy:
+      matrix:
+        python-version: ["2.7", "3.6", "pypy"]
+    runs-on: ubuntu-18.04
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install requirements
+      run: |
+        pip install -e .
+    - name: Run all tests
+      run: python setup.py test
