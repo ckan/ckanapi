@@ -17,4 +17,4 @@ jobs:
       run: |
         pip install -e .
     - name: Run all tests
-      run: python setup.py test
+      run: python -m unittest discover
