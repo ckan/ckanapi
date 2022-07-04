@@ -50,6 +50,15 @@ class MockCKAN(object):
                                 'label': 'Column One',
                                 'notes': 'Description One',
                             }}]}},
+                'resource_view_list': {
+                    'd902fafc-5717-4dd0-87f2-7a6fc96989b7': [{
+                            'description': 'Test view',
+                            'filterable': True,
+                            'id': 'd902fafc-5717-4dd0-87f2-7a6fc96989d9',
+                            'package_id': 'dp',
+                            'resource_id': 'd902fafc-5717-4dd0-87f2-7a6fc96989b7',
+                            'responsive': True,
+                            'show_fields': ['_id']}]},
             }[name][data_dict.get('id') or data_dict.get('resource_id')]
         except KeyError:
             raise NotFound()
@@ -292,6 +301,59 @@ class TestCLIDump(unittest.TestCase):
         finally:
             shutil.rmtree(target)
 
+    
+    def test_resource_views(self):
+        target = tempfile.mkdtemp()
+        try:
+            dump_things(self.ckan, 'datasets', {
+                    'ID_OR_NAME': ['dp'],
+                    '--quiet': False,
+                    '--ckan-user': None,
+                    '--config': None,
+                    '--remote': None,
+                    '--apikey': None,
+                    '--worker': False,
+                    '--log': None,
+                    '--output': target + '/dpf.jsonl',
+                    '--datapackages': None,
+                    '--gzip': False,
+                    '--all': False,
+                    '--processes': '1',
+                    '--get-request': False,
+                    '--datastore-fields': False,
+                    '--resource-views': True,
+                    '--insecure': False
+                },
+                worker_pool=self._worker_pool_with_resource_views,
+                stdout=self.stdout,
+                stderr=self.stderr)
+            assert exists(target + '/dpf.jsonl')
+            with open(target + '/dpf.jsonl') as dpf:
+                dp = json.load(dpf)
+            self.assertEqual(dp, {
+                'id': 'dp',
+                'name': 'dp',
+                'title': 'Test for datapackage',
+                'resources': [{
+                    'name': 'resource1',
+                    'format': 'csv',
+                    'id': 'd902fafc-5717-4dd0-87f2-7a6fc96989b7',
+                    'url': 'https://google.com',
+                    'datastore_active': True,
+                    'resource_views': [{
+                        'description': 'Test view',
+                        'filterable': True,
+                        'id': 'd902fafc-5717-4dd0-87f2-7a6fc96989d9',
+                        'package_id': 'dp',
+                        'resource_id': 'd902fafc-5717-4dd0-87f2-7a6fc96989b7',
+                        'responsive': True,
+                        'show_fields': ['_id']
+                    }]
+                }]
+            })
+        finally:
+            shutil.rmtree(target)
+
 
     def _mock_worker_pool(self, cmd, processes, job_iter):
         self.worker_cmd = cmd
@@ -311,6 +373,19 @@ class TestCLIDump(unittest.TestCase):
         worker_stdout = BytesIO()
         dump_things_worker(self.ckan, 'datasets', {
             '--datastore-fields': True,
+            '--resource-views': False,
+            '--insecure': False},
+            stdin=worker_stdin,
+            stdout=worker_stdout)
+        for i, v in enumerate(worker_stdout.getvalue().strip().split(b'\n')):
+            yield [[], i, v]
+
+    
+    def _worker_pool_with_resource_views(self, cmd, proccesses, job_iter):
+        worker_stdin = BytesIO(b''.join(v for i, v in job_iter))
+        worker_stdout = BytesIO()
+        dump_things_worker(self.ckan, 'datasets', {
+            '--datastore-fields': False,
             '--resource-views': True,
             '--insecure': False},
             stdin=worker_stdin,
