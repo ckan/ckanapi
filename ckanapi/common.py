@@ -2,7 +2,7 @@
 Code shared by LocalCKAN, RemoteCKAN and TestCKAN
 """
 
-import json
+import simplejson as json
 
 from ckanapi.errors import (CKANAPIError, NotAuthorized, NotFound,
     ValidationError, SearchQueryError, SearchError, SearchIndexError,
