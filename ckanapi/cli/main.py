@@ -113,6 +113,9 @@ def main(running_with_paster=False):
 
     if not running_with_paster and not arguments['--remote']:
         if PYTHON2:
+            ckan_ini = os.environ.get('CKAN_INI')
+            if ckan_ini and not arguments['--config']:
+                sys.argv[1:1] = ['--config', ckan_ini]
             return _switch_to_paster(arguments)
         return _switch_to_ckan_click(arguments)
 
