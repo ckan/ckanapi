@@ -79,6 +79,7 @@ def load_things(ckan, thing, arguments,
     stats = completion_stats(processes)
     pool = worker_pool(cmd, processes, line_reader())
 
+    failures = 0
     with quiet_int_pipe() as errors:
         for job_ids, finished, result in pool:
             if not result:
@@ -86,6 +87,8 @@ def load_things(ckan, thing, arguments,
                 return 1
             timestamp, action, error, response = json.loads(
                 result.decode('utf-8'))
+            if error:
+                failures += 1
 
             if not arguments['--quiet']:
                 stderr.write(('%s %s %s %s %s %s\n' % (
@@ -110,6 +113,8 @@ def load_things(ckan, thing, arguments,
         return 1
     if 'interrupt' in errors:
         return 2
+    if failures:
+        return 3
 
 
 def load_things_worker(ckan, thing, arguments,

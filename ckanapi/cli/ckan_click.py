@@ -5,8 +5,9 @@ import click
     short_help='Local API calls with ckanapi tool'
 )
 @click.argument('args', nargs=-1, type=click.UNPROCESSED)
-def api(args):
+@click.pass_context
+def api(context, args):
     from ckanapi.cli.main import main
     import sys
     sys.argv[1:] = args
-    return main(running_with_paster=True)
+    context.exit(main(running_with_paster=True) or 0)
