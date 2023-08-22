@@ -118,9 +118,15 @@ def dump_things(ckan, thing, arguments,
                         sort_keys=True) + b'\n')
                 expecting_number += 1
     if 'pipe' in errors:
+        if jsonl_output != stdout:
+            jsonl_output.close()
         return 1
     if 'interrupt' in errors:
+        if jsonl_output != stdout:
+            jsonl_output.close()
         return 2
+    if jsonl_output != stdout:
+        jsonl_output.close()
 
 
 def dump_things_worker(ckan, thing, arguments,

@@ -79,3 +79,6 @@ def search_datasets(ckan, arguments, stdin=None, stdout=None, stderr=None):
             break
 
         start += len(rows)
+
+    if jsonl_output != stdout:
+        jsonl_output.close()
