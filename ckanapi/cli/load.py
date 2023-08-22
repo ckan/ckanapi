@@ -175,7 +175,8 @@ def load_things_worker(ckan, thing, arguments,
             requests_kwargs = {'verify': False}
 
         include_users = False
-        if arguments['--include-users']:
+        if '--include-users' in arguments \
+        and arguments['--include-users']:
             include_users = True
 
         if obj is not None:

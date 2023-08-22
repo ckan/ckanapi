@@ -174,7 +174,8 @@ def dump_things_worker(ckan, thing, arguments,
             if arguments['--insecure']:
                 requests_kwargs = {'verify': False}
             include_users = False
-            if arguments['--include-users']:
+            if '--include-users' in arguments \
+            and arguments['--include-users']:
                 include_users = True
             obj = ckan.call_action(thing_show, {'id': name,
                 'include_datasets': False,

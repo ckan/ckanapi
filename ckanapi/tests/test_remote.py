@@ -34,7 +34,7 @@ class TestRemoteAction(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         script = os.path.join(os.path.dirname(__file__), 'mock/mock_ckan.py')
-        _mock_ckan = subprocess.Popen(['python2', script],
+        _mock_ckan = subprocess.Popen(['python', script],
             stdout=DEVNULL, stderr=DEVNULL)
         def kill_child():
             try:
