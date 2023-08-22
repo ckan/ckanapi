@@ -4,7 +4,7 @@ jobs:
   test:
     strategy:
       matrix:
-        python-version: ["2.7", "3.8"]
+        python-version: ["3.8"]
     runs-on: ubuntu-latest
 
     steps:
