@@ -5,7 +5,11 @@ jobs:
     strategy:
       matrix:
         python-version: ["2.7", "3.8"]
-    runs-on: python:${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    container:
+      # INFO: python 2 is no longer supported in
+      # actions/setup-python, use python docker image instead
+      image: python:${{ matrix.python-version }}
 
     steps:
     - uses: actions/checkout@v3
