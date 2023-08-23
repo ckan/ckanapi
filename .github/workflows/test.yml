@@ -4,17 +4,13 @@ jobs:
   test:
     strategy:
       matrix:
-        python-version: ["3.8"]
-    runs-on: ubuntu-latest
+        python-version: ["2.7", "3.8"]
+    runs-on: python:${{ matrix.python-version }}
 
     steps:
     - uses: actions/checkout@v3
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install requirements
+    - name: Install requirements (py ${{ matrix.python-version }})
       run: |
         pip install -e ".[testing]"
-    - name: Run all tests
+    - name: Run all tests (py ${{ matrix.python-version }})
       run: python -m unittest discover
