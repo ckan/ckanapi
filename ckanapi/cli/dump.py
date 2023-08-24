@@ -117,16 +117,12 @@ def dump_things(ckan, thing, arguments,
                     jsonl_output.write(compact_json(record,
                         sort_keys=True) + b'\n')
                 expecting_number += 1
-    if 'pipe' in errors:
-        if jsonl_output != stdout:
-            jsonl_output.close()
-        return 1
-    if 'interrupt' in errors:
-        if jsonl_output != stdout:
-            jsonl_output.close()
-        return 2
     if jsonl_output != stdout:
         jsonl_output.close()
+    if 'pipe' in errors:
+        return 1
+    if 'interrupt' in errors:
+        return 2
 
 
 def dump_things_worker(ckan, thing, arguments,
