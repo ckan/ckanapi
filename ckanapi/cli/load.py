@@ -174,11 +174,6 @@ def load_things_worker(ckan, thing, arguments,
         if arguments['--insecure']:
             requests_kwargs = {'verify': False}
 
-        include_users = False
-        if '--include-users' in arguments \
-        and arguments['--include-users']:
-            include_users = True
-
         if obj is not None:
             existing = None
             if not arguments['--create-only']:
@@ -190,7 +185,7 @@ def load_things_worker(ckan, thing, arguments,
                             {'id': name,
                              'include_datasets': False,
                              'include_password_hash': True,
-                             'include_users': include_users,
+                             'include_users': True,
                             },
                             requests_kwargs=requests_kwargs)
                     except NotFound:
@@ -267,7 +262,6 @@ def _worker_command_line(thing, arguments):
         + b('--update-only')
         + b('--upload-resources')
         + b('--upload-logo')
-        + b('--include-users')
         )
 
 
