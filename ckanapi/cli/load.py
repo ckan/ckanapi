@@ -185,6 +185,7 @@ def load_things_worker(ckan, thing, arguments,
                             {'id': name,
                              'include_datasets': False,
                              'include_password_hash': True,
+                             'include_users': True,
                             },
                             requests_kwargs=requests_kwargs)
                     except NotFound:

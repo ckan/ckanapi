@@ -117,6 +117,8 @@ def dump_things(ckan, thing, arguments,
                     jsonl_output.write(compact_json(record,
                         sort_keys=True) + b'\n')
                 expecting_number += 1
+    if jsonl_output != stdout:
+        jsonl_output.close()
     if 'pipe' in errors:
         return 1
     if 'interrupt' in errors:
@@ -173,9 +175,14 @@ def dump_things_worker(ckan, thing, arguments,
             requests_kwargs = None
             if arguments['--insecure']:
                 requests_kwargs = {'verify': False}
+            include_users = False
+            if '--include-users' in arguments \
+            and arguments['--include-users']:
+                include_users = True
             obj = ckan.call_action(thing_show, {'id': name,
                 'include_datasets': False,
                 'include_password_hash': True,
+                'include_users': include_users,
                 }, requests_kwargs=requests_kwargs)
         except NotFound:
             reply('NotFound')
@@ -210,6 +217,7 @@ def _worker_command_line(thing, arguments):
         + b('--get-request')
         + b('--datastore-fields')
         + b('--resource-views')
+        + b('--include-users')
         + ['value-here-to-make-docopt-happy']
         )
 

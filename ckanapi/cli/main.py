@@ -14,7 +14,7 @@ Usage:
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [--insecure]]
   ckanapi dump (datasets | groups | organizations | users | related)
           (ID_OR_NAME ... | --all) ([-O JSONL_OUTPUT] | [-D DIRECTORY])
-          [-p PROCESSES] [-dqwzR]
+          [-p PROCESSES] [-dqwzRU]
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g] [--insecure]]
   ckanapi load datasets
           [--upload-resources] [-I JSONL_INPUT] [-s START] [-m MAX]
@@ -22,7 +22,7 @@ Usage:
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [--insecure]]
   ckanapi load (groups | organizations)
           [--upload-logo] [-I JSONL_INPUT] [-s START] [-m MAX]
-          [-p PROCESSES] [-l LOG_FILE] [-n | -o] [-qwz]
+          [-p PROCESSES] [-l LOG_FILE] [-n | -o] [-qwzU]
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [--insecure]]
   ckanapi load (users | related)
           [-I JSONL_INPUT] [-s START] [-m MAX] [-p PROCESSES] [-l LOG_FILE]
@@ -70,6 +70,7 @@ Options:
                             record is number 1 [default: 1]
   -u --ckan-user=USER       perform actions as user with this name, uses the
                             site sysadmin user when not specified
+  -U --include-users        include users of a group/organization
   --upload-logo             upload logo image of a group/organization if the
                             image is stored in the original server, otherwise
                             its image url will be used

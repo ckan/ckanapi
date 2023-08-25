@@ -146,7 +146,8 @@ class TestCLIDump(unittest.TestCase):
                 '--get-request': False,
                 '--datastore-fields': False,
                 '--resource-views': False,
-                '--insecure': False
+                '--insecure': False,
+                '--include-users': False,
             },
             worker_pool=self._mock_worker_pool,
             stdout=self.stdout,
@@ -177,7 +178,8 @@ class TestCLIDump(unittest.TestCase):
                 '--get-request': False,
                 '--datastore-fields': False,
                 '--resource-views': False,
-                '--insecure': False
+                '--insecure': False,
+                '--include-users': False,
             },
             worker_pool=self._mock_worker_pool,
             stdout=self.stdout,
@@ -205,7 +207,8 @@ class TestCLIDump(unittest.TestCase):
                 '--get-request': False,
                 '--datastore-fields': False,
                 '--resource-views': False,
-                '--insecure': False
+                '--insecure': False,
+                '--include-users': False,
             },
 
             worker_pool=self._mock_worker_pool,
@@ -235,7 +238,8 @@ class TestCLIDump(unittest.TestCase):
                 '--get-request': False,
                 '--datastore-fields': False,
                 '--resource-views': False,
-                '--insecure': False
+                '--insecure': False,
+                '--include-users': False,
             },
             worker_pool=self._mock_worker_pool_reversed,
             stdout=self.stdout,
@@ -269,7 +273,8 @@ class TestCLIDump(unittest.TestCase):
                     '--get-request': False,
                     '--datastore-fields': False,
                     '--resource-views': False,
-                    '--insecure': False
+                    '--insecure': False,
+                    '--include-users': False,
                 },
                 worker_pool=self._worker_pool_with_data,
                 stdout=self.stdout,
@@ -301,7 +306,7 @@ class TestCLIDump(unittest.TestCase):
         finally:
             shutil.rmtree(target)
 
-    
+
     def test_resource_views(self):
         target = tempfile.mkdtemp()
         try:
@@ -322,7 +327,8 @@ class TestCLIDump(unittest.TestCase):
                     '--get-request': False,
                     '--datastore-fields': False,
                     '--resource-views': True,
-                    '--insecure': False
+                    '--insecure': False,
+                    '--include-users': False,
                 },
                 worker_pool=self._worker_pool_with_resource_views,
                 stdout=self.stdout,
@@ -374,20 +380,22 @@ class TestCLIDump(unittest.TestCase):
         dump_things_worker(self.ckan, 'datasets', {
             '--datastore-fields': True,
             '--resource-views': False,
-            '--insecure': False},
+            '--insecure': False,
+            '--include-users': False,},
             stdin=worker_stdin,
             stdout=worker_stdout)
         for i, v in enumerate(worker_stdout.getvalue().strip().split(b'\n')):
             yield [[], i, v]
 
-    
+
     def _worker_pool_with_resource_views(self, cmd, proccesses, job_iter):
         worker_stdin = BytesIO(b''.join(v for i, v in job_iter))
         worker_stdout = BytesIO()
         dump_things_worker(self.ckan, 'datasets', {
             '--datastore-fields': False,
             '--resource-views': True,
-            '--insecure': False},
+            '--insecure': False,
+            '--include-users': False,},
             stdin=worker_stdin,
             stdout=worker_stdout)
         for i, v in enumerate(worker_stdout.getvalue().strip().split(b'\n')):

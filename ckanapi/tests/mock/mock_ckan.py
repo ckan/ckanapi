@@ -3,6 +3,11 @@ import cgi
 import csv
 from wsgiref.util import setup_testing_defaults
 from wsgiref.simple_server import make_server
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from io import StringIO
+
 
 def mock_ckan(environ, start_response):
     status = '200 OK'
@@ -39,7 +44,14 @@ def mock_ckan(environ, start_response):
             environ=environ,
             keep_blank_values=True,
             )
-        records = list(csv.reader(fs['upload'].file))
+        upload_data = fs.getvalue('upload').decode('utf-8').splitlines()
+        csv_file = StringIO()
+        writer = csv.writer(csv_file)
+        for line_data in upload_data:
+            row_data = line_data.split(',')
+            writer.writerow(row_data)
+        csv_file.seek(0)
+        records = list(csv.reader(csv_file))
         start_response(status, headers)
         return [json.dumps({
             "help": "none",
