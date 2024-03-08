@@ -1,4 +1,4 @@
-from cgi import FieldStorage
+from werkzeug.datastructures import FileStorage
 from tempfile import TemporaryFile
 
 from ckanapi.errors import CKANAPIError
@@ -64,10 +64,10 @@ class LocalCKAN(object):
                 except (AttributeError, IOError):
                     f = _write_temp_file(f)
                     to_close.append(f)
-                field_storage = FieldStorage()
-                field_storage.file = f
-                field_storage.filename = filename
-                data_dict[fieldname] = field_storage
+                file_storage = FileStorage()
+                file_storage.stream = f
+                file_storage.filename = filename
+                data_dict[fieldname] = file_storage
 
             return self._get_action(action)(context, data_dict)
         finally:
