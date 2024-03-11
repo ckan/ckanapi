@@ -1,4 +1,3 @@
-from werkzeug.datastructures import FileStorage
 from tempfile import TemporaryFile
 
 from ckanapi.errors import CKANAPIError
@@ -64,6 +63,9 @@ class LocalCKAN(object):
                 except (AttributeError, IOError):
                     f = _write_temp_file(f)
                     to_close.append(f)
+
+                from werkzeug.datastructures import FileStorage
+
                 file_storage = FileStorage()
                 file_storage.stream = f
                 file_storage.filename = filename
