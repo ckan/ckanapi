@@ -474,35 +474,7 @@ ckanapi.log_local = True
 The output of the log will look like:
 
 ```
-DEBUG [ckanapi.cli.main] OS User <user> executed LocalCKAN: ckanapi <args>
-```
-
-Because the ckanapi namespace does not match ckan or ckanext namespaces, you may need to create a new logging handler. Example:
-
-```
-[loggers]
-keys = ckanapi
-
-[handlers]
-keys = console
-
-[formatters]
-keys = generic
-
-[logger_ckanapi]
-level = DEBUG
-handlers = console
-qualname = ckanapi
-propagate = 0
-
-[handler_console]
-class = StreamHandler
-args = (sys.stderr,)
-level = NOTSET
-formatter = generic
-
-[formatter_generic]
-format = %(asctime)s %(levelname)-5.5s [%(name)s] %(message)s
+DEBUG [ckan.ckanapi] OS User <user> executed LocalCKAN: ckanapi <args>
 ```
 
 ### TestAppCKAN

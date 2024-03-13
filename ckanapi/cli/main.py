@@ -101,8 +101,8 @@ from ckanapi.cli.batch import batch_actions
 
 from logging import getLogger
 
-
-log = getLogger(__name__)
+# explicit logger namespace for easy logging handlers
+log = getLogger('ckan.ckanapi')
 PYTHON2 = str is bytes
 
 def parse_arguments():
@@ -153,8 +153,10 @@ def main(running_with_paster=False):
             else:
                 # remove line breaks from whoami's
                 out = out.replace('\n', '').replace('\r', '')
-            log.debug('OS User %s executed LocalCKAN: ckanapi %s',
-                      out, u' '.join(sys.argv[1:]))
+                # split the `who am i`
+                out = out.split()[0]
+            log.info('OS User %s executed LocalCKAN: ckanapi %s',
+                     out, u' '.join(sys.argv[1:]))
 
     stdout = getattr(sys.stdout, 'buffer', sys.stdout)
     if arguments['action']:
