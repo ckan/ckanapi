@@ -465,7 +465,7 @@ print(anon.action.status_show())
 
 #### Extra Loggging
 
-To enable extra debug logging for the execution of LocalCKAN ckanapi commands, you can enable the config option in your CKAN INI file.
+To enable extra info logging for the execution of LocalCKAN ckanapi commands, you can enable the config option in your CKAN INI file.
 
 ```
 ckanapi.log_local = True
@@ -474,7 +474,7 @@ ckanapi.log_local = True
 The output of the log will look like:
 
 ```
-DEBUG [ckan.ckanapi] OS User <user> executed LocalCKAN: ckanapi <args>
+INFO [ckan.ckanapi] OS User <user> executed LocalCKAN: ckanapi <args>
 ```
 
 ### TestAppCKAN
