@@ -151,12 +151,12 @@ def main(running_with_paster=False):
                 # cannot find user
                 out = '<unknown user>'
             else:
-                # remove line breaks from whoami's
-                out = out.replace('\n', '').replace('\r', '')
+                # decode and remove line breaks from whoami's
+                out = out.decode().replace('\n', '').replace('\r', '')
                 # split the `who am i`
                 out = out.split()[0]
             log.info('OS User %s executed LocalCKAN: ckanapi %s',
-                     out, u' '.join(sys.argv[1:]))
+                     out, ' '.join(sys.argv[1:]))
 
     stdout = getattr(sys.stdout, 'buffer', sys.stdout)
     if arguments['action']:
