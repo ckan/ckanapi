@@ -162,7 +162,7 @@ multiple worker processes using the `-p` parameter. The jobs in progress,
 the rate of job completion and any individual errors are shown on STDERR
 while the jobs run.
 
-There are no parallel limits when running against a CKAN on localhost.  
+There are no parallel limits when running against a CKAN on localhost.
 When running against a remote site, there's a default limit of 3 worker processes.
 
 The environment variables `CKANAPI_MY_SITES` and`CKANAPI_PARALLEL_LIMIT` can be
@@ -352,7 +352,7 @@ ua = 'ckanapiexample/1.0 (+http://example.com/my/website)'
 demo = RemoteCKAN('https://demo.ckan.org', user_agent=ua)
 packages = demo.action.package_search(q='+organization:sample-organization +res_format:GeoJSON +tags:geojson')
 print(packages)
-```  
+```
 
 Many CKAN API functions can only be used by authenticated users. Use the
 `apikey` parameter to supply your CKAN API key to `RemoteCKAN`:
@@ -461,6 +461,20 @@ from ckanapi import LocalCKAN
 
 anon = LocalCKAN(username='')
 print(anon.action.status_show())
+```
+
+#### Extra Loggging
+
+To enable extra info logging for the execution of LocalCKAN ckanapi commands, you can enable the config option in your CKAN INI file.
+
+```
+ckanapi.log_local = True
+```
+
+The output of the log will look like:
+
+```
+INFO [ckan.ckanapi] OS User <user> executed LocalCKAN: ckanapi <args>
 ```
 
 ### TestAppCKAN

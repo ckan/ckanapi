@@ -86,6 +86,7 @@ import sys
 import os
 from docopt import docopt
 from pkg_resources import load_entry_point
+import subprocess
 
 from ckanapi.version import __version__
 from ckanapi.remoteckan import RemoteCKAN
@@ -98,7 +99,10 @@ from ckanapi.cli.action import action
 from ckanapi.cli.search import search_datasets
 from ckanapi.cli.batch import batch_actions
 
+from logging import getLogger
 
+# explicit logger namespace for easy logging handlers
+log = getLogger('ckan.ckanapi')
 PYTHON2 = str is bytes
 
 def parse_arguments():
@@ -130,6 +134,29 @@ def main(running_with_paster=False):
             )
     else:
         ckan = LocalCKAN(username=arguments['--ckan-user'])
+        # log execution of LocalCKAN commands
+        from ckan.plugins.toolkit import config, asbool
+        if asbool(config.get('ckanapi.log_local')) and len(sys.argv) > 1:
+            cmd = ['who', 'am', 'i']
+            proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE)
+            out, err = proc.communicate()
+            if not out or err:
+                # fallback to whoami if `who am i` is empty or errored
+                cmd = ['whoami']
+                proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                                        stderr=subprocess.PIPE)
+                out, err = proc.communicate()
+            if not out or err:
+                # cannot find user
+                out = '<unknown user>'
+            else:
+                # remove line breaks from whoami's
+                out = out.replace('\n', '').replace('\r', '')
+                # split the `who am i`
+                out = out.split()[0]
+            log.info('OS User %s executed LocalCKAN: ckanapi %s',
+                     out, u' '.join(sys.argv[1:]))
 
     stdout = getattr(sys.stdout, 'buffer', sys.stdout)
     if arguments['action']:
