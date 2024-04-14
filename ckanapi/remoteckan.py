@@ -35,15 +35,17 @@ class RemoteCKAN(object):
     :param user_agent: the User-agent to report when making requests
     :param get_only: only use GET requests (default: False)
     :param session: session to use (default: None)
+    :param extra_headers: a dictionary of additional HTTP headers (default: None)
     """
 
     base_url = 'api/action/'
 
-    def __init__(self, address, apikey=None, user_agent=None, get_only=False, session=None):
+    def __init__(self, address, apikey=None, user_agent=None, get_only=False, session=None, extra_headers=None):
         self.address = address
         self.apikey = apikey
         self.get_only = get_only
         self.session = session
+        self.extra_headers = extra_headers
         if not user_agent:
             user_agent = "ckanapi/{version} (+{url})".format(
                 version=__version__,
@@ -86,6 +88,8 @@ class RemoteCKAN(object):
             action, data_dict, apikey or self.apikey, files,
             base_url=self.base_url)
         headers['User-Agent'] = self.user_agent
+        if self.extra_headers:
+            headers.update(self.extra_headers)
         url = self.address.rstrip('/') + '/' + url
         requests_kwargs = requests_kwargs or {}
         if not self.session:
