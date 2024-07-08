@@ -3,7 +3,7 @@
 Usage:
   ckanapi action ACTION_NAME
           [(KEY=STRING | KEY:JSON | KEY@FILE ) ... | -i | -I JSON_INPUT]
-          [-j | -J]
+          [-j | -J] [-P PROFILE ]
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g] [--insecure]]
   ckanapi batch [-I JSONL_INPUT] [-s START] [-m MAX] [--local-files]
           [-p PROCESSES] [-l LOG_FILE] [-qwz]
@@ -62,6 +62,8 @@ Options:
   -o --update-only          update existing records, don't create new records
   -O --output=JSONL_OUTPUT  output to json lines file instead of stdout
   -p --processes=PROCESSES  set the number of worker processes [default: 1]
+  -P --profile=PROFILE      run action with cProfile and output to PROFILE
+                            only local actions (no -r) will show internals
   -q --quiet                don't display progress messages
   -r --remote=URL           URL of CKAN server for remote actions
   -R --resource-views       export resource views information along with

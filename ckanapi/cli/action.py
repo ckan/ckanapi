@@ -56,8 +56,18 @@ def action(ckan, arguments, stdin=None):
                 raise CLIError("argument not in the form KEY=STRING, "
                     "KEY:JSON or KEY@FILE %r" % kv)
 
-    result = ckan.call_action(arguments['ACTION_NAME'], action_args,
-                              files=file_args, requests_kwargs=requests_kwargs)
+    def call():
+        return ckan.call_action(arguments['ACTION_NAME'], action_args,
+                                files=file_args,
+                                requests_kwargs=requests_kwargs)
+
+    if arguments['--profile']:
+        from cProfile import Profile
+        with Profile() as pr:
+            result = call()
+        pr.dump_stats(arguments['--profile'])
+    else:
+        result = call()
 
     if arguments['--output-jsonl']:
         if isinstance(result, list):
