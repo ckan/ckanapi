@@ -84,7 +84,12 @@ def resource_filename(dres):
     # prefer resource names from datapackage metadata, because those have been
     # made unique
     name = dres['name']
-    ext = slugify.slugify(dres['format'])
+    res_format = dres.get('format')
+
+    if not res_format:
+        return name
+
+    ext = slugify.slugify(res_format)
     if name.endswith(ext):
         name = name[:-len(ext)]
     return name + '.' + ext
