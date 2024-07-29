@@ -31,7 +31,9 @@ class RemoteCKAN(object):
     :param address: the web address of the CKAN instance, e.g.
                     'http://demo.ckan.org', stored as self.address
     :param apikey: the API key to pass as an 'X-CKAN-API-Key' header
-                    when actions are called, stored as self.apikey
+                    when actions are called, stored as self.apikey.
+                    If a dictionary is passed, you may provide an 'apikey'
+                    and 'header' key to specify the key and header name
     :param user_agent: the User-agent to report when making requests
     :param get_only: only use GET requests (default: False)
     :param session: session to use (default: None)
