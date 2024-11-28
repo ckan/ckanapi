@@ -1,5 +1,3 @@
-import pkg_resources
+from importlib.metadata import version
 
-__version__ = pkg_resources.require("ckanapi")[0].version
-
-
+__version__ = version("ckanapi")
