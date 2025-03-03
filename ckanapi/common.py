@@ -4,9 +4,10 @@ Code shared by LocalCKAN, RemoteCKAN and TestCKAN
 
 import json
 
-from ckanapi.errors import (CKANAPIError, NotAuthorized, NotFound,
-    ValidationError, SearchQueryError, SearchError, SearchIndexError,
-    ServerIncompatibleError)
+from ckanapi.errors import (CKANAPIError, NotAuthorized, NotFound, SearchError,
+                            SearchIndexError, SearchQueryError,
+                            ServerIncompatibleError, ValidationError)
+
 
 class ActionShortcut(object):
     """
@@ -33,8 +34,18 @@ class ActionShortcut(object):
             {'package_id': 'foo'}, files={'upload': open(..)})
 
     """
+
     def __init__(self, ckan):
         self._ckan = ckan
+
+    # __getstate__ and __setstate__ provide pickle support. If they didn't
+    # exist, then __getattr__ would result in a runtime pickle exception because
+    # it returns a local.
+    def __getstate__(self):
+        return {'_ckan': self._ckan}
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
 
     def __getattr__(self, name):
         def action(**kwargs):
@@ -44,10 +55,10 @@ class ActionShortcut(object):
                     files[k] = v
             if files:
                 nonfiles = dict((k, v) for k, v in kwargs.items()
-                    if k not in files)
+                                if k not in files)
                 return self._ckan.call_action(name,
-                    data_dict=nonfiles,
-                    files=files)
+                                              data_dict=nonfiles,
+                                              files=files)
             return self._ckan.call_action(name, data_dict=kwargs)
         return action
 
