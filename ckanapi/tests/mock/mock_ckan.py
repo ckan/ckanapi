@@ -1,7 +1,6 @@
 import json
 import cgi
 import csv
-from wsgiref.util import setup_testing_defaults
 from wsgiref.simple_server import make_server
 try:
     from cStringIO import StringIO
@@ -73,4 +72,3 @@ def mock_ckan(environ, start_response):
 
 httpd = make_server('localhost', 8901, mock_ckan)
 httpd.serve_forever()
-

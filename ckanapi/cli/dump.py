@@ -8,8 +8,7 @@ import json
 from datetime import datetime
 import os
 
-from ckanapi.errors import (CKANAPIError, NotFound, NotAuthorized, ValidationError,
-    SearchIndexError)
+from ckanapi.errors import CKANAPIError, NotFound, NotAuthorized
 from ckanapi.cli import workers
 from ckanapi.cli.utils import completion_stats, compact_json, \
     quiet_int_pipe
@@ -167,7 +166,7 @@ def dump_things_worker(ckan, thing, arguments,
     for line in iter(stdin.readline, b''):
         try:
             name = json.loads(line.decode('utf-8'))
-        except UnicodeDecodeError as e:
+        except UnicodeDecodeError:
             reply('UnicodeDecodeError')
             continue
 
@@ -238,4 +237,3 @@ def populate_res_views(ckan, res):
     if not views:
         return # return if the resource views list is empty
     res['resource_views'] = views
-

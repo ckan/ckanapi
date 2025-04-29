@@ -7,14 +7,8 @@ import gzip
 import json
 from datetime import datetime
 from itertools import chain
-import re
-try:
-    from urllib.parse import urlparse
-except ImportError:
-    from urlparse import urlparse
 
-from ckanapi.errors import (NotFound, NotAuthorized, ValidationError,
-    SearchIndexError)
+from ckanapi.errors import NotFound, NotAuthorized
 from ckanapi.cli import workers
 from ckanapi.cli.utils import completion_stats, compact_json, quiet_int_pipe
 

@@ -1,9 +1,9 @@
 try:
-    from urllib2 import Request, urlopen, HTTPError
     from urlparse import urlparse
 except ImportError:
-    from urllib.request import Request, urlopen, HTTPError
     from urllib.parse import urlparse
+
+import requests
 
 from ckanapi.errors import CKANAPIError
 from ckanapi.common import (ActionShortcut, prepare_action,
@@ -20,8 +20,6 @@ if CKANAPI_MY_SITES:
 
 # add your site above instead of changing this
 PARALLEL_LIMIT = os.getenv('CKANAPI_PARALLEL_LIMIT', default = 3)
-
-import requests
 
 
 class RemoteCKAN(object):

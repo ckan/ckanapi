@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 from setuptools import setup
-import sys
 
 
 install_requires=[
@@ -52,4 +51,3 @@ setup(
         api=ckanapi.cli.ckan_click:api
         """
     )
-

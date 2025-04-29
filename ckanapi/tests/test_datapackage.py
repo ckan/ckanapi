@@ -182,7 +182,7 @@ class TestCreateResource(fake_filesystem_unittest.TestCase):
             u'name': u'Image',
             u'url': u'http://example.com/image.png',
         }
-        filename = 'image_saved.png'
+
         os.makedirs('/test/data')
         stderr = BytesIO()
         # TODO mock the HTTP request to example.com
