@@ -4,34 +4,34 @@ Usage:
   ckanapi action ACTION_NAME
           [(KEY=STRING | KEY:JSON | KEY@FILE ) ... | -i | -I JSON_INPUT]
           [-j | -J] [-P PROFILE ]
-          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g] [--insecure]]
+          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-A APIKEY_HEADER_NAME] [-g] [--insecure]]
   ckanapi batch [-I JSONL_INPUT] [-s START] [-m MAX] [--local-files]
           [-p PROCESSES] [-l LOG_FILE] [-qwz]
-          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [--insecure]]
+          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-A APIKEY_HEADER_NAME] [-g] [--insecure]]
   ckanapi delete (datasets | groups | organizations | users | related)
           (ID_OR_NAME ... | [-I JSONL_INPUT] [-s START] [-m MAX])
           [-p PROCESSES] [-l LOG_FILE] [-qwz]
-          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [--insecure]]
+          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-A APIKEY_HEADER_NAME] [-g] [--insecure]]
   ckanapi dump (datasets | groups | organizations | users | related)
           (ID_OR_NAME ... | --all) ([-O JSONL_OUTPUT] | [-D DIRECTORY])
           [-p PROCESSES] [-dqwzRU]
-          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g] [--insecure]]
+          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-A APIKEY_HEADER_NAME] [-g] [--insecure]]
   ckanapi load datasets
           [--upload-resources] [-I JSONL_INPUT] [-s START] [-m MAX]
           [-p PROCESSES] [-l LOG_FILE] [-n | -o] [-qwz]
-          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [--insecure]]
+          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-A APIKEY_HEADER_NAME] [-g] [--insecure]]
   ckanapi load (groups | organizations)
           [--upload-logo] [-I JSONL_INPUT] [-s START] [-m MAX]
           [-p PROCESSES] [-l LOG_FILE] [-n | -o] [-qwzU]
-          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [--insecure]]
+          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-A APIKEY_HEADER_NAME] [-g] [--insecure]]
   ckanapi load (users | related)
           [-I JSONL_INPUT] [-s START] [-m MAX] [-p PROCESSES] [-l LOG_FILE]
           [-n | -o] [-qwz]
-          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [--insecure]]
+          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-A APIKEY_HEADER_NAME] [-g] [--insecure]]
   ckanapi search datasets
           [(KEY=STRING | KEY:JSON ) ... | -i | -I JSON_INPUT]
           [-O JSONL_OUTPUT] [-z]
-          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g] [--insecure]]
+          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-A APIKEY_HEADER_NAME] [-g] [--insecure]]
   ckanapi (-h | --help)
   ckanapi --version
 
@@ -39,6 +39,8 @@ Options:
   -h --help                 show this screen
   --version                 show version
   -a --apikey=APIKEY        API key to use for remote actions
+  -A --apikey-header-name=APIKEY_HEADER_NAME
+                            API key header name to use for remote actions
   --all                     all the things
   -c --config=CONFIG        CKAN configuration file for local actions,
                             defaults to $CKAN_INI or development.ini
@@ -129,6 +131,7 @@ def main(running_with_paster=False):
     if arguments['--remote']:
         ckan = RemoteCKAN(arguments['--remote'],
             apikey=arguments['--apikey'],
+            apikey_header_name=arguments['--apikey-header-name'],
             user_agent="ckanapi-cli/{version} (+{url})".format(
                 version=__version__,
                 url='https://github.com/open-data/ckanapi'),

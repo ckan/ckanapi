@@ -14,6 +14,7 @@ from ckanapi.cli.utils import completion_stats, compact_json, \
     quiet_int_pipe
 from ckanapi.datapackage import create_datapackage, \
     populate_datastore_res_fields
+from ckanapi.const import API_KEY_HEADER_NAME
 
 
 def dump_things(ckan, thing, arguments,
@@ -106,7 +107,13 @@ def dump_things(ckan, thing, arguments,
             datapackages_path = arguments['--datapackages']
             apikey = arguments['--apikey']
             if datapackages_path:
-                create_datapackage(record, datapackages_path, stderr, apikey)
+                create_datapackage(
+                    record,
+                    datapackages_path,
+                    stderr,
+                    apikey,
+                    ckan.apikey_header_name or API_KEY_HEADER_NAME,
+                )
 
             # keep the output in the same order as names
             while expecting_number in results:

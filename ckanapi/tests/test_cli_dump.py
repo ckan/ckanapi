@@ -1,18 +1,22 @@
-from ckanapi.cli.dump import dump_things, dump_things_worker
-from ckanapi.errors import NotFound
 import json
 import tempfile
 import shutil
 from os.path import exists
+from io import BytesIO
 
 try:
     import unittest2 as unittest
 except ImportError:
     import unittest
-from io import BytesIO
+
+from ckanapi.cli.dump import dump_things, dump_things_worker
+from ckanapi.errors import NotFound
+from ckanapi.const import API_KEY_HEADER_NAME
 
 
 class MockCKAN(object):
+    apikey_header_name = API_KEY_HEADER_NAME
+
     def call_action(self, name, data_dict, requests_kwargs=None):
         try:
             return {

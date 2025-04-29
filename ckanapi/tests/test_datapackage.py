@@ -1,15 +1,17 @@
-from ckanapi.datapackage import (
-    dataset_to_datapackage, create_resource, create_datapackage,
-    resource_filename, populate_schema_from_datastore)
-
 try:
     import unittest2 as unittest
 except ImportError:
     import unittest
-from io import BytesIO
+
 import os
+from io import BytesIO
+
 from pyfakefs import fake_filesystem_unittest
 
+from ckanapi.datapackage import (
+    dataset_to_datapackage, create_resource, create_datapackage,
+    resource_filename, populate_schema_from_datastore)
+from ckanapi.const import API_KEY_HEADER_NAME
 
 class TestDatasetToDataPackage(unittest.TestCase):
     def test_simple_dataset(self):
@@ -190,7 +192,7 @@ class TestCreateResource(fake_filesystem_unittest.TestCase):
         returned_resource = create_resource(
             resource, filename='image_saved.png',
             datapackage_dir='/test', stderr=stderr,
-            apikey='')
+            apikey='', apikey_header_name=API_KEY_HEADER_NAME)
 
         stderr.seek(0)
         assert not stderr.read()
@@ -230,7 +232,8 @@ class TestCreateDataPackage(fake_filesystem_unittest.TestCase):
 
         datapackage_dir, datapackage, json_path = \
             create_datapackage(record=dataset, base_path='/test/',
-                               stderr=stderr, apikey='')
+                               stderr=stderr, apikey='',
+                               apikey_header_name=API_KEY_HEADER_NAME)
 
         stderr.seek(0)
         assert not stderr.read()
