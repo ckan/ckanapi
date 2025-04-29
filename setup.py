@@ -19,7 +19,7 @@ tests_require=[
 
 setup(
     name='ckanapi',
-    version='4.8',
+    version='4.9',
     description=
         'A command line interface and Python module for '
         'accessing the CKAN Action API',
