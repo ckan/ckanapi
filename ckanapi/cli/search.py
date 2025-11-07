@@ -7,7 +7,7 @@ import gzip
 import json
 from os.path import expanduser
 
-from ckanapi.cli.utils import compact_json, pretty_json
+from ckanapi.cli.utils import compact_json
 from ckanapi.errors import CLIError
 
 

@@ -8,13 +8,13 @@ import json
 from datetime import datetime
 import os
 
-from ckanapi.errors import (CKANAPIError, NotFound, NotAuthorized, ValidationError,
-    SearchIndexError)
+from ckanapi.errors import CKANAPIError, NotFound, NotAuthorized
 from ckanapi.cli import workers
 from ckanapi.cli.utils import completion_stats, compact_json, \
     quiet_int_pipe
 from ckanapi.datapackage import create_datapackage, \
     populate_datastore_res_fields
+from ckanapi.const import API_KEY_HEADER_NAME
 
 
 def dump_things(ckan, thing, arguments,
@@ -107,7 +107,13 @@ def dump_things(ckan, thing, arguments,
             datapackages_path = arguments['--datapackages']
             apikey = arguments['--apikey']
             if datapackages_path:
-                create_datapackage(record, datapackages_path, stderr, apikey)
+                create_datapackage(
+                    record,
+                    datapackages_path,
+                    stderr,
+                    apikey,
+                    ckan.apikey_header_name or API_KEY_HEADER_NAME,
+                )
 
             # keep the output in the same order as names
             while expecting_number in results:
@@ -167,7 +173,7 @@ def dump_things_worker(ckan, thing, arguments,
     for line in iter(stdin.readline, b''):
         try:
             name = json.loads(line.decode('utf-8'))
-        except UnicodeDecodeError as e:
+        except UnicodeDecodeError:
             reply('UnicodeDecodeError')
             continue
 
@@ -238,4 +244,3 @@ def populate_res_views(ckan, res):
     if not views:
         return # return if the resource views list is empty
     res['resource_views'] = views
-
