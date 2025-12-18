@@ -9,7 +9,7 @@ A command line interface and Python module for accessing the
   - [Action Arguments](https://github.com/ckan/ckanapi/blob/master/README.md#action-arguments)
   - [Bulk Dumping and Loading](https://github.com/ckan/ckanapi/blob/master/README.md#bulk-dumping-and-loading)
   - [Bulk Delete](https://github.com/ckan/ckanapi/blob/master/README.md#bulk-delete)
-  - [Bulk Dataset and Resource Export](https://github.com/ckan/ckanapi/edit/master/README.md#bulk-dataset-and-resource-export---datapackagejson-format)
+  - [Bulk Dataset and Resource Export](https://github.com/ckan/ckanapi/blob/master/README.md#bulk-dataset-and-resource-export---datapackagejson-format)
   - [Batch Actions](https://github.com/ckan/ckanapi/blob/master/README.md#batch-actions)
   - [Shell Pipelines](https://github.com/ckan/ckanapi/blob/master/README.md#shell-pipelines)
 - [ckanapi Python Module](https://github.com/ckan/ckanapi/blob/master/README.md#ckanapi-python-module)
