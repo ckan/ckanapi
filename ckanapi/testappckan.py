@@ -3,6 +3,8 @@ import os.path
 from ckanapi.errors import CKANAPIError
 from ckanapi.common import (ActionShortcut, prepare_action,
     reverse_apicontroller_action)
+from ckanapi.const import API_KEY_HEADER_NAME
+
 
 class TestAppCKAN(object):
     """
@@ -10,12 +12,13 @@ class TestAppCKAN(object):
 
     :param test_app: the paste.fixture.TestApp instance, stored as
                     self.test_app
-    :param apikey: the API key to pass as an 'X-CKAN-API-Key' header
-                    when actions are called, stored as self.apikey
+    :param apikey: the API key to pass as an authorization header
+    :param apikey_header_name: the header name to use for the API key
     """
-    def __init__(self, test_app, apikey=None):
+    def __init__(self, test_app, apikey=None, apikey_header_name=API_KEY_HEADER_NAME):
         self.test_app = test_app
         self.apikey = apikey
+        self.apikey_header_name = apikey_header_name
         self.action = ActionShortcut(self)
 
     def call_action(self, action, data_dict=None, context=None, apikey=None,
@@ -35,8 +38,10 @@ class TestAppCKAN(object):
         if context:
             raise CKANAPIError("TestAppCKAN.call_action does not support "
                 "use of context parameter, use apikey instead")
-        url, data, headers = prepare_action(action, data_dict,
-                                            apikey or self.apikey, files)
+
+        url, data, headers = prepare_action(
+            action, data_dict, apikey or self.apikey, self.apikey_header_name, files
+        )
 
         kwargs = {}
         if files:

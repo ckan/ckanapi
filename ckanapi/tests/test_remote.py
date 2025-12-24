@@ -2,8 +2,6 @@ import subprocess
 import time
 import os
 import atexit
-import socket
-import requests
 
 from ckanapi import RemoteCKAN, NotFound
 try:
@@ -49,7 +47,7 @@ class TestRemoteAction(unittest.TestCase):
                 r = urlopen(TEST_CKAN + '/api/action/site_read')
                 if r.getcode() == 200:
                     break
-            except URLError as e:
+            except URLError:
                 pass
             time.sleep(0.1)
 
@@ -121,4 +119,3 @@ class TestRemoteAction(unittest.TestCase):
     def tearDownClass(cls):
         cls._mock_ckan.kill()
         cls._mock_ckan.wait()
-
