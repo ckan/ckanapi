@@ -84,9 +84,16 @@ def prepare_action(action, data_dict=None, apikey=None, files=None,
     else:
         data_dict = json.dumps(data_dict).encode('ascii')
         headers['Content-Type'] = 'application/json'
-    if apikey:
+    if apikey is not None:
+        apikey_header = 'X-CKAN-API-Key'
+        if isinstance(apikey, dict):
+            error_msg = "Provided apikey dict must have 'apikey' key."
+            assert 'apikey' in apikey, error_msg
+            apikey_header = apikey.get('header', apikey_header)
+            apikey = apikey.get('apikey')
+
         apikey = str(apikey)
-        headers['X-CKAN-API-Key'] = apikey
+        headers[apikey_header] = apikey
         headers['Authorization'] = apikey
     url = base_url + action
     return url, data_dict, headers
