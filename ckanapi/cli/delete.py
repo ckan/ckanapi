@@ -47,7 +47,7 @@ def delete_things(ckan, thing, arguments,
 
     log = None
     if arguments['--log']:
-        log = open(arguments['--log'], 'a')
+        log = open(arguments['--log'], 'ab')
 
     jsonl_input = stdin
     if arguments['--input']:
