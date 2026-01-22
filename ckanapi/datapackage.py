@@ -16,13 +16,12 @@ DATAPACKAGE_TYPES = {  # map datastore types to datapackage types
 }
 
 
-def create_resource(resource, filename, datapackage_dir, stderr, apikey):
+def create_resource(resource, filename, datapackage_dir, stderr, apikey, apikey_header_name):
     '''Downloads the resource['url'] to disk.
     '''
     path = os.path.join('data', filename)
     headers = {}
-    headers['X-CKAN-API-Key'] = apikey
-    headers['Authorization'] = apikey
+    headers[apikey_header_name] = apikey
 
     try:
         r = requests.get(resource['url'], headers=headers, stream=True)
@@ -34,6 +33,8 @@ def create_resource(resource, filename, datapackage_dir, stderr, apikey):
     except requests.ConnectionError:
         stderr.write('URL {url} refused connection. The resource will not be downloaded\n'.format(url=resource['url']))
     except requests.exceptions.RequestException as e:
+        print(e.args)
+
         stderr.write(str(e.args[0]) if len(e.args) > 0 else '')
         stderr.write('\n')
     except Exception as e:
@@ -41,7 +42,7 @@ def create_resource(resource, filename, datapackage_dir, stderr, apikey):
     return resource
 
 
-def create_datapackage(record, base_path, stderr, apikey):
+def create_datapackage(record, base_path, stderr, apikey, apikey_header_name):
     # TODO: how are we going to handle which resources to
     # leave alone? They're very inconsistent in some instances
     # And I can't imagine anyone wants to download a copy
@@ -67,8 +68,9 @@ def create_datapackage(record, base_path, stderr, apikey):
         filename = resource_filename(dres)
 
         # download the resource
-        cres = \
-            create_resource(resource, filename, datapackage_dir, stderr, apikey)
+        cres = create_resource(
+            resource, filename, datapackage_dir, stderr, apikey, apikey_header_name
+        )
         dres['path'] = 'data/' + filename
 
         populate_schema_from_datastore(cres, dres)

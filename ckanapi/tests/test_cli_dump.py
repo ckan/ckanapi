@@ -1,18 +1,22 @@
-from ckanapi.cli.dump import dump_things, dump_things_worker
-from ckanapi.errors import NotFound
 import json
 import tempfile
 import shutil
 from os.path import exists
+from io import BytesIO
 
 try:
     import unittest2 as unittest
 except ImportError:
     import unittest
-from io import BytesIO
+
+from ckanapi.cli.dump import dump_things, dump_things_worker
+from ckanapi.errors import NotFound
+from ckanapi.const import API_KEY_HEADER_NAME
 
 
 class MockCKAN(object):
+    apikey_header_name = API_KEY_HEADER_NAME
+
     def call_action(self, name, data_dict, requests_kwargs=None):
         try:
             return {
@@ -71,11 +75,17 @@ class TestCLIDump(unittest.TestCase):
         self.stderr = BytesIO()
 
     def test_worker_one(self):
-        rval = dump_things_worker(self.ckan, 'datasets',
-            {'--datastore-fields': False,
-             '--resource-views': False,
-             '--insecure': False},
-            stdin=BytesIO(b'"34"\n'), stdout=self.stdout)
+        dump_things_worker(
+            self.ckan,
+            "datasets",
+            {
+                "--datastore-fields": False,
+                "--resource-views": False,
+                "--insecure": False,
+            },
+            stdin=BytesIO(b'"34"\n'),
+            stdout=self.stdout,
+        )
         response = self.stdout.getvalue()
         self.assertEqual(response[-1:], b'\n')
         timstamp, error, data = json.loads(response.decode('UTF-8'))
@@ -83,19 +93,25 @@ class TestCLIDump(unittest.TestCase):
         self.assertEqual(data["title"], "Thirty-four")
 
     def test_worker_two(self):
-        rval = dump_things_worker(self.ckan, 'datasets',
-            {'--datastore-fields': False,
-             '--resource-views': False,
-             '--insecure': False},
-            stdin=BytesIO(b'"12"\n"34"\n'), stdout=self.stdout)
+        dump_things_worker(
+            self.ckan,
+            "datasets",
+            {
+                "--datastore-fields": False,
+                "--resource-views": False,
+                "--insecure": False,
+            },
+            stdin=BytesIO(b'"12"\n"34"\n'),
+            stdout=self.stdout,
+        )
         response = self.stdout.getvalue()
         self.assertEqual(response.count(b'\n'), 2, response)
         self.assertEqual(response[-1:], b'\n')
         r1, r2 = response.split(b'\n', 1)
-        timstamp, error, data = json.loads(r1.decode('UTF-8'))
+        _, error, data = json.loads(r1.decode('UTF-8'))
         self.assertEqual(error, None)
         self.assertEqual(data["title"], "Twelve")
-        timstamp, error, data = json.loads(r2.decode('UTF-8'))
+        _, error, data = json.loads(r2.decode('UTF-8'))
         self.assertEqual(error, None)
         self.assertEqual(data["title"], "Thirty-four")
 
@@ -105,7 +121,7 @@ class TestCLIDump(unittest.TestCase):
             stdin=BytesIO(b'"99"\n'), stdout=self.stdout)
         response = self.stdout.getvalue()
         self.assertEqual(response[-1:], b'\n')
-        timstamp, error, data = json.loads(response.decode('UTF-8'))
+        _, error, data = json.loads(response.decode('UTF-8'))
         self.assertEqual(error, "NotFound")
         self.assertEqual(data, None)
 
@@ -115,7 +131,7 @@ class TestCLIDump(unittest.TestCase):
             stdin=BytesIO(b'"ab"\n'), stdout=self.stdout)
         response = self.stdout.getvalue()
         self.assertEqual(response[-1:], b'\n')
-        timstamp, error, data = json.loads(response.decode('UTF-8'))
+        _, error, data = json.loads(response.decode('UTF-8'))
         self.assertEqual(error, None)
         self.assertEqual(data, {"title":"ABBA"})
 
@@ -125,7 +141,7 @@ class TestCLIDump(unittest.TestCase):
             stdin=BytesIO(b'"cd"\n'), stdout=self.stdout)
         response = self.stdout.getvalue()
         self.assertEqual(response[-1:], b'\n')
-        timstamp, error, data = json.loads(response.decode('UTF-8'))
+        _, error, data = json.loads(response.decode('UTF-8'))
         self.assertEqual(error, None)
         self.assertEqual(data, {"title":"Super Trouper"})
 

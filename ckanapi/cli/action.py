@@ -33,9 +33,9 @@ def action(ckan, arguments, stdin=None):
         for kv in arguments['KEY=STRING']:
             if hasattr(kv, 'decode'):
                 kv = kv.decode('utf-8')
-            skey, p, svalue = kv.partition('=')
-            jkey, p, jvalue = kv.partition(':')
-            fkey, p, fvalue = kv.partition('@')
+            skey, _, svalue = kv.partition('=')
+            jkey, _, jvalue = kv.partition(':')
+            fkey, _, fvalue = kv.partition('@')
             if len(jkey) > len(skey) < len(fkey):
                 action_args[skey] = svalue
             elif len(skey) > len(jkey) < len(fkey):

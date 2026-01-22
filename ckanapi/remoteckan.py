@@ -1,15 +1,18 @@
 try:
-    from urllib2 import Request, urlopen, HTTPError
     from urlparse import urlparse
 except ImportError:
-    from urllib.request import Request, urlopen, HTTPError
     from urllib.parse import urlparse
+
+import os
+
+import requests
 
 from ckanapi.errors import CKANAPIError
 from ckanapi.common import (ActionShortcut, prepare_action,
     reverse_apicontroller_action)
 from ckanapi.version import __version__
-import os
+from ckanapi.const import API_KEY_HEADER_NAME
+
 
 # add your sites to remove parallel limits on ckanapi cli
 MY_SITES = ['localhost', '127.0.0.1', '[::1]']
@@ -21,8 +24,6 @@ if CKANAPI_MY_SITES:
 # add your site above instead of changing this
 PARALLEL_LIMIT = os.getenv('CKANAPI_PARALLEL_LIMIT', default = 3)
 
-import requests
-
 
 class RemoteCKAN(object):
     """
@@ -30,8 +31,8 @@ class RemoteCKAN(object):
 
     :param address: the web address of the CKAN instance, e.g.
                     'http://demo.ckan.org', stored as self.address
-    :param apikey: the API key to pass as an 'X-CKAN-API-Key' header
-                    when actions are called, stored as self.apikey
+    :param apikey: the API key to pass as an authorization header
+    :param apikey_header_name: the header name to use for the API key
     :param user_agent: the User-agent to report when making requests
     :param get_only: only use GET requests (default: False)
     :param session: session to use (default: None)
@@ -39,9 +40,18 @@ class RemoteCKAN(object):
 
     base_url = 'api/action/'
 
-    def __init__(self, address, apikey=None, user_agent=None, get_only=False, session=None):
+    def __init__(
+        self,
+        address,
+        apikey=None,
+        apikey_header_name=API_KEY_HEADER_NAME,
+        user_agent=None,
+        get_only=False,
+        session=None,
+    ):
         self.address = address
         self.apikey = apikey
+        self.apikey_header_name = apikey_header_name
         self.get_only = get_only
         self.session = session
         if not user_agent:
@@ -60,8 +70,16 @@ class RemoteCKAN(object):
             # add your sites to MY_SITES above instead of removing this
             self.parallel_limit = PARALLEL_LIMIT
 
-    def call_action(self, action, data_dict=None, context=None, apikey=None,
-            files=None, requests_kwargs=None):
+    def call_action(
+        self,
+        action,
+        data_dict=None,
+        context=None,
+        apikey=None,
+        apikey_header_name=None,
+        files=None,
+        requests_kwargs=None,
+    ):
         """
         :param action: the action name, e.g. 'package_create'
         :param data_dict: the dict to pass to the action as JSON,
@@ -83,8 +101,13 @@ class RemoteCKAN(object):
             raise CKANAPIError("RemoteCKAN: files may not be sent when "
                 "get_only is True")
         url, data, headers = prepare_action(
-            action, data_dict, apikey or self.apikey, files,
-            base_url=self.base_url)
+            action,
+            data_dict,
+            apikey or self.apikey,
+            apikey_header_name or self.apikey_header_name,
+            files,
+            base_url=self.base_url,
+        )
         headers['User-Agent'] = self.user_agent
         url = self.address.rstrip('/') + '/' + url
         requests_kwargs = requests_kwargs or {}
