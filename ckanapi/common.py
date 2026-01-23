@@ -32,6 +32,16 @@ class ActionShortcut(object):
         pkg = demo.call_action('resource_update',
             {'package_id': 'foo'}, files={'upload': open(..)})
 
+    The shortcut also supports passing requests_kwargs, eg::
+
+        pkg = demo.action.package_show(
+            id='adur_district_spending', requests_kwargs={'verify': False})
+
+    becomes::
+
+        pkg = demo.call_action('package_show',
+            {'id': 'adur_district_spending'}, requests_kwargs={'verify': False})
+
     """
     def __init__(self, ckan):
         self._ckan = ckan
@@ -39,16 +49,25 @@ class ActionShortcut(object):
     def __getattr__(self, name):
         def action(**kwargs):
             files = {}
+            requests_kwargs = None
             for k, v in kwargs.items():
-                if is_file_like(v):
+                if k == 'requests_kwargs':
+                    requests_kwargs = v
+                elif is_file_like(v):
                     files[k] = v
+
+            if requests_kwargs:
+                kwargs.pop('requests_kwargs', None)
+
             if files:
                 nonfiles = dict((k, v) for k, v in kwargs.items()
                     if k not in files)
                 return self._ckan.call_action(name,
                     data_dict=nonfiles,
-                    files=files)
-            return self._ckan.call_action(name, data_dict=kwargs)
+                    files=files,
+                    requests_kwargs=requests_kwargs)
+            return self._ckan.call_action(
+                name, data_dict=kwargs, requests_kwargs=requests_kwargs)
         return action
 
 
