@@ -1,9 +1,5 @@
-try:
-    from urllib2 import Request, urlopen, HTTPError
-    from urlparse import urlparse
-except ImportError:
-    from urllib.request import Request, urlopen, HTTPError
-    from urllib.parse import urlparse
+from urllib.request import Request, urlopen, HTTPError
+from urllib.parse import urlparse
 
 from ckanapi.errors import CKANAPIError
 from ckanapi.common import (ActionShortcut, prepare_action,

@@ -27,7 +27,7 @@ def action(ckan, arguments, stdin=None):
         action_args = {}
         with open(expanduser(arguments['--input'])) as in_f:
             action_args = json.loads(
-                in_f.read().decode('utf-8') if sys.version_info.major == 2 else in_f.read())
+                in_f.read())
     else:
         action_args = {}
         for kv in arguments['KEY=STRING']:

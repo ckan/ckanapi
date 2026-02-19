@@ -7,14 +7,8 @@ import requests
 
 from ckanapi import RemoteCKAN, NotFound
 import unittest
-try:
-    from subprocess import DEVNULL
-except ImportError:
-    DEVNULL = open(os.devnull, 'wb')
-try:
-    from urllib2 import urlopen, URLError
-except ImportError:
-    from urllib.request import urlopen, URLError
+from subprocess import DEVNULL
+from urllib.request import urlopen, URLError
 from io import StringIO
 
 TEST_CKAN = 'http://localhost:8901'

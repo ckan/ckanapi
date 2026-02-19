@@ -2,7 +2,6 @@ import os
 import requests
 import json
 
-import six
 import slugify
 
 from ckanapi.cli.utils import pretty_json
@@ -170,7 +169,7 @@ def _convert_to_datapackage_resource(resource_dict):
         resource['name'] = resource_dict['id']
 
     schema = resource_dict.get('schema')
-    if isinstance(schema, six.string_types):
+    if isinstance(schema, str):
         try:
             resource['schema'] = json.loads(schema)
         except ValueError:

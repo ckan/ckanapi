@@ -8,20 +8,12 @@ import json
 import requests
 from datetime import datetime
 import re
-try:
-    from urllib.parse import urlparse
-except ImportError:
-    from urlparse import urlparse
+from urllib.parse import urlparse
 
 from ckanapi.errors import (NotFound, NotAuthorized, ValidationError,
     SearchIndexError)
 from ckanapi.cli import workers
 from ckanapi.cli.utils import completion_stats, compact_json, quiet_int_pipe
-
-try:
-    unicode
-except NameError:
-    unicode = str
 
 
 def load_things(ckan, thing, arguments,
@@ -167,7 +159,7 @@ def load_things_worker(ckan, thing, arguments,
             obj = json.loads(line.decode('utf-8'))
         except UnicodeDecodeError as e:
             obj = None
-            reply('read', 'UnicodeDecodeError', unicode(e))
+            reply('read', 'UnicodeDecodeError', str(e))
             continue
 
         requests_kwargs = None
@@ -191,7 +183,7 @@ def load_things_worker(ckan, thing, arguments,
                     except NotFound:
                         pass
                     except NotAuthorized as e:
-                        reply('show', 'NotAuthorized', unicode(e))
+                        reply('show', 'NotAuthorized', str(e))
                         continue
                 name = obj.get('name')
                 if not existing and name:
@@ -201,7 +193,7 @@ def load_things_worker(ckan, thing, arguments,
                     except NotFound:
                         pass
                     except NotAuthorized as e:
-                        reply('show', 'NotAuthorized', unicode(e))
+                        reply('show', 'NotAuthorized', str(e))
                         continue
 
                 if existing:
@@ -233,9 +225,9 @@ def load_things_worker(ckan, thing, arguments,
             except ValidationError as e:
                 reply(act, 'ValidationError', e.error_dict)
             except SearchIndexError as e:
-                reply(act, 'SearchIndexError', unicode(e))
+                reply(act, 'SearchIndexError', str(e))
             except NotAuthorized as e:
-                reply(act, 'NotAuthorized', unicode(e))
+                reply(act, 'NotAuthorized', str(e))
             except NotFound:
                 reply(act, 'NotFound', obj)
             else:
