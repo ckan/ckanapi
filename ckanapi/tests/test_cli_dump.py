@@ -5,10 +5,7 @@ import tempfile
 import shutil
 from os.path import exists
 
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
+import unittest
 from io import BytesIO
 
 

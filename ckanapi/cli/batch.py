@@ -12,11 +12,6 @@ from ckanapi.errors import (NotFound, NotAuthorized, ValidationError,
 from ckanapi.cli import workers
 from ckanapi.cli.utils import completion_stats, compact_json, quiet_int_pipe
 
-try:
-    unicode
-except NameError:
-    unicode = str
-
 
 def batch_actions(ckan, arguments,
         worker_pool=None, stdin=None, stdout=None, stderr=None):
@@ -143,7 +138,7 @@ def batch_actions_worker(ckan, arguments,
             obj = json.loads(line.decode('utf-8'))
         except UnicodeDecodeError as e:
             obj = None
-            reply('read', 'UnicodeDecodeError', unicode(e))
+            reply('read', 'UnicodeDecodeError', str(e))
             continue
 
         requests_kwargs = None
@@ -163,7 +158,7 @@ def batch_actions_worker(ckan, arguments,
                     reply('read', 'IOError', {
                         'parameter':fkey,
                         'file_name':fvalue,
-                        'error':unicode(e.args[1]),
+                        'error':str(e.args[1]),
                         })
                     continue
 
@@ -173,9 +168,9 @@ def batch_actions_worker(ckan, arguments,
             except ValidationError as e:
                 reply(action, 'ValidationError', e.error_dict)
             except SearchIndexError as e:
-                reply(action, 'SearchIndexError', unicode(e))
+                reply(action, 'SearchIndexError', str(e))
             except NotAuthorized as e:
-                reply(action, 'NotAuthorized', unicode(e))
+                reply(action, 'NotAuthorized', str(e))
             except NotFound:
                 reply(action, 'NotFound', obj)
             else:

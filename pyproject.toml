@@ -1,0 +1,55 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ckanapi"
+version = "4.9"
+description = "A command line interface and Python module for accessing the CKAN Action API"
+license = {text = "MIT"}
+authors = [
+    {name = "Ian Ward", email = "ian@excess.org"},
+]
+classifiers = [
+    "Intended Audience :: Developers",
+    "Development Status :: 5 - Production/Stable",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+keywords = [
+    "ckan",
+    "ckanext",
+    "API",
+]
+
+requires-python = ">=3.9"
+dependencies = [
+    "setuptools",
+    "docopt",
+    "requests",
+    "python-slugify>=1.0",
+    "simplejson",
+]
+
+[project.urls]
+Homepage = "https://github.com/ckan/ckanapi"
+
+[project.optional-dependencies]
+testing = [
+    "pyfakefs==5.10.2",
+    "werkzeug",
+]
+
+[project.scripts]
+ckanapi = "ckanapi.cli.main:main"
+
+[project.entry-points."ckan.click_command"]
+api = "ckanapi.cli.ckan_click:api"
+
+[tool.setuptools.packages.find]
+include = ["ckanapi*"]

@@ -2,10 +2,7 @@ from ckanapi.cli.load import load_things, load_things_worker
 from ckanapi.errors import NotFound, ValidationError, NotAuthorized
 import json
 
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
+import unittest
 from io import BytesIO
 
 class MockCKAN(object):

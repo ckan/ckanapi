@@ -8,20 +8,13 @@ import json
 from datetime import datetime
 from itertools import chain
 import re
-try:
-    from urllib.parse import urlparse
-except ImportError:
-    from urlparse import urlparse
+from urllib.parse import urlparse
 
 from ckanapi.errors import (NotFound, NotAuthorized, ValidationError,
     SearchIndexError)
 from ckanapi.cli import workers
 from ckanapi.cli.utils import completion_stats, compact_json, quiet_int_pipe
 
-try:
-    unicode
-except NameError:
-    unicode = str
 
 def delete_things(ckan, thing, arguments,
         worker_pool=None, stdin=None, stdout=None, stderr=None):
@@ -137,20 +130,20 @@ def extract_ids_or_names(line):
     except ValueError:
         return [line.strip()]  # 5
     if isinstance(j, list) and all(
-            isinstance(e, unicode) for e in j):
+            isinstance(e, str) for e in j):
         return j  # 4
-    elif isinstance(j, unicode):
+    elif isinstance(j, str):
         return [j]  # 3
     elif isinstance(j, dict):
-        if 'id' in j and isinstance(j['id'], unicode):
+        if 'id' in j and isinstance(j['id'], str):
             return [j['id']]  # 1
-        if 'name' in j and isinstance(j['name'], unicode):
+        if 'name' in j and isinstance(j['name'], str):
             return [j['name']]  # 1 again
         if 'results' in j and isinstance(j['results'], list):
             out = []
             for r in j['results']:
                 if (not isinstance(r, dict) or 'id' not in r or
-                        not isinstance(r['id'], unicode)):
+                        not isinstance(r['id'], str)):
                     break
                 out.append(r['id'])
             else:
@@ -203,7 +196,7 @@ def delete_things_worker(ckan, thing, arguments,
         try:
             name = json.loads(line.decode('utf-8'))
         except UnicodeDecodeError as e:
-            reply('UnicodeDecodeError', unicode(e))
+            reply('UnicodeDecodeError', str(e))
             continue
 
         try:
@@ -213,7 +206,7 @@ def delete_things_worker(ckan, thing, arguments,
             ckan.call_action(thing_delete, {'id': name},
                              requests_kwargs=requests_kwargs)
         except NotAuthorized as e:
-            reply('NotAuthorized', unicode(e))
+            reply('NotAuthorized', str(e))
         except NotFound:
             reply('NotFound', name)
         else:
