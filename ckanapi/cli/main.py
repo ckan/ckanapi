@@ -110,13 +110,13 @@ def parse_arguments():
     return docopt(__doc__, version=__version__)
 
 
-def main(running_with_paster=False):
+def main(running_with_ckan_command=False):
     """
     ckanapi command line entry point
     """
     arguments = parse_arguments()
 
-    if not running_with_paster and not arguments['--remote']:
+    if not running_with_ckan_command and not arguments['--remote']:
         return _switch_to_ckan_click(arguments)
 
     if arguments['--remote']:
@@ -187,15 +187,6 @@ def main(running_with_paster=False):
         return batch_actions(ckan, arguments)
 
     assert 0, arguments # we shouldn't be here
-
-
-def _switch_to_paster(arguments):
-    """
-    ** legacy python2-only **
-    With --config we switch to the paster command version of the cli
-    """
-    sys.argv[1:1] = ["--plugin=ckanapi", "ckanapi"]
-    sys.exit(load_entry_point('PasteScript', 'console_scripts', 'paster')())
 
 
 def _switch_to_ckan_click(arguments):

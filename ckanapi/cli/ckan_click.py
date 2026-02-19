@@ -10,4 +10,4 @@ def api(context, args):
     from ckanapi.cli.main import main
     import sys
     sys.argv[1:] = args
-    context.exit(main(running_with_paster=True) or 0)
+    context.exit(main(running_with_ckan_command=True) or 0)
