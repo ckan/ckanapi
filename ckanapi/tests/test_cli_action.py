@@ -1,9 +1,6 @@
 from ckanapi.cli.action import action
 from ckanapi.errors import CLIError
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
+import unittest
 
 from io import BytesIO
 

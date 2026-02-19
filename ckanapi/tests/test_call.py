@@ -1,8 +1,5 @@
 import ckanapi
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
+import unittest
 
 
 class TestCallAction(unittest.TestCase):

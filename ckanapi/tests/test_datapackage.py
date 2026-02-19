@@ -2,10 +2,7 @@ from ckanapi.datapackage import (
     dataset_to_datapackage, create_resource, create_datapackage,
     resource_filename, populate_schema_from_datastore)
 
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
+import unittest
 from io import BytesIO
 import os
 from pyfakefs import fake_filesystem_unittest
