@@ -14,7 +14,8 @@ install_requires=[
     'simplejson',
 ]
 tests_require=[
-    'pyfakefs==5.3.5',
+    'pyfakefs==5.10.2',
+    'werkzeug',
 ]
 
 

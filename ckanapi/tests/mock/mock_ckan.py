@@ -1,12 +1,8 @@
 import json
-import cgi
 import csv
-from wsgiref.util import setup_testing_defaults
+from io import StringIO
+from werkzeug.formparser import parse_form_data
 from wsgiref.simple_server import make_server
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from io import StringIO
 
 
 def mock_ckan(environ, start_response):
@@ -39,12 +35,8 @@ def mock_ckan(environ, start_response):
             "result": environ['CONTENT_TYPE']
             }).encode('utf-8')]
     if environ['PATH_INFO'] == '/api/action/test_upload':
-        fs = cgi.FieldStorage(
-            fp=environ['wsgi.input'],
-            environ=environ,
-            keep_blank_values=True,
-            )
-        upload_data = fs.getvalue('upload').decode('utf-8').splitlines()
+        _, form, files = parse_form_data(environ)
+        upload_data = files['upload'].stream.read().decode('utf-8').splitlines()
         csv_file = StringIO()
         writer = csv.writer(csv_file)
         for line_data in upload_data:
@@ -57,7 +49,7 @@ def mock_ckan(environ, start_response):
             "help": "none",
             "success": True,
             "result": {
-                'option': fs.getvalue('option'),
+                'option': form['option'],
                 'last_row': records[-1],
                 },
             }).encode('utf-8')]
