@@ -65,9 +65,8 @@ For this example, we use --insecure as the CKAN demo uses a
 self-signed certificate.
 
 Local CKAN actions may be run by specifying the config file with -c.
-If no remote server or config file is specified the CLI will look for
-a development.ini file in the current directory, much like paster
-commands.
+If no remote server or config file is specified, the CLI will look for
+a ckan.ini file in the current directory, much like `ckan` commands.
 
 Local CKAN actions are performed by the site user (default system
 administrator) when -u is not specified.
@@ -497,7 +496,7 @@ groups = demo.action.group_list(id='data-explorer')
 
 To run the tests:
 
-  python setup.py test
+  python -m unittest discover
 
 
 ## License
