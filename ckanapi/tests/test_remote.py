@@ -4,9 +4,12 @@ import os
 import atexit
 import socket
 import requests
+import json
 
 from ckanapi import RemoteCKAN, NotFound
+from ckanapi.common import REQUEST_TIMEOUT
 import unittest
+from unittest import mock
 from subprocess import DEVNULL
 from urllib.request import urlopen, URLError
 from io import StringIO
@@ -105,8 +108,32 @@ class TestRemoteAction(unittest.TestCase):
                 files={'upload': StringIO(NUMBER_THING_CSV)})
         self.assertEqual(res.split(';')[0], "multipart/form-data")
 
+    def test_default_timeout(self):
+        mock_response = mock.MagicMock()
+        mock_response.status_code = 200
+        mock_response.text = json.dumps({"success": True, "result": []})
+
+        with mock.patch('requests.Session.post', return_value=mock_response) as mock_post:
+            with RemoteCKAN(TEST_CKAN) as ckan:
+                ckan.action.organization_list()
+            _, kwargs = mock_post.call_args
+            self.assertEqual(kwargs.get('timeout'), REQUEST_TIMEOUT)
+
+    def test_custom_timeout(self):
+        mock_response = mock.MagicMock()
+        mock_response.status_code = 200
+        mock_response.text = json.dumps({"success": True, "result": []})
+
+        # We patch at the module level because the env var is read at import time and
+        # can't be patched
+        with mock.patch("ckanapi.remoteckan.REQUEST_TIMEOUT", (2, 30)):
+            with mock.patch('requests.Session.post', return_value=mock_response) as mock_post:
+                with RemoteCKAN(TEST_CKAN) as ckan:
+                    ckan.action.organization_list()
+                _, kwargs = mock_post.call_args
+                self.assertEqual(kwargs.get('timeout'), (2, 30))
+
     @classmethod
     def tearDownClass(cls):
         cls._mock_ckan.kill()
         cls._mock_ckan.wait()
-

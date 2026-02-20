@@ -3,10 +3,17 @@ Code shared by LocalCKAN, RemoteCKAN and TestCKAN
 """
 
 import json
+import os
 
 from ckanapi.errors import (CKANAPIError, NotAuthorized, NotFound,
     ValidationError, SearchQueryError, SearchError, SearchIndexError,
     ServerIncompatibleError)
+
+
+request_connection_timeout= int(os.getenv("CKANAPI_REQUEST_TIMEOUT", default=5))
+request_read_timeout= int(os.getenv("CKANAPI_REQUEST_READ_TIMEOUT", default=request_connection_timeout))
+REQUEST_TIMEOUT = (request_connection_timeout, request_read_timeout)
+
 
 class ActionShortcut(object):
     """
