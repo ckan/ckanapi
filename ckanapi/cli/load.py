@@ -304,7 +304,7 @@ def _upload_logo(ckan,obj_orig):
     else:
         f = requests.get(obj['image_display_url'], stream=True, timeout=REQUEST_TIMEOUT)
         name,ext = obj['image_url'].rsplit('.',1)  #reformulate image_url for new site
-        new_name = re.sub('[0-9\.-]','',name)
+        new_name = re.sub('[0-9.-]','',name)
         new_url = new_name+'.'+ext
         obj['image_upload'] = (new_url, f.raw)
     ckan.action.group_update(**obj)
