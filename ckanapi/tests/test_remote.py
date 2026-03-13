@@ -117,6 +117,7 @@ class TestRemoteAction(unittest.TestCase):
             with RemoteCKAN(TEST_CKAN) as ckan:
                 ckan.action.organization_list()
             _, kwargs = mock_post.call_args
+            self.assertIs(REQUEST_TIMEOUT, None)
             self.assertEqual(kwargs.get('timeout'), REQUEST_TIMEOUT)
 
     def test_custom_timeout(self):

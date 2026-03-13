@@ -10,10 +10,13 @@ from ckanapi.errors import (CKANAPIError, NotAuthorized, NotFound,
     ServerIncompatibleError)
 
 
-request_connection_timeout= int(os.getenv("CKANAPI_REQUEST_TIMEOUT", default=5))
-request_read_timeout= int(os.getenv("CKANAPI_REQUEST_READ_TIMEOUT", default=request_connection_timeout))
-REQUEST_TIMEOUT = (request_connection_timeout, request_read_timeout)
-
+if request_connection_timeout := os.getenv("CKANAPI_REQUEST_TIMEOUT"):
+    request_connection_timeout = int(request_connection_timeout)
+    request_read_timeout= int(os.getenv("CKANAPI_REQUEST_READ_TIMEOUT", default=request_connection_timeout))
+    REQUEST_TIMEOUT = (request_connection_timeout, request_read_timeout)
+else:
+    REQUEST_TIMEOUT = None
+print(REQUEST_TIMEOUT)
 
 class ActionShortcut(object):
     """
