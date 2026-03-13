@@ -491,6 +491,31 @@ demo = TestAppCKAN(test_app, apikey='my-test-key')
 groups = demo.action.group_list(id='data-explorer')
 ```
 
+## Timeouts
+
+All requests performed to CKAN either via the CLI or the Python module can have a timeout defined.
+By defaults it is not set, but you can define a custom timeout value using environment variables or passing
+a value explicitly.
+
+To use environment variables:
+
+* `CKANAPI_REQUEST_TIMEOUT`: this is the connect timeout (the time waited to connect to the remote server)
+* `CKANAPI_REQUEST_READ_TIMEOUT`: this is the read timeout (the time waited to receive a response)
+
+If the read timeout is not defined, the connect timeout will be used. Please refer to
+the [requests library documentation](https://requests.readthedocs.io/en/latest/user/advanced/#timeouts) for more details.
+
+To pass a timeout on a `call_action` call use the `requests_kwargs` param:
+
+```
+```python
+from ckanapi import RemoteCKAN
+
+demo = RemoteCKAN('https://demo.ckan.org')
+groups = demo.action.group_list(id='data-explorer', requests_kwargs={"timeout": 10})
+
+```
+
 
 ## Tests
 

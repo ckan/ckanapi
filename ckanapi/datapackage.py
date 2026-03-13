@@ -4,6 +4,7 @@ import json
 
 import slugify
 
+from ckanapi.common import REQUEST_TIMEOUT
 from ckanapi.cli.utils import pretty_json
 from ckanapi.errors import CKANAPIError, NotFound
 
@@ -24,7 +25,7 @@ def create_resource(resource, filename, datapackage_dir, stderr, apikey):
     headers['Authorization'] = apikey
 
     try:
-        r = requests.get(resource['url'], headers=headers, stream=True)
+        r = requests.get(resource['url'], headers=headers, stream=True, timeout=REQUEST_TIMEOUT)
         with open(os.path.join(datapackage_dir, path), 'wb') as f:
             for chunk in r.iter_content(chunk_size=DL_CHUNK_SIZE):
                 if chunk: # filter out keep-alive new chunks
