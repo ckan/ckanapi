@@ -16,7 +16,6 @@ if request_connection_timeout := os.getenv("CKANAPI_REQUEST_TIMEOUT"):
     REQUEST_TIMEOUT = (request_connection_timeout, request_read_timeout)
 else:
     REQUEST_TIMEOUT = None
-print(REQUEST_TIMEOUT)
 
 class ActionShortcut(object):
     """
