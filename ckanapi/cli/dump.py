@@ -55,12 +55,17 @@ def dump_things(ckan, thing, arguments,
             'users': 'user_list',
             'related' :'related_list',
             }[thing]
-        params = dict(
-            all_fields=False,  # for user_list
-            include_private='--include-private' in arguments,  # for package_list
-            include_drafts='--include-drafts' in arguments,  # for package_list
-            include_deleted='--include-deleted' in arguments,  # for package_list
-        )
+        if get_thing_list == "user_list":
+            params = dict(
+                all_fields=False
+            )
+        elif get_thing_list == "package_list":
+            params = dict(
+                include_private=arguments['--include-private'] if '--include-private' in arguments else False,
+                include_drafts=arguments['--include-drafts'] if '--include-drafts' in arguments else False,
+                include_deleted=arguments['--include-deleted'] if '--include-deleted' in arguments else False,
+            )
+
         names = ckan.call_action(get_thing_list, params)
 
     else:

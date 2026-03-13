@@ -357,6 +357,75 @@ class TestCLIDump(unittest.TestCase):
         finally:
             shutil.rmtree(target)
 
+    def test_include_params_default(self):
+
+        ckan = unittest.mock.MagicMock()
+        ckan.parallel_limit = 1
+        dump_things(ckan, 'datasets', {
+                '--all': True,
+                '--quiet': False,
+                '--ckan-user': None,
+                '--config': None,
+                '--remote': None,
+                '--apikey': None,
+                '--worker': False,
+                '--log': None,
+                '--output': None,
+                '--datapackages': None,
+                '--gzip': False,
+                '--processes': '1',
+                '--get-request': False,
+                '--datastore-fields': False,
+                '--resource-views': False,
+                '--insecure': False,
+                '--include-users': False,
+        })
+
+        action = ckan.method_calls[0].args[0]
+        data_dict = ckan.method_calls[0].args[1]
+
+        self.assertEqual(action, "package_list")
+
+        self.assertEqual(data_dict["include_private"], False)
+        self.assertEqual(data_dict["include_drafts"], False)
+        self.assertEqual(data_dict["include_deleted"], False)
+
+    def test_include_params_true(self):
+
+        ckan = unittest.mock.MagicMock()
+        ckan.parallel_limit = 1
+        dump_things(ckan, 'datasets', {
+                '--all': True,
+                '--quiet': False,
+                '--ckan-user': None,
+                '--config': None,
+                '--remote': None,
+                '--apikey': None,
+                '--worker': False,
+                '--log': None,
+                '--output': None,
+                '--datapackages': None,
+                '--gzip': False,
+                '--processes': '1',
+                '--get-request': False,
+                '--datastore-fields': False,
+                '--resource-views': False,
+                '--insecure': False,
+                '--include-users': False,
+
+                '--include-private': True,
+                '--include-drafts': True,
+                '--include-deleted': True,
+        })
+
+        action = ckan.method_calls[0].args[0]
+        data_dict = ckan.method_calls[0].args[1]
+
+        self.assertEqual(action, "package_list")
+
+        self.assertEqual(data_dict["include_private"], True)
+        self.assertEqual(data_dict["include_drafts"], True)
+        self.assertEqual(data_dict["include_deleted"], True)
 
     def _mock_worker_pool(self, cmd, processes, job_iter):
         self.worker_cmd = cmd
