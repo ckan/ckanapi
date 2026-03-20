@@ -48,6 +48,7 @@ def dump_things(ckan, thing, arguments,
     if arguments['--gzip']:
         jsonl_output = gzip.GzipFile(fileobj=jsonl_output)
     if arguments['--all']:
+        params = None
         get_thing_list = {
             'datasets': 'package_list',
             'groups': 'group_list',
