@@ -81,12 +81,11 @@ def create_datapackage(record, base_path, stderr, apikey):
 
 
 def resource_filename(dres):
-    # prefer resource names from datapackage metadata, because those have been
-    # made unique
     name = dres['name']
     ext = slugify.slugify(dres['format'])
     if name.endswith(ext):
         name = name[:-len(ext)]
+    name = name.rstrip('-.')   # fix: remove trailing hyphen or dot
     return name + '.' + ext
 
 
