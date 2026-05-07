@@ -262,6 +262,8 @@ def _worker_command_line(thing, arguments):
         + b('--update-only')
         + b('--upload-resources')
         + b('--upload-logo')
+        + b('--datastore-fields')
+        + b('--resource-views')
         )
 
 
