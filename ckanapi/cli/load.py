@@ -220,6 +220,8 @@ def load_things_worker(ckan, thing, arguments,
                         _upload_resources(ckan, obj, arguments)
                     if arguments['--resource-views']:  # check if it is needed to create resource views when creating/updating packages
                         _load_resource_views(ckan, obj, arguments, stdout)
+                    if arguments['--datastore-fields']:  # check if it is needed to update datastore resource fields when creating/updating packages
+                        _load_datastore_resource_fields(ckan, obj, arguments, stdout)
                 elif thing in ['groups','organizations'] and 'image_display_url' in obj:  # load images for groups and organizations
                     if arguments['--upload-logo']:
                         users = obj['users']
@@ -352,6 +354,39 @@ def _load_resource_views(ckan, obj, arguments, stdout):
                 reply(act, 'NotFound', view, stdout)
             else:
                 reply(act, None, r.get('name', r.get('id')), stdout)
+
+
+def _load_datastore_resource_fields(ckan, obj, arguments, stdout):
+    """
+    Load datastore tables for Resources
+    """
+    resources = obj['resources']
+    requests_kwargs = None
+    if arguments['--insecure']:
+        requests_kwargs = {'verify': False}
+    thing_create = 'datastore_create'
+    act = 'create'
+    for resource in resources:
+        if not resource.get('datastore_fields'):
+            continue
+        args = {
+            'resource_id': resource['id'],
+            'fields': resource['datastore_fields'],
+            'force': True
+        }
+        try:
+            r = ckan.call_action(thing_create, args,
+                                 requests_kwargs=requests_kwargs)
+        except ValidationError as e:
+            reply(act, 'ValidationError', e.error_dict, stdout)
+        except SearchIndexError as e:
+            reply(act, 'SearchIndexError', str(e), stdout)
+        except NotAuthorized as e:
+            reply(act, 'NotAuthorized', str(e), stdout)
+        except NotFound:
+            reply(act, 'NotFound', args, stdout)
+        else:
+            reply(act, None, r.get('name', r.get('id')), stdout)
 
 
 def _upload_logo(ckan,obj_orig):
