@@ -110,6 +110,18 @@ def load_things(ckan, thing, arguments,
         return 3
 
 
+def reply(action, error, response, out):
+        """
+        format messages to be sent back to parent process
+        """
+        out.write(compact_json([
+            datetime.now().isoformat(),
+            action,
+            error,
+            response]) + b'\n')
+        out.flush()
+
+
 def load_things_worker(ckan, thing, arguments,
         stdin=None, stdout=None):
     """
@@ -144,23 +156,12 @@ def load_things_worker(ckan, thing, arguments,
             'related_show','related_create','related_update'),
         }[thing]
 
-    def reply(action, error, response):
-        """
-        format messages to be sent back to parent process
-        """
-        stdout.write(compact_json([
-            datetime.now().isoformat(),
-            action,
-            error,
-            response]) + b'\n')
-        stdout.flush()
-
     for line in iter(stdin.readline, b''):
         try:
             obj = json.loads(line.decode('utf-8'))
         except UnicodeDecodeError as e:
             obj = None
-            reply('read', 'UnicodeDecodeError', str(e))
+            reply('read', 'UnicodeDecodeError', str(e), stdout)
             continue
 
         requests_kwargs = None
@@ -184,7 +185,7 @@ def load_things_worker(ckan, thing, arguments,
                     except NotFound:
                         pass
                     except NotAuthorized as e:
-                        reply('show', 'NotAuthorized', str(e))
+                        reply('show', 'NotAuthorized', str(e), stdout)
                         continue
                 name = obj.get('name')
                 if not existing and name:
@@ -194,7 +195,7 @@ def load_things_worker(ckan, thing, arguments,
                     except NotFound:
                         pass
                     except NotAuthorized as e:
-                        reply('show', 'NotAuthorized', str(e))
+                        reply('show', 'NotAuthorized', str(e), stdout)
                         continue
 
                 if existing:
@@ -203,7 +204,7 @@ def load_things_worker(ckan, thing, arguments,
                 # FIXME: compare and reply when 'unchanged'?
 
             if not existing and arguments['--update-only']:
-                reply('show', 'NotFound', [obj.get('id'), obj.get('name')])
+                reply('show', 'NotFound', [obj.get('id'), obj.get('name')], stdout)
                 continue
 
             act = 'update' if existing else 'create'
@@ -212,10 +213,14 @@ def load_things_worker(ckan, thing, arguments,
                     r = ckan.call_action(thing_update, obj,
                                          requests_kwargs=requests_kwargs)
                 else:
-                    r = ckan.call_action(thing_create, obj)
-                if thing == 'datasets' and 'resources' in obj:# check if it is needed to upload resources when creating/updating packages
-                    _upload_resources(ckan,obj,arguments)
-                elif thing in ['groups','organizations'] and 'image_display_url' in obj:   #load images for groups and organizations
+                    r = ckan.call_action(thing_create, obj,
+                                         requests_kwargs=requests_kwargs)
+                if thing == 'datasets' and 'resources' in obj:
+                    if arguments['--upload-resources']:  # check if it is needed to upload resources when creating/updating packages
+                        _upload_resources(ckan, obj, arguments)
+                    if arguments['--resource-views']:  # check if it is needed to create resource views when creating/updating packages
+                        _load_resource_views(ckan, obj, arguments, stdout)
+                elif thing in ['groups','organizations'] and 'image_display_url' in obj:  # load images for groups and organizations
                     if arguments['--upload-logo']:
                         users = obj['users']
                         obj = _upload_logo(ckan,obj)
@@ -224,15 +229,15 @@ def load_things_worker(ckan, thing, arguments,
                         ckan.call_action(thing_update, obj,
                                          requests_kwargs=requests_kwargs)
             except ValidationError as e:
-                reply(act, 'ValidationError', e.error_dict)
+                reply(act, 'ValidationError', e.error_dict, stdout)
             except SearchIndexError as e:
-                reply(act, 'SearchIndexError', str(e))
+                reply(act, 'SearchIndexError', str(e), stdout)
             except NotAuthorized as e:
-                reply(act, 'NotAuthorized', str(e))
+                reply(act, 'NotAuthorized', str(e), stdout)
             except NotFound:
-                reply(act, 'NotFound', obj)
+                reply(act, 'NotFound', obj, stdout)
             else:
-                reply(act, None, r.get('name',r.get('id')))
+                reply(act, None, r.get('name',r.get('id')), stdout)
 
 def _worker_command_line(thing, arguments):
     """
@@ -274,10 +279,9 @@ def _copy_from_existing_for_update(obj, existing, thing):
         if 'users' not in obj and 'users' in existing:
             obj['users'] = existing['users']
 
-def _upload_resources(ckan,obj,arguments):
+
+def _upload_resources(ckan, obj, arguments):
     resources = obj['resources']
-    if not arguments['--upload-resources']:
-        return
     requests_kwargs = None
     if arguments['--insecure']:
         requests_kwargs = {'verify': False}
@@ -291,6 +295,63 @@ def _upload_resources(ckan,obj,arguments):
             {'id':resource['id']},
             files={'upload':(name, f.raw)},
             requests_kwargs=requests_kwargs)
+
+
+def _load_resource_views(ckan, obj, arguments, stdout):
+    """
+    Loads resource views
+    """
+    resources = obj['resources']
+    requests_kwargs = None
+    if arguments['--insecure']:
+        requests_kwargs = {'verify': False}
+    thing_show, thing_create, thing_update = (
+        'resource_view_show', 'resource_view_create', 'resource_view_update')
+    for resource in resources:
+        if not resource.get('resource_views'):
+            continue
+        resource_views = resource['resource_views']
+        for view in resource_views:
+            existing = None
+            if not arguments['--create-only']:
+                # use either id or name to locate existing records
+                view_id = view.get('id')
+                if view_id:
+                    try:
+                        existing = ckan.call_action(thing_show,
+                            {'id': view_id},
+                            requests_kwargs=requests_kwargs)
+                    except NotFound:
+                        pass
+                    except NotAuthorized as e:
+                        reply('show', 'NotAuthorized', str(e), stdout)
+                        continue
+
+                if existing:
+                    _copy_from_existing_for_update(view, existing, 'resource_view')
+
+            if not existing and arguments['--update-only']:
+                reply('show', 'NotFound', [view.get('id')], stdout)
+                continue
+
+            act = 'update' if existing else 'create'
+            try:
+                if existing:
+                    r = ckan.call_action(thing_update, view,
+                                         requests_kwargs=requests_kwargs)
+                else:
+                    r = ckan.call_action(thing_create, view,
+                                         requests_kwargs=requests_kwargs)
+            except ValidationError as e:
+                reply(act, 'ValidationError', e.error_dict, stdout)
+            except SearchIndexError as e:
+                reply(act, 'SearchIndexError', str(e), stdout)
+            except NotAuthorized as e:
+                reply(act, 'NotAuthorized', str(e), stdout)
+            except NotFound:
+                reply(act, 'NotFound', view, stdout)
+            else:
+                reply(act, None, r.get('name', r.get('id')), stdout)
 
 
 def _upload_logo(ckan,obj_orig):
