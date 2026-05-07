@@ -22,7 +22,7 @@ Usage:
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [--insecure]]
   ckanapi load (groups | organizations)
           [--upload-logo] [-I JSONL_INPUT] [-s START] [-m MAX]
-          [-p PROCESSES] [-l LOG_FILE] [-n | -o] [-qwzU]
+          [-p PROCESSES] [-l LOG_FILE] [-n | -o] [-dqwzRU]
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [--insecure]]
   ckanapi load (users | related)
           [-I JSONL_INPUT] [-s START] [-m MAX] [-p PROCESSES] [-l LOG_FILE]
@@ -43,7 +43,8 @@ Options:
   -c --config=CONFIG        CKAN configuration file for local actions,
                             defaults to $CKAN_INI or development.ini
   -d --datastore-fields     export datastore field information along with
-                            resource metadata as datastore_fields lists
+                            resource metadata as datastore_fields lists (dump).
+                            load datastore field information for resources (load).
   --include-private         include private datasets in the dump
   --include-drafts          include draft datasets in the dump
   --include-deleted         include deleted datasets in the dump
@@ -70,7 +71,8 @@ Options:
   -q --quiet                don't display progress messages
   -r --remote=URL           URL of CKAN server for remote actions
   -R --resource-views       export resource views information along with
-                            resource metadata as resource_views lists
+                            resource metadata as resource_views lists (dump).
+                            create/update resource views for resources (load).
   -s --start-record=START   start from record number START, where the first
                             record is number 1 [default: 1]
   -u --ckan-user=USER       perform actions as user with this name, uses the
