@@ -204,7 +204,10 @@ def dump_things_worker(ckan, thing, arguments,
             if thing == 'datasets' and arguments['--resource-views']:
                 for res in obj.get('resources', []):
                     populate_res_views(ckan, res)
+            if thing == 'users' and arguments['--api-tokens']:
+                populate_api_tokens(ckan, obj)
             reply(None, obj)
+
 
 def _worker_command_line(thing, arguments):
     """
@@ -227,6 +230,7 @@ def _worker_command_line(thing, arguments):
         + b('--datastore-fields')
         + b('--resource-views')
         + b('--include-users')
+        + b('--api-tokens')
         + ['value-here-to-make-docopt-happy']
         )
 
@@ -248,3 +252,19 @@ def populate_res_views(ckan, res):
         return # return if the resource views list is empty
     res['resource_views'] = views
 
+
+def populate_api_tokens(ckan, user):
+    """
+    Update user dict in-place with api_tokens_list
+    """
+    try:
+        tokens = ckan.call_action('api_token_list', {
+            'user_id': user['name'],
+            'limit': 0})
+    except CKANAPIError:
+        return
+    except NotFound:
+        return  # with localckan we'll get the real CKAN exception not a CKANAPIError subclass
+    if not tokens:
+        return # return if the user api token list is empty
+    user['api_tokens_list'] = tokens
