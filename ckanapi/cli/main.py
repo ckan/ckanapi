@@ -18,11 +18,11 @@ Usage:
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g] [--insecure]]
   ckanapi load datasets
           [--upload-resources] [-I JSONL_INPUT] [-s START] [-m MAX]
-          [-p PROCESSES] [-l LOG_FILE] [-n | -o] [-qwz]
+          [-p PROCESSES] [-l LOG_FILE] [-n | -o] [-dqwzR]
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [--insecure]]
   ckanapi load (groups | organizations)
           [--upload-logo] [-I JSONL_INPUT] [-s START] [-m MAX]
-          [-p PROCESSES] [-l LOG_FILE] [-n | -o] [-dqwzRU]
+          [-p PROCESSES] [-l LOG_FILE] [-n | -o] [-qwzU]
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [--insecure]]
   ckanapi load (users | related)
           [-I JSONL_INPUT] [-s START] [-m MAX] [-p PROCESSES] [-l LOG_FILE]
