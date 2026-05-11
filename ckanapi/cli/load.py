@@ -214,9 +214,8 @@ def load_things_worker(ckan, thing, arguments,
                 if thing == 'datasets' and obj.get('resources'):
                     for r in obj['resources']:
                         resource_views += r.pop('resource_views', [])
-                        if r.get('datastore_fields'):
-                            if r['id'] not in datastore_fields:
-                                datastore_fields[r['id']] = r.pop('datastore_fields', [])
+                        # FIXME: assuming passed resources have an id
+                        datastore_fields[r['id']] = r.pop('datastore_fields', [])
                 if existing:
                     r = ckan.call_action(thing_update, obj,
                                          requests_kwargs=requests_kwargs)
@@ -374,6 +373,8 @@ def _load_datastore_resource_fields(ckan, datastore_fields, arguments):
     if arguments['--insecure']:
         requests_kwargs = {'verify': False}
     for rid, ds_fields in datastore_fields.items():
+        if not ds_fields:
+            continue
         existing = None
         try:
             existing = ckan.call_action('datastore_search',
