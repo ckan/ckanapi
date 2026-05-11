@@ -324,13 +324,14 @@ def _load_user_api_tokens(ckan, api_token_list, arguments):
     if arguments['--insecure']:
         requests_kwargs = {'verify': False}
     for token in api_token_list:
-        args = {
-            'id': token['id'],
-            'created_at': token['created_at'],
-            'last_access': token['last_access'],
-            'name': token['name'],
-            'user': token['user_id']
-        }
         # exceptions handled in load_things_worker
-        ckan.call_action('api_token_create',
-            args, requests_kwargs=requests_kwargs)
+        ckan.call_action(
+            'api_token_create',
+            {
+                'id': token['id'],
+                'created_at': token['created_at'],
+                'last_access': token['last_access'],
+                'name': token['name'],
+                'user': token['user_id']
+            },
+            requests_kwargs=requests_kwargs)
