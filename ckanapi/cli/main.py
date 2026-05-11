@@ -12,13 +12,17 @@ Usage:
           (ID_OR_NAME ... | [-I JSONL_INPUT] [-s START] [-m MAX])
           [-p PROCESSES] [-l LOG_FILE] [-qwz]
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [--insecure]]
-  ckanapi dump (datasets | groups | organizations | users | related)
+  ckanapi dump datasets
           (ID_OR_NAME ... | --all) ([-O JSONL_OUTPUT] | [-D DIRECTORY])
-          [-p PROCESSES] [-dqwzRU --include-private --include-drafts --include-deleted]
+          [-p PROCESSES] [-qwz --include-private --include-drafts --include-deleted --datastore-fields --resource-views]
+          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g] [--insecure]]
+  ckanapi dump (groups | organizations | users | related)
+          (ID_OR_NAME ... | --all) ([-O JSONL_OUTPUT] | [-D DIRECTORY])
+          [-p PROCESSES] [-qwzU]
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g] [--insecure]]
   ckanapi load datasets
           [--upload-resources] [-I JSONL_INPUT] [-s START] [-m MAX]
-          [-p PROCESSES] [-l LOG_FILE] [-n | -o] [-dqwzR]
+          [-p PROCESSES] [-l LOG_FILE] [-n | -o] [-qwz --datastore-fields --resource-views]
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [--insecure]]
   ckanapi load (groups | organizations)
           [--upload-logo] [-I JSONL_INPUT] [-s START] [-m MAX]

@@ -110,18 +110,6 @@ def load_things(ckan, thing, arguments,
         return 3
 
 
-def reply(action, error, response, out):
-        """
-        format messages to be sent back to parent process
-        """
-        out.write(compact_json([
-            datetime.now().isoformat(),
-            action,
-            error,
-            response]) + b'\n')
-        out.flush()
-
-
 def load_things_worker(ckan, thing, arguments,
         stdin=None, stdout=None):
     """
@@ -156,12 +144,23 @@ def load_things_worker(ckan, thing, arguments,
             'related_show','related_create','related_update'),
         }[thing]
 
+    def reply(action, error, response):
+        """
+        format messages to be sent back to parent process
+        """
+        stdout.write(compact_json([
+            datetime.now().isoformat(),
+            action,
+            error,
+            response]) + b'\n')
+        stdout.flush()
+
     for line in iter(stdin.readline, b''):
         try:
             obj = json.loads(line.decode('utf-8'))
         except UnicodeDecodeError as e:
             obj = None
-            reply('read', 'UnicodeDecodeError', str(e), stdout)
+            reply('read', 'UnicodeDecodeError', str(e))
             continue
 
         requests_kwargs = None
@@ -185,7 +184,7 @@ def load_things_worker(ckan, thing, arguments,
                     except NotFound:
                         pass
                     except NotAuthorized as e:
-                        reply('show', 'NotAuthorized', str(e), stdout)
+                        reply('show', 'NotAuthorized', str(e))
                         continue
                 name = obj.get('name')
                 if not existing and name:
@@ -195,7 +194,7 @@ def load_things_worker(ckan, thing, arguments,
                     except NotFound:
                         pass
                     except NotAuthorized as e:
-                        reply('show', 'NotAuthorized', str(e), stdout)
+                        reply('show', 'NotAuthorized', str(e))
                         continue
 
                 if existing:
@@ -204,11 +203,20 @@ def load_things_worker(ckan, thing, arguments,
                 # FIXME: compare and reply when 'unchanged'?
 
             if not existing and arguments['--update-only']:
-                reply('show', 'NotFound', [obj.get('id'), obj.get('name')], stdout)
+                reply('show', 'NotFound', [obj.get('id'), obj.get('name')])
                 continue
 
             act = 'update' if existing else 'create'
             try:
+                # do not send resource_views & datastore_fields to package actions
+                resource_views = []
+                datastore_fields = {}
+                if thing == 'datasets' and obj.get('resources'):
+                    for r in obj['resources']:
+                        resource_views += r.pop('resource_views', [])
+                        if r.get('datastore_fields'):
+                            if r['id'] not in datastore_fields:
+                                datastore_fields[r['id']] = r.pop('datastore_fields', [])
                 if existing:
                     r = ckan.call_action(thing_update, obj,
                                          requests_kwargs=requests_kwargs)
@@ -218,11 +226,11 @@ def load_things_worker(ckan, thing, arguments,
                 if thing == 'datasets' and 'resources' in obj:
                     if arguments['--upload-resources']:  # check if it is needed to upload resources when creating/updating packages
                         _upload_resources(ckan, obj, arguments)
-                    if arguments['--resource-views']:  # check if it is needed to create resource views when creating/updating packages
-                        _load_resource_views(ckan, obj, arguments, stdout)
-                    if arguments['--datastore-fields']:  # check if it is needed to update datastore resource fields when creating/updating packages
-                        _load_datastore_resource_fields(ckan, obj, arguments, stdout)
-                elif thing in ['groups','organizations'] and 'image_display_url' in obj:  # load images for groups and organizations
+                    if arguments['--resource-views'] and resource_views:  # check if it is needed to create resource views when creating/updating packages
+                        created_views, updated_views, skipped_views = _load_resource_views(ckan, resource_views, arguments)
+                    if arguments['--datastore-fields'] and datastore_fields:  # check if it is needed to update datastore resource fields when creating/updating packages
+                        created_tables, skipped_tables = _load_datastore_resource_fields(ckan, datastore_fields, arguments)
+                if thing in ['groups','organizations'] and 'image_display_url' in obj:  # load images for groups and organizations
                     if arguments['--upload-logo']:
                         users = obj['users']
                         obj = _upload_logo(ckan,obj)
@@ -231,15 +239,28 @@ def load_things_worker(ckan, thing, arguments,
                         ckan.call_action(thing_update, obj,
                                          requests_kwargs=requests_kwargs)
             except ValidationError as e:
-                reply(act, 'ValidationError', e.error_dict, stdout)
+                reply(act, 'ValidationError', e.error_dict)
             except SearchIndexError as e:
-                reply(act, 'SearchIndexError', str(e), stdout)
+                reply(act, 'SearchIndexError', str(e))
             except NotAuthorized as e:
-                reply(act, 'NotAuthorized', str(e), stdout)
+                reply(act, 'NotAuthorized', str(e))
             except NotFound:
-                reply(act, 'NotFound', obj, stdout)
+                reply(act, 'NotFound', obj)
             else:
-                reply(act, None, r.get('name',r.get('id')), stdout)
+                log_obj = {}
+                if arguments['--resource-views'] and resource_views:
+                    if created_views:
+                        log_obj['created_resource_views'] = created_views
+                    if updated_views:
+                        log_obj['updated_resource_views'] = updated_views
+                    if skipped_views:
+                        log_obj['skipped_resource_views'] = skipped_views
+                if arguments['--datastore-fields'] and datastore_fields:
+                    if created_tables:
+                        log_obj['created_datastore_tables'] = created_tables
+                    if skipped_tables:
+                        log_obj['skipped_datastore_tables'] = skipped_tables
+                reply(act, None, log_obj if log_obj else r.get('name', r.get('id')))
 
 def _worker_command_line(thing, arguments):
     """
@@ -301,94 +322,85 @@ def _upload_resources(ckan, obj, arguments):
             requests_kwargs=requests_kwargs)
 
 
-def _load_resource_views(ckan, obj, arguments, stdout):
+def _load_resource_views(ckan, resource_views, arguments):
     """
     Loads resource views
     """
-    resources = obj['resources']
+    created = []
+    updated = []
+    skipped = []
     requests_kwargs = None
     if arguments['--insecure']:
         requests_kwargs = {'verify': False}
-    thing_show, thing_create, thing_update = (
-        'resource_view_show', 'resource_view_create', 'resource_view_update')
-    for resource in resources:
-        if not resource.get('resource_views'):
+    for view in resource_views:
+        existing = None
+        if not arguments['--create-only']:
+            if view.get('id'):
+                try:
+                    existing = ckan.call_action('resource_view_show',
+                        {'id': view['id']},
+                        requests_kwargs=requests_kwargs)
+                except NotFound:
+                    pass
+
+            if existing:
+                _copy_from_existing_for_update(view, existing, 'resource_view')
+
+        if not existing and arguments['--update-only']:
+            skipped.append(view.get('id', view.get('view_type')))
             continue
-        resource_views = resource['resource_views']
-        for view in resource_views:
-            existing = None
-            if not arguments['--create-only']:
-                # use either id or name to locate existing records
-                view_id = view.get('id')
-                if view_id:
-                    try:
-                        existing = ckan.call_action(thing_show,
-                            {'id': view_id},
-                            requests_kwargs=requests_kwargs)
-                    except NotFound:
-                        pass
-                    except NotAuthorized as e:
-                        reply('show', 'NotAuthorized', str(e), stdout)
-                        continue
 
-                if existing:
-                    _copy_from_existing_for_update(view, existing, 'resource_view')
+        if existing:
+            # exceptions handled in load_things_worker
+            ckan.call_action('resource_view_update', view,
+                             requests_kwargs=requests_kwargs)
+            updated.append(view.get('id', view.get('view_type')))
+        else:
+            # exceptions handled in load_things_worker
+            ckan.call_action('resource_view_create', view,
+                             requests_kwargs=requests_kwargs)
+            created.append(view.get('id', view.get('view_type')))
 
-            if not existing and arguments['--update-only']:
-                reply('show', 'NotFound', [view.get('id')], stdout)
-                continue
-
-            act = 'update' if existing else 'create'
-            try:
-                if existing:
-                    r = ckan.call_action(thing_update, view,
-                                         requests_kwargs=requests_kwargs)
-                else:
-                    r = ckan.call_action(thing_create, view,
-                                         requests_kwargs=requests_kwargs)
-            except ValidationError as e:
-                reply(act, 'ValidationError', e.error_dict, stdout)
-            except SearchIndexError as e:
-                reply(act, 'SearchIndexError', str(e), stdout)
-            except NotAuthorized as e:
-                reply(act, 'NotAuthorized', str(e), stdout)
-            except NotFound:
-                reply(act, 'NotFound', view, stdout)
-            else:
-                reply(act, None, r.get('name', r.get('id')), stdout)
+    return created, updated, skipped
 
 
-def _load_datastore_resource_fields(ckan, obj, arguments, stdout):
+def _load_datastore_resource_fields(ckan, datastore_fields, arguments):
     """
     Load datastore tables for Resources
     """
-    resources = obj['resources']
+    created = []
+    skipped = []
     requests_kwargs = None
     if arguments['--insecure']:
         requests_kwargs = {'verify': False}
-    thing_create = 'datastore_create'
-    act = 'create'
-    for resource in resources:
-        if not resource.get('datastore_fields'):
-            continue
-        args = {
-            'resource_id': resource['id'],
-            'fields': resource['datastore_fields'],
-            'force': True
-        }
+    for rid, ds_fields in datastore_fields.items():
+        existing = None
         try:
-            r = ckan.call_action(thing_create, args,
-                                 requests_kwargs=requests_kwargs)
-        except ValidationError as e:
-            reply(act, 'ValidationError', e.error_dict, stdout)
-        except SearchIndexError as e:
-            reply(act, 'SearchIndexError', str(e), stdout)
-        except NotAuthorized as e:
-            reply(act, 'NotAuthorized', str(e), stdout)
+            existing = ckan.call_action('datastore_search',
+                {'resource_id': rid, 'limit': 0},
+                requests_kwargs=requests_kwargs)
         except NotFound:
-            reply(act, 'NotFound', args, stdout)
-        else:
-            reply(act, None, r.get('name', r.get('id')), stdout)
+            pass
+
+        if not existing:
+            # FIXME: only making new datastore tables.
+            #        is it possible to safely update them via
+            #        --datastore-fields dump when there is XLoader/DataPusher
+            skipped.append(rid)
+            continue
+
+        # exceptions handled in load_things_worker
+        ckan.call_action(
+            'datastore_create',
+            {
+                'resource_id': rid,
+                'fields': ds_fields,
+                'force': True
+            },
+            requests_kwargs=requests_kwargs)
+        created.append(rid)
+
+    return created, skipped
 
 
 def _upload_logo(ckan,obj_orig):
