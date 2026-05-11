@@ -345,6 +345,7 @@ class TestCLILoad(unittest.TestCase):
                 '--upload-resources': False,
                 '--upload-logo': False,
                 '--insecure': False,
+                '--api-tokens': False,
             },
             worker_pool=self._mock_worker_pool,
             stdin=BytesIO(
@@ -380,6 +381,7 @@ class TestCLILoad(unittest.TestCase):
                 '--upload-resources': False,
                 '--upload-logo': False,
                 '--insecure': False,
+                '--api-tokens': False,
             },
             worker_pool=self._mock_worker_pool,
             stdin=BytesIO(
@@ -418,6 +420,7 @@ class TestCLILoad(unittest.TestCase):
                 '--upload-resources': False,
                 '--upload-logo': False,
                 '--insecure': False,
+                '--api-tokens': False,
             },
             worker_pool=self._mock_worker_pool,
             stdin=BytesIO(

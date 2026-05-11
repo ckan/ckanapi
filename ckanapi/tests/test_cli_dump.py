@@ -145,6 +145,7 @@ class TestCLIDump(unittest.TestCase):
                 '--resource-views': False,
                 '--insecure': False,
                 '--include-users': False,
+                '--api-tokens': False,
             },
             worker_pool=self._mock_worker_pool,
             stdout=self.stdout,
@@ -177,6 +178,7 @@ class TestCLIDump(unittest.TestCase):
                 '--resource-views': False,
                 '--insecure': False,
                 '--include-users': False,
+                '--api-tokens': False,
             },
             worker_pool=self._mock_worker_pool,
             stdout=self.stdout,
@@ -206,6 +208,7 @@ class TestCLIDump(unittest.TestCase):
                 '--resource-views': False,
                 '--insecure': False,
                 '--include-users': False,
+                '--api-tokens': False,
             },
 
             worker_pool=self._mock_worker_pool,
@@ -237,6 +240,7 @@ class TestCLIDump(unittest.TestCase):
                 '--resource-views': False,
                 '--insecure': False,
                 '--include-users': False,
+                '--api-tokens': False,
             },
             worker_pool=self._mock_worker_pool_reversed,
             stdout=self.stdout,
@@ -272,6 +276,7 @@ class TestCLIDump(unittest.TestCase):
                     '--resource-views': False,
                     '--insecure': False,
                     '--include-users': False,
+                    '--api-tokens': False,
                 },
                 worker_pool=self._worker_pool_with_data,
                 stdout=self.stdout,
@@ -326,6 +331,7 @@ class TestCLIDump(unittest.TestCase):
                     '--resource-views': True,
                     '--insecure': False,
                     '--include-users': False,
+                    '--api-tokens': False,
                 },
                 worker_pool=self._worker_pool_with_resource_views,
                 stdout=self.stdout,
@@ -379,6 +385,7 @@ class TestCLIDump(unittest.TestCase):
                 '--resource-views': False,
                 '--insecure': False,
                 '--include-users': False,
+                '--api-tokens': False,
         })
 
         action = ckan.method_calls[0].args[0]
@@ -412,7 +419,7 @@ class TestCLIDump(unittest.TestCase):
                 '--resource-views': False,
                 '--insecure': False,
                 '--include-users': False,
-
+                '--api-tokens': False,
                 '--include-private': True,
                 '--include-drafts': True,
                 '--include-deleted': True,
