@@ -255,7 +255,7 @@ def populate_res_views(ckan, res):
 
 def populate_api_tokens(ckan, user):
     """
-    Update user dict in-place with api_tokens_list
+    Update user dict in-place with api_token_list
     """
     try:
         tokens = ckan.call_action('api_token_list', {
@@ -267,4 +267,4 @@ def populate_api_tokens(ckan, user):
         return  # with localckan we'll get the real CKAN exception not a CKANAPIError subclass
     if not tokens:
         return # return if the user api token list is empty
-    user['api_tokens_list'] = tokens
+    user['api_token_list'] = tokens

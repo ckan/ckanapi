@@ -110,18 +110,6 @@ def load_things(ckan, thing, arguments,
         return 3
 
 
-def reply(action, error, response, out):
-    """
-    format messages to be sent back to parent process
-    """
-    out.write(compact_json([
-        datetime.now().isoformat(),
-        action,
-        error,
-        response]) + b'\n')
-    out.flush()
-
-
 def load_things_worker(ckan, thing, arguments,
         stdin=None, stdout=None):
     """
@@ -156,12 +144,23 @@ def load_things_worker(ckan, thing, arguments,
             'related_show','related_create','related_update'),
         }[thing]
 
+    def reply(action, error, response):
+        """
+        format messages to be sent back to parent process
+        """
+        stdout.write(compact_json([
+            datetime.now().isoformat(),
+            action,
+            error,
+            response]) + b'\n')
+        stdout.flush()
+
     for line in iter(stdin.readline, b''):
         try:
             obj = json.loads(line.decode('utf-8'))
         except UnicodeDecodeError as e:
             obj = None
-            reply('read', 'UnicodeDecodeError', str(e), stdout)
+            reply('read', 'UnicodeDecodeError', str(e))
             continue
 
         requests_kwargs = None
@@ -185,7 +184,7 @@ def load_things_worker(ckan, thing, arguments,
                     except NotFound:
                         pass
                     except NotAuthorized as e:
-                        reply('show', 'NotAuthorized', str(e), stdout)
+                        reply('show', 'NotAuthorized', str(e))
                         continue
                 name = obj.get('name')
                 if not existing and name:
@@ -195,7 +194,7 @@ def load_things_worker(ckan, thing, arguments,
                     except NotFound:
                         pass
                     except NotAuthorized as e:
-                        reply('show', 'NotAuthorized', str(e), stdout)
+                        reply('show', 'NotAuthorized', str(e))
                         continue
 
                 if existing:
@@ -204,11 +203,12 @@ def load_things_worker(ckan, thing, arguments,
                 # FIXME: compare and reply when 'unchanged'?
 
             if not existing and arguments['--update-only']:
-                reply('show', 'NotFound', [obj.get('id'), obj.get('name')], stdout)
+                reply('show', 'NotFound', [obj.get('id'), obj.get('name')])
                 continue
 
             act = 'update' if existing else 'create'
             try:
+                api_token_list = obj.pop('api_token_list', None)  # do not send api_token_list to user actions
                 if existing:
                     r = ckan.call_action(thing_update, obj,
                                          requests_kwargs=requests_kwargs)
@@ -216,7 +216,7 @@ def load_things_worker(ckan, thing, arguments,
                     r = ckan.call_action(thing_create, obj)
                 if thing == 'datasets' and 'resources' in obj:# check if it is needed to upload resources when creating/updating packages
                     _upload_resources(ckan,obj,arguments)
-                elif thing in ['groups','organizations'] and 'image_display_url' in obj:   #load images for groups and organizations
+                if thing in ['groups','organizations'] and 'image_display_url' in obj:   #load images for groups and organizations
                     if arguments['--upload-logo']:
                         users = obj['users']
                         obj = _upload_logo(ckan,obj)
@@ -224,18 +224,18 @@ def load_things_worker(ckan, thing, arguments,
                         obj['users'] = users
                         ckan.call_action(thing_update, obj,
                                          requests_kwargs=requests_kwargs)
-                elif thing == 'users' and arguments['--api-tokens'] and obj.get('api_tokens_list'):  # check if it is needed to create user api tokens when creating/updating users
-                    _load_user_api_tokens(ckan, obj, arguments, stdout)
+                if thing == 'users' and arguments['--api-tokens'] and api_token_list:  # check if it is needed to create user api tokens when creating/updating users
+                    _load_user_api_tokens(ckan, api_token_list, arguments)
             except ValidationError as e:
-                reply(act, 'ValidationError', e.error_dict, stdout)
+                reply(act, 'ValidationError', e.error_dict)
             except SearchIndexError as e:
-                reply(act, 'SearchIndexError', str(e), stdout)
+                reply(act, 'SearchIndexError', str(e))
             except NotAuthorized as e:
-                reply(act, 'NotAuthorized', str(e), stdout)
+                reply(act, 'NotAuthorized', str(e))
             except NotFound:
-                reply(act, 'NotFound', obj, stdout)
+                reply(act, 'NotFound', obj)
             else:
-                reply(act, None, r.get('name',r.get('id')), stdout)
+                reply(act, None, r.get('name',r.get('id')))
 
 
 def _worker_command_line(thing, arguments):
@@ -316,15 +316,14 @@ def _upload_logo(ckan,obj_orig):
     return obj
 
 
-def _load_user_api_tokens(ckan, obj, arguments, stdout):
+def _load_user_api_tokens(ckan, api_token_list, arguments):
     """
-    Loads user API Tokens from api_tokens_list
+    Loads user API Tokens from api_token_list
     """
     requests_kwargs = None
     if arguments['--insecure']:
         requests_kwargs = {'verify': False}
-    act = 'create-api-token'
-    for token in obj['api_tokens_list']:
+    for token in api_token_list:
         args = {
             'id': token['id'],
             'created_at': token['created_at'],
@@ -332,14 +331,6 @@ def _load_user_api_tokens(ckan, obj, arguments, stdout):
             'name': token['name'],
             'user': token['user_id']
         }
-        try:
-            r = ckan.call_action('api_token_create',
-                args, requests_kwargs=requests_kwargs)
-        except ValidationError as e:
-            reply(act, 'ValidationError', e.error_dict, stdout)
-        except NotAuthorized as e:
-            reply(act, 'NotAuthorized', str(e), stdout)
-        except NotFound:
-            reply(act, 'NotFound', obj, stdout)
-        else:
-            reply(act, None, r.get('name', r.get('id')), stdout)
+        # exceptions handled in load_things_worker
+        ckan.call_action('api_token_create',
+            args, requests_kwargs=requests_kwargs)

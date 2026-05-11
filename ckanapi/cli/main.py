@@ -12,9 +12,13 @@ Usage:
           (ID_OR_NAME ... | [-I JSONL_INPUT] [-s START] [-m MAX])
           [-p PROCESSES] [-l LOG_FILE] [-qwz]
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [--insecure]]
-  ckanapi dump (datasets | groups | organizations | users | related)
+  ckanapi dump (datasets | groups | organizations | related)
           (ID_OR_NAME ... | --all) ([-O JSONL_OUTPUT] | [-D DIRECTORY])
-          [-p PROCESSES] [-dqwzRU --include-private --include-drafts --include-deleted --api-tokens]
+          [-p PROCESSES] [-dqwzRU --include-private --include-drafts --include-deleted]
+          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g] [--insecure]]
+  ckanapi dump users
+          (ID_OR_NAME ... | --all) ([-O JSONL_OUTPUT] | [-D DIRECTORY])
+          [-p PROCESSES] [-qwz --api-tokens]
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g] [--insecure]]
   ckanapi load datasets
           [--upload-resources] [-I JSONL_INPUT] [-s START] [-m MAX]
@@ -24,9 +28,13 @@ Usage:
           [--upload-logo] [-I JSONL_INPUT] [-s START] [-m MAX]
           [-p PROCESSES] [-l LOG_FILE] [-n | -o] [-qwzU]
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [--insecure]]
-  ckanapi load (users | related)
+  ckanapi load users
           [-I JSONL_INPUT] [-s START] [-m MAX] [-p PROCESSES] [-l LOG_FILE]
           [-n | -o] [-qwz --api-tokens]
+          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [--insecure]]
+  ckanapi load related
+          [-I JSONL_INPUT] [-s START] [-m MAX] [-p PROCESSES] [-l LOG_FILE]
+          [-n | -o] [-qwz]
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [--insecure]]
   ckanapi search datasets
           [(KEY=STRING | KEY:JSON ) ... | -i | -I JSON_INPUT]
@@ -77,7 +85,7 @@ Options:
                             site sysadmin user when not specified
   -U --include-users        include users of a group/organization
   --api-tokens              export API Token information along with
-                            user metadata as api_tokens_list lists (dump).
+                            user metadata as api_token_list lists (dump).
                             create API Tokens for users (load).
   --upload-logo             upload logo image of a group/organization if the
                             image is stored in the original server, otherwise
