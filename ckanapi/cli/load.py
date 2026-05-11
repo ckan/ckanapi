@@ -223,12 +223,14 @@ def load_things_worker(ckan, thing, arguments,
                     r = ckan.call_action(thing_create, obj,
                                          requests_kwargs=requests_kwargs)
                 if thing == 'datasets' and 'resources' in obj:
+                    # NOTE: order is important as Resource uploads may be dependant on DS Fields (XLoader/DataPusher),
+                    #       and Resource Views may be dependant on DS and Upload.
+                    if arguments['--datastore-fields'] and datastore_fields:  # check if it is needed to update datastore resource fields when creating/updating packages
+                        created_tables, skipped_tables = _load_datastore_resource_fields(ckan, datastore_fields, arguments)
                     if arguments['--upload-resources']:  # check if it is needed to upload resources when creating/updating packages
                         _upload_resources(ckan, obj, arguments)
                     if arguments['--resource-views'] and resource_views:  # check if it is needed to create resource views when creating/updating packages
                         created_views, updated_views, skipped_views = _load_resource_views(ckan, resource_views, arguments)
-                    if arguments['--datastore-fields'] and datastore_fields:  # check if it is needed to update datastore resource fields when creating/updating packages
-                        created_tables, skipped_tables = _load_datastore_resource_fields(ckan, datastore_fields, arguments)
                 if thing in ['groups','organizations'] and 'image_display_url' in obj:  # load images for groups and organizations
                     if arguments['--upload-logo']:
                         users = obj['users']
@@ -383,23 +385,22 @@ def _load_datastore_resource_fields(ckan, datastore_fields, arguments):
         except NotFound:
             pass
 
-        if not existing:
-            # FIXME: only making new datastore tables.
-            #        is it possible to safely update them via
-            #        --datastore-fields dump when there is XLoader/DataPusher
-            skipped.append(rid)
-            continue
-
-        # exceptions handled in load_things_worker
-        ckan.call_action(
-            'datastore_create',
-            {
-                'resource_id': rid,
-                'fields': ds_fields,
-                'force': True
-            },
-            requests_kwargs=requests_kwargs)
-        created.append(rid)
+        try:
+            ckan.call_action(
+                'datastore_create',
+                {
+                    'resource_id': rid,
+                    'fields': ds_fields,
+                    'force': True
+                },
+                requests_kwargs=requests_kwargs)
+            created.append(rid)
+        except ValidationError as e:
+            if not existing:
+                # exceptions handled in load_things_worker
+                # raise normal exception for non-existing tables
+                raise e
+            skipped.append('%s: %s' % (rid, str(e)))
 
     return created, skipped
 
