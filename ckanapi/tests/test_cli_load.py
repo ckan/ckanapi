@@ -67,6 +67,7 @@ class TestCLILoad(unittest.TestCase):
                 '--upload-resources': False,
                 '--insecure': False,
                 '--resource-views': False,
+                '--datastore-fields': False,
                 },
             stdin=BytesIO(b'{"name": "45","title":"Forty-five"}\n'),
             stdout=self.stdout)
@@ -84,6 +85,7 @@ class TestCLILoad(unittest.TestCase):
                 '--upload-resources': False,
                 '--insecure': False,
                 '--resource-views': False,
+                '--datastore-fields': False,
                 },
             stdin=BytesIO(b'{"name": "45","title":"Forty-five","resources":[{"id":"123"}]}\n'),
             stdout=self.stdout)
@@ -101,6 +103,7 @@ class TestCLILoad(unittest.TestCase):
                 '--upload-resources': False,
                 '--insecure': False,
                 '--resource-views': False,
+                '--datastore-fields': False,
                 },
             stdin=BytesIO(
                  b'{"name": "45","title":"Forty-five",'
@@ -120,6 +123,7 @@ class TestCLILoad(unittest.TestCase):
                 '--upload-resources': False,
                 '--insecure': False,
                 '--resource-views': False,
+                '--datastore-fields': False,
                 },
             stdin=BytesIO(b'{"name": "45","title":"Forty-five"}\n'),
             stdout=self.stdout)
@@ -137,6 +141,7 @@ class TestCLILoad(unittest.TestCase):
                 '--upload-resources': False,
                 '--insecure': False,
                 '--resource-views': False,
+                '--datastore-fields': False,
                 },
             stdin=BytesIO(b'{}\n'),
             stdout=self.stdout)
@@ -153,6 +158,7 @@ class TestCLILoad(unittest.TestCase):
                 '--update-only': True,
                 '--insecure': False,
                 '--resource-views': False,
+                '--datastore-fields': False,
                 },
             stdin=BytesIO(b'{"name": "45","title":"Forty-five"}\n'),
             stdout=self.stdout)
@@ -169,6 +175,7 @@ class TestCLILoad(unittest.TestCase):
                 '--update-only': False,
                 '--insecure': False,
                 '--resource-views': False,
+                '--datastore-fields': False,
                 },
             stdin=BytesIO(b'{"name": "30ish","title":"3.4 times ten"}\n'),
             stdout=self.stdout)
@@ -186,6 +193,7 @@ class TestCLILoad(unittest.TestCase):
                 '--upload-resources': False,
                 '--insecure': False,
                 '--resource-views': False,
+                '--datastore-fields': False,
                 },
             stdin=BytesIO(b'{"name": "30ish","title":"3.4 times ten","resources":[{"id":"123"}]}\n'),
             stdout=self.stdout)
@@ -203,6 +211,7 @@ class TestCLILoad(unittest.TestCase):
                 '--upload-resources': False,
                 '--insecure': False,
                 '--resource-views': False,
+                '--datastore-fields': False,
                 },
             stdin=BytesIO(
                  b'{"name": "30ish","title":"3.4 times ten",'
@@ -222,6 +231,7 @@ class TestCLILoad(unittest.TestCase):
                 '--upload-resources': False,
                 '--insecure': False,
                 '--resource-views': False,
+                '--datastore-fields': False,
                 },
             stdin=BytesIO(b'{"name": "34","title":"3.4 times ten"}\n'),
             stdout=self.stdout)
@@ -239,6 +249,7 @@ class TestCLILoad(unittest.TestCase):
                 '--upload-resources': False,
                 '--insecure': False,
                 '--resource-views': False,
+                '--datastore-fields': False,
                 },
             stdin=BytesIO(b'{"name": "34","title":"3.4 times ten"}\n'),
             stdout=self.stdout)
@@ -256,6 +267,7 @@ class TestCLILoad(unittest.TestCase):
                 '--upload-resources': False,
                 '--insecure': False,
                 '--resource-views': False,
+                '--datastore-fields': False,
                 },
             stdin=BytesIO(b'{"name": "seekrit", "title": "Things"}\n'),
             stdout=self.stdout)
@@ -273,6 +285,7 @@ class TestCLILoad(unittest.TestCase):
                 '--upload-resources': False,
                 '--insecure': False,
                 '--resource-views': False,
+                '--datastore-fields': False,
                 },
             stdin=BytesIO(b'{"id": "ab","title":"a balloon"}\n'),
             stdout=self.stdout)
@@ -290,6 +303,7 @@ class TestCLILoad(unittest.TestCase):
                 '--upload-resources': False,
                 '--insecure': False,
                 '--resource-views': False,
+                '--datastore-fields': False,
                 },
             stdin=BytesIO(
                 b'{"name": "cd", "title": "Go"}\n'
@@ -315,6 +329,7 @@ class TestCLILoad(unittest.TestCase):
                 '--upload-resources': False,
                 '--insecure': False,
                 '--resource-views': False,
+                '--datastore-fields': False,
                 },
             stdin=BytesIO(b'{"id": "used", "title": "here"}\n'),
             stdout=self.stdout)
@@ -332,6 +347,7 @@ class TestCLILoad(unittest.TestCase):
                 '--upload-resources': False,
                 '--insecure': False,
                 '--resource-views': False,
+                '--datastore-fields': False,
                 },
             stdin=BytesIO(b'{"id": "unused", "users": []}\n'),
             stdout=self.stdout)
@@ -362,6 +378,7 @@ class TestCLILoad(unittest.TestCase):
                 '--upload-logo': False,
                 '--insecure': False,
                 '--resource-views': False,
+                '--datastore-fields': False,
             },
             worker_pool=self._mock_worker_pool,
             stdin=BytesIO(
@@ -398,6 +415,7 @@ class TestCLILoad(unittest.TestCase):
                 '--upload-logo': False,
                 '--insecure': False,
                 '--resource-views': False,
+                '--datastore-fields': False,
             },
             worker_pool=self._mock_worker_pool,
             stdin=BytesIO(
@@ -437,6 +455,7 @@ class TestCLILoad(unittest.TestCase):
                 '--upload-logo': False,
                 '--insecure': False,
                 '--resource-views': False,
+                '--datastore-fields': False,
             },
             worker_pool=self._mock_worker_pool,
             stdin=BytesIO(
