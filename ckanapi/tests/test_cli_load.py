@@ -255,7 +255,7 @@ class TestCLILoad(unittest.TestCase):
         timstamp, action, error, data = json.loads(response.decode('UTF-8'))
         self.assertEqual(action, 'create')
         self.assertEqual(error, None)
-        self.assertEqual(data, {'id': 'some-generated-uuid', 'name': 'something-new', 'skipped_datastore_tables': ["789: None - {'pg_error': 'no db connection'}"]})
+        self.assertEqual(data, {'id': 'some-generated-uuid', 'name': 'something-new', 'skipped_datastore_tables': ["789: {'pg_error': 'no db connection'}"]})
 
     def test_create_only(self):
         load_things_worker(self.ckan, 'datasets', {
