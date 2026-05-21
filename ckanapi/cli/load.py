@@ -209,14 +209,16 @@ def load_things_worker(ckan, thing, arguments,
             act = 'update' if existing else 'create'
             try:
                 # do not send resource_views & datastore_fields to package actions
-                resource_views = []
+                resource_views = {}
                 datastore_fields = {}
                 if thing == 'datasets' and obj.get('resources'):
                     for r in obj['resources']:
-                        resource_views += r.pop('resource_views', [])
                         # NOTE: will only work with existing Resource IDs in the input,
                         #       documented in the command help.
-                        datastore_fields[r['id']] = r.pop('datastore_fields', [])
+                        if arguments['--resource-views']:
+                            resource_views[r['id']] = r.pop('resource_views', [])
+                        if arguments['--datastore-fields']:
+                            datastore_fields[r['id']] = r.pop('datastore_fields', [])
                 if existing:
                     r = ckan.call_action(thing_update, obj,
                                          requests_kwargs=requests_kwargs)
@@ -334,34 +336,35 @@ def _load_resource_views(ckan, resource_views, arguments):
     requests_kwargs = None
     if arguments['--insecure']:
         requests_kwargs = {'verify': False}
-    for view in resource_views:
-        existing = None
-        if not arguments['--create-only']:
-            if view.get('id'):
-                try:
-                    existing = ckan.call_action('resource_view_show',
-                        {'id': view['id']},
-                        requests_kwargs=requests_kwargs)
-                except NotFound:
-                    pass
+    for _rid, views in resource_views.items():
+        for view in views:
+            existing = None
+            if not arguments['--create-only']:
+                if view.get('id'):
+                    try:
+                        existing = ckan.call_action('resource_view_show',
+                            {'id': view['id']},
+                            requests_kwargs=requests_kwargs)
+                    except NotFound:
+                        pass
+
+                if existing:
+                    _copy_from_existing_for_update(view, existing, 'resource_view')
+
+            if not existing and arguments['--update-only']:
+                skipped.append(view.get('id', view.get('view_type')))
+                continue
 
             if existing:
-                _copy_from_existing_for_update(view, existing, 'resource_view')
-
-        if not existing and arguments['--update-only']:
-            skipped.append(view.get('id', view.get('view_type')))
-            continue
-
-        if existing:
-            # exceptions handled in load_things_worker
-            ckan.call_action('resource_view_update', view,
-                             requests_kwargs=requests_kwargs)
-            updated.append(view.get('id', view.get('view_type')))
-        else:
-            # exceptions handled in load_things_worker
-            ckan.call_action('resource_view_create', view,
-                             requests_kwargs=requests_kwargs)
-            created.append(view.get('id', view.get('view_type')))
+                # exceptions handled in load_things_worker
+                ckan.call_action('resource_view_update', view,
+                                requests_kwargs=requests_kwargs)
+                updated.append(view.get('id', view.get('view_type')))
+            else:
+                # exceptions handled in load_things_worker
+                ckan.call_action('resource_view_create', view,
+                                requests_kwargs=requests_kwargs)
+                created.append(view.get('id', view.get('view_type')))
 
     return created, updated, skipped
 
