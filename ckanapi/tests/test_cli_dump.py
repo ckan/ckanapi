@@ -453,7 +453,6 @@ class TestCLIDump(unittest.TestCase):
         for i, v in enumerate(worker_stdout.getvalue().strip().split(b'\n')):
             yield [[], i, v]
 
-
     def _worker_pool_with_resource_views(self, cmd, proccesses, job_iter):
         worker_stdin = BytesIO(b''.join(v for i, v in job_iter))
         worker_stdout = BytesIO()

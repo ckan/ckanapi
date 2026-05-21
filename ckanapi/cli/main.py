@@ -49,6 +49,7 @@ Options:
   -d --datastore-fields     export datastore field information along with
                             resource metadata as datastore_fields lists (dump).
                             load datastore field information for resources (load).
+                            Requires existing Resource IDs in the JSONL.
   --include-private         include private datasets in the dump
   --include-drafts          include draft datasets in the dump
   --include-deleted         include deleted datasets in the dump
@@ -77,6 +78,7 @@ Options:
   -R --resource-views       export resource views information along with
                             resource metadata as resource_views lists (dump).
                             create/update resource views for resources (load).
+                            Requires existing Resource IDs in the JSONL.
   -s --start-record=START   start from record number START, where the first
                             record is number 1 [default: 1]
   -u --ckan-user=USER       perform actions as user with this name, uses the

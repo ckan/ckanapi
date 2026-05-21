@@ -17,12 +17,15 @@ class MockCKAN(object):
                 raise ValidationError({'users': 'should be unchanged'})
             if data_dict['id'] == 'unused' and data_dict.get('users') != []:
                 raise ValidationError({'users': 'should be cleared'})
+        if name == 'resource_view_show' and data_dict['id'] == '123':
+            raise NotFound('no resource view with ID 123')
         try:
             return {
                 'package_show': {
                     '12': {'title': "Twelve"},
                     '30ish': {'id': '34', 'title': "Thirty-four"},
                     '34': {'id': '34', 'title': "Thirty-four"},
+                    '46': {'id': '46', 'name': '46', 'title': 'Forty-six'},
                     },
                 'group_show': {
                     'ab': {'title': "ABBA"},
@@ -34,10 +37,21 @@ class MockCKAN(object):
                     },
                 'package_create': {
                     None: {'name': 'something-new'},
+                    '46': {'id': '46', 'name': '46'},
                     },
                 'package_update': {
                     '34': {'name': 'something-updated'},
+                    '46': {'id': '46', 'name': '46'},
                     },
+                'resource_view_show': {
+                    '456': {'description': 'Test view', 'package_id': '46', 'resource_id': '456'}
+                },
+                'resource_view_create': {
+                    '123': {'description': 'Test view', 'package_id': '46', 'resource_id': '123'},
+                },
+                'resource_view_update': {
+                    '456': {'description': 'Test view', 'package_id': '46', 'resource_id': '456'},
+                },
                 'group_update': {
                     'ab': {'name': 'group-updated'},
                     },
@@ -50,7 +64,13 @@ class MockCKAN(object):
                     None: {'name': 'org-created'},
                     },
                 }[name][data_dict.get('id')]
-        except KeyError:
+        except KeyError as e:
+            print('    ')
+            print('DEBUGGING:2')
+            print('    ')
+            print(name)
+            print(e)
+            print('    ')
             raise NotFound()
 
 
@@ -76,7 +96,7 @@ class TestCLILoad(unittest.TestCase):
         timstamp, action, error, data = json.loads(response.decode('UTF-8'))
         self.assertEqual(action, 'create')
         self.assertEqual(error, None)
-        self.assertEqual(data, 'something-new')
+        self.assertEqual(data, {'id': None, 'name': 'something-new'})
 
     def test_create_with_corrupted_resources(self):
         load_things_worker(self.ckan, 'datasets', {
@@ -94,7 +114,7 @@ class TestCLILoad(unittest.TestCase):
         timstamp, action, error, data = json.loads(response.decode('UTF-8'))
         self.assertEqual(action, 'create')
         self.assertEqual(error, None)
-        self.assertEqual(data, 'something-new')
+        self.assertEqual(data, {'id': None, 'name': 'something-new'})
 
     def test_create_with_complete_resources(self):
         load_things_worker(self.ckan, 'datasets', {
@@ -114,7 +134,48 @@ class TestCLILoad(unittest.TestCase):
         timstamp, action, error, data = json.loads(response.decode('UTF-8'))
         self.assertEqual(action, 'create')
         self.assertEqual(error, None)
-        self.assertEqual(data, 'something-new')
+        self.assertEqual(data, {'id': None, 'name': 'something-new'})
+
+    def test_create_with_resource_views(self):
+        """
+        Creating a dataset with Resources that have views should create
+        the resource views.
+        """
+        payload = {
+            'name': '46',
+            'title': 'Forty-six',
+            'resources': [{
+                'name': 'resource1',
+                'format': 'csv',
+                'id': '123',
+                'url': 'http://example.com',
+                'datastore_active': True,
+                'resource_views': [{
+                    'description': 'Test view',
+                    'filterable': True,
+                    'id': '123',
+                    'resource_id': '123',
+                    'responsive': True,
+                    'show_fields': ['_id']
+                }]
+            }]
+        }
+        load_things_worker(self.ckan, 'datasets', {
+                '--create-only': False,
+                '--update-only': False,
+                '--upload-resources': False,
+                '--insecure': False,
+                '--resource-views': True,
+                '--datastore-fields': False,
+                },
+            stdin=BytesIO(json.dumps(payload).encode()),
+            stdout=self.stdout)
+        response = self.stdout.getvalue()
+        self.assertEqual(response[-1:], b'\n')
+        timstamp, action, error, data = json.loads(response.decode('UTF-8'))
+        self.assertEqual(action, 'update')
+        self.assertEqual(error, None)
+        self.assertEqual(data, {'id': '46', 'name': '46', 'created_resource_views': ['123']})
 
     def test_create_only(self):
         load_things_worker(self.ckan, 'datasets', {
@@ -132,7 +193,7 @@ class TestCLILoad(unittest.TestCase):
         timstamp, action, error, data = json.loads(response.decode('UTF-8'))
         self.assertEqual(action, 'create')
         self.assertEqual(error, None)
-        self.assertEqual(data, 'something-new')
+        self.assertEqual(data, {'id': None, 'name': 'something-new'})
 
     def test_create_empty_dict(self):
         load_things_worker(self.ckan, 'datasets', {
@@ -150,7 +211,7 @@ class TestCLILoad(unittest.TestCase):
         timstamp, action, error, data = json.loads(response.decode('UTF-8'))
         self.assertEqual(action, 'create')
         self.assertEqual(error, None)
-        self.assertEqual(data, 'something-new')
+        self.assertEqual(data, {'id': None, 'name': 'something-new'})
 
     def test_create_bad_option(self):
         load_things_worker(self.ckan, 'datasets', {
@@ -184,7 +245,7 @@ class TestCLILoad(unittest.TestCase):
         timstamp, action, error, data = json.loads(response.decode('UTF-8'))
         self.assertEqual(action, 'update')
         self.assertEqual(error, None)
-        self.assertEqual(data, 'something-updated')
+        self.assertEqual(data, {'id': None, 'name': 'something-updated'})
 
     def test_update_with_corrupted_resources(self):
         load_things_worker(self.ckan, 'datasets', {
@@ -202,7 +263,7 @@ class TestCLILoad(unittest.TestCase):
         timstamp, action, error, data = json.loads(response.decode('UTF-8'))
         self.assertEqual(action, 'update')
         self.assertEqual(error, None)
-        self.assertEqual(data, 'something-updated')
+        self.assertEqual(data, {'id': None, 'name': 'something-updated'})
 
     def test_update_with_complete_resources(self):
         load_things_worker(self.ckan, 'datasets', {
@@ -222,7 +283,48 @@ class TestCLILoad(unittest.TestCase):
         timstamp, action, error, data = json.loads(response.decode('UTF-8'))
         self.assertEqual(action, 'update')
         self.assertEqual(error, None)
-        self.assertEqual(data, 'something-updated')
+        self.assertEqual(data, {'id': None, 'name': 'something-updated'})
+
+    def test_update_with_resource_views(self):
+        """
+        Updating a dataset with Resources that have views should update
+        the resource views.
+        """
+        payload = {
+            'name': '46',
+            'title': 'Forty-six',
+            'resources': [{
+                'name': 'resource1',
+                'format': 'csv',
+                'id': '123',
+                'url': 'http://example.com',
+                'datastore_active': True,
+                'resource_views': [{
+                    'description': 'Test view',
+                    'filterable': True,
+                    'id': '456',
+                    'resource_id': '456',
+                    'responsive': True,
+                    'show_fields': ['_id']
+                }]
+            }]
+        }
+        load_things_worker(self.ckan, 'datasets', {
+                '--create-only': False,
+                '--update-only': False,
+                '--upload-resources': False,
+                '--insecure': False,
+                '--resource-views': True,
+                '--datastore-fields': False,
+                },
+            stdin=BytesIO(json.dumps(payload).encode()),
+            stdout=self.stdout)
+        response = self.stdout.getvalue()
+        self.assertEqual(response[-1:], b'\n')
+        timstamp, action, error, data = json.loads(response.decode('UTF-8'))
+        self.assertEqual(action, 'update')
+        self.assertEqual(error, None)
+        self.assertEqual(data, {'id': '46', 'name': '46', 'updated_resource_views': ['456']})
 
     def test_update_only(self):
         load_things_worker(self.ckan, 'datasets', {
@@ -240,7 +342,7 @@ class TestCLILoad(unittest.TestCase):
         timstamp, action, error, data = json.loads(response.decode('UTF-8'))
         self.assertEqual(action, 'update')
         self.assertEqual(error, None)
-        self.assertEqual(data, 'something-updated')
+        self.assertEqual(data, {'id': None, 'name': 'something-updated'})
 
     def test_update_bad_option(self):
         load_things_worker(self.ckan, 'datasets', {
@@ -294,7 +396,7 @@ class TestCLILoad(unittest.TestCase):
         timstamp, action, error, data = json.loads(response.decode('UTF-8'))
         self.assertEqual(action, 'update')
         self.assertEqual(error, None)
-        self.assertEqual(data, 'group-updated')
+        self.assertEqual(data, {'id': None, 'name': 'group-updated'})
 
     def test_update_organization_two(self):
         load_things_worker(self.ckan, 'organizations', {
@@ -316,11 +418,11 @@ class TestCLILoad(unittest.TestCase):
         timstamp, action, error, data = json.loads(r1.decode('UTF-8'))
         self.assertEqual(action, 'update')
         self.assertEqual(error, None)
-        self.assertEqual(data, 'org-updated')
+        self.assertEqual(data, {'id': None, 'name': 'org-updated'})
         timstamp, action, error, data = json.loads(r2.decode('UTF-8'))
         self.assertEqual(action, 'create')
         self.assertEqual(error, None)
-        self.assertEqual(data, 'org-created')
+        self.assertEqual(data, {'id': None, 'name': 'org-created'})
 
     def test_update_organization_with_users_unchanged(self):
         load_things_worker(self.ckan, 'organizations', {
@@ -338,7 +440,7 @@ class TestCLILoad(unittest.TestCase):
         timstamp, action, error, data = json.loads(response.decode('UTF-8'))
         self.assertEqual(action, 'update')
         self.assertEqual(error, None)
-        self.assertEqual(data, 'users-unchanged')
+        self.assertEqual(data, {'id': None, 'name': 'users-unchanged'})
 
     def test_update_organization_with_users_cleared(self):
         load_things_worker(self.ckan, 'organizations', {
@@ -356,7 +458,7 @@ class TestCLILoad(unittest.TestCase):
         timstamp, action, error, data = json.loads(response.decode('UTF-8'))
         self.assertEqual(action, 'update')
         self.assertEqual(error, None)
-        self.assertEqual(data, 'users-cleared')
+        self.assertEqual(data, {'id': None, 'name': 'users-cleared'})
 
     def test_parent_load_two(self):
         load_things(self.ckan, 'datasets', {

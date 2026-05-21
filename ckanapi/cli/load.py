@@ -214,7 +214,8 @@ def load_things_worker(ckan, thing, arguments,
                 if thing == 'datasets' and obj.get('resources'):
                     for r in obj['resources']:
                         resource_views += r.pop('resource_views', [])
-                        # FIXME: assuming passed resources have an id
+                        # NOTE: will only work with existing Resource IDs in the input,
+                        #       documented in the command help.
                         datastore_fields[r['id']] = r.pop('datastore_fields', [])
                 if existing:
                     r = ckan.call_action(thing_update, obj,
@@ -248,7 +249,7 @@ def load_things_worker(ckan, thing, arguments,
             except NotFound:
                 reply(act, 'NotFound', obj)
             else:
-                log_obj = {}
+                log_obj = {'id': r.get('id'), 'name': r.get('name')}
                 if arguments['--resource-views'] and resource_views:
                     if created_views:
                         log_obj['created_resource_views'] = created_views
@@ -261,7 +262,7 @@ def load_things_worker(ckan, thing, arguments,
                         log_obj['created_datastore_tables'] = created_tables
                     if skipped_tables:
                         log_obj['skipped_datastore_tables'] = skipped_tables
-                reply(act, None, log_obj if log_obj else r.get('name', r.get('id')))
+                reply(act, None, log_obj)
 
 def _worker_command_line(thing, arguments):
     """
@@ -400,7 +401,7 @@ def _load_datastore_resource_fields(ckan, datastore_fields, arguments):
                 # exceptions handled in load_things_worker
                 # raise normal exception for non-existing tables
                 raise e
-            skipped.append('%s: %s' % (rid, str(e)))
+            skipped.append('%s: %s' % (rid, e))
 
     return created, skipped
 
