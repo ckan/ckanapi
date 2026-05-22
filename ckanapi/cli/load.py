@@ -225,7 +225,7 @@ def load_things_worker(ckan, thing, arguments,
                         ckan.call_action(thing_update, obj,
                                          requests_kwargs=requests_kwargs)
                 if thing == 'users' and arguments['--api-tokens'] and api_token_list:  # check if it is needed to create user api tokens when creating/updating users
-                    _load_user_api_tokens(ckan, api_token_list, arguments)
+                    created_tokens = _load_user_api_tokens(ckan, api_token_list, arguments)
             except ValidationError as e:
                 reply(act, 'ValidationError', e.error_dict)
             except SearchIndexError as e:
@@ -236,6 +236,8 @@ def load_things_worker(ckan, thing, arguments,
                 reply(act, 'NotFound', obj)
             else:
                 log_obj = {'id': r.get('id'), 'name': r.get('name')}
+                if arguments['--api-tokens'] and api_token_list and created_tokens:
+                    log_obj['created_tokens'] = created_tokens
                 reply(act, None, log_obj)
 
 
@@ -324,6 +326,7 @@ def _load_user_api_tokens(ckan, api_token_list, arguments):
     requests_kwargs = None
     if arguments['--insecure']:
         requests_kwargs = {'verify': False}
+    created_tokens = []
     for token in api_token_list:
         # exceptions handled in load_things_worker
         ckan.call_action(
@@ -336,3 +339,5 @@ def _load_user_api_tokens(ckan, api_token_list, arguments):
                 'user': token['user_id']
             },
             requests_kwargs=requests_kwargs)
+        created_tokens.append(token['name'])
+    return created_tokens

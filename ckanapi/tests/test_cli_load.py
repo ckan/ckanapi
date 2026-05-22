@@ -54,7 +54,12 @@ class MockCKAN(object):
                 },
                 'user_create': {
                     None: {'id': 'some-generated-uuid', 'name': 'test_user'}
-                }
+                },
+                'api_token_create': {
+                    'this-is-a-token': {
+                        'id': 'this-is-a-token'
+                    }
+                },
                 }[name][data_dict.get('id')]
         except KeyError:
             raise NotFound()
@@ -456,26 +461,20 @@ class TestCLILoad(unittest.TestCase):
         self.assertEqual(data, {'id': 'some-generated-uuid', 'name': 'test_user'})
 
     def test_create_user_with_api_token(self):
-        mock_user = unittest.mock.MagicMock()
-        mock_user.name = 'test_user'
-        mock_user.id = 'test_user'
-        with unittest.mock.patch('ckan.model.User.get') as mock_get:
-            mock_get.return_value = mock_user
-            load_things_worker(self.ckan, 'users', {
-                    '--create-only': True,
-                    '--update-only': False,
-                    '--insecure': False,
-                    '--api-tokens': True,
-                    },
-                stdin=BytesIO(b'{"name":"test_user","api_token_list":[{"user_id":"test_user","id":"this-is-a-token","name":"this-is-a-token","created_at":null,"last_access":null}]}\n'),
-                stdout=self.stdout)
+        load_things_worker(self.ckan, 'users', {
+                '--create-only': True,
+                '--update-only': False,
+                '--insecure': False,
+                '--api-tokens': True,
+                },
+            stdin=BytesIO(b'{"name":"test_user","api_token_list":[{"user_id":"test_user","id":"this-is-a-token","name":"this-is-a-token","created_at":null,"last_access":null}]}\n'),
+            stdout=self.stdout)
         response = self.stdout.getvalue()
         self.assertEqual(response[-1:], b'\n')
         timstamp, action, error, data = json.loads(response.decode('UTF-8'))
-        # FIXME: how to mock this...
         self.assertEqual(action, 'create')
         self.assertEqual(error, None)
-        self.assertEqual(data, {'id': 'some-generated-uuid', 'name': 'test_user'})
+        self.assertEqual(data, {'created_tokens': ['this-is-a-token'], 'id': 'some-generated-uuid', 'name': 'test_user'})
 
     def _mock_worker_pool(self, cmd, processes, job_iter):
         self.worker_cmd = cmd
