@@ -33,24 +33,24 @@ class MockCKAN(object):
                     'unused': {'users': ['people']},
                     },
                 'package_create': {
-                    None: {'name': 'something-new'},
+                    None: {'id': 'some-generated-uuid', 'name': 'something-new'},
                     },
                 'package_update': {
-                    '34': {'name': 'something-updated'},
+                    '34': {'id': '34', 'name': 'something-updated'},
                     },
                 'group_update': {
-                    'ab': {'name': 'group-updated'},
+                    'ab': {'id': 'ab', 'name': 'group-updated'},
                     },
                 'organization_update': {
-                    'cd': {'name': 'org-updated'},
-                    'used': {'name': 'users-unchanged'},
-                    'unused': {'name': 'users-cleared'},
+                    'cd': {'id': 'cd', 'name': 'org-updated'},
+                    'used': {'id': 'used', 'name': 'users-unchanged'},
+                    'unused': {'id': 'unused', 'name': 'users-cleared'},
                     },
                 'organization_create': {
-                    None: {'name': 'org-created'},
+                    None: {'id': 'some-generated-uuid', 'name': 'org-created'},
                     },
                 'user_show': {
-                    'test_user': {'id': 'some-generated-uuid', 'name': 'test_user'},
+                    'test_user': {'id': 'test_user', 'name': 'test_user'},
                 },
                 'user_create': {
                     None: {'id': 'some-generated-uuid', 'name': 'test_user'}
@@ -80,7 +80,7 @@ class TestCLILoad(unittest.TestCase):
         timstamp, action, error, data = json.loads(response.decode('UTF-8'))
         self.assertEqual(action, 'create')
         self.assertEqual(error, None)
-        self.assertEqual(data, 'something-new')
+        self.assertEqual(data, {'id': 'some-generated-uuid', 'name': 'something-new'})
 
     def test_create_with_corrupted_resources(self):
         load_things_worker(self.ckan, 'datasets', {
@@ -96,7 +96,7 @@ class TestCLILoad(unittest.TestCase):
         timstamp, action, error, data = json.loads(response.decode('UTF-8'))
         self.assertEqual(action, 'create')
         self.assertEqual(error, None)
-        self.assertEqual(data, 'something-new')
+        self.assertEqual(data, {'id': 'some-generated-uuid', 'name': 'something-new'})
 
     def test_create_with_complete_resources(self):
         load_things_worker(self.ckan, 'datasets', {
@@ -114,7 +114,7 @@ class TestCLILoad(unittest.TestCase):
         timstamp, action, error, data = json.loads(response.decode('UTF-8'))
         self.assertEqual(action, 'create')
         self.assertEqual(error, None)
-        self.assertEqual(data, 'something-new')
+        self.assertEqual(data, {'id': 'some-generated-uuid', 'name': 'something-new'})
 
     def test_create_only(self):
         load_things_worker(self.ckan, 'datasets', {
@@ -130,7 +130,7 @@ class TestCLILoad(unittest.TestCase):
         timstamp, action, error, data = json.loads(response.decode('UTF-8'))
         self.assertEqual(action, 'create')
         self.assertEqual(error, None)
-        self.assertEqual(data, 'something-new')
+        self.assertEqual(data, {'id': 'some-generated-uuid', 'name': 'something-new'})
 
     def test_create_empty_dict(self):
         load_things_worker(self.ckan, 'datasets', {
@@ -146,7 +146,7 @@ class TestCLILoad(unittest.TestCase):
         timstamp, action, error, data = json.loads(response.decode('UTF-8'))
         self.assertEqual(action, 'create')
         self.assertEqual(error, None)
-        self.assertEqual(data, 'something-new')
+        self.assertEqual(data, {'id': 'some-generated-uuid', 'name': 'something-new'})
 
     def test_create_bad_option(self):
         load_things_worker(self.ckan, 'datasets', {
@@ -176,7 +176,7 @@ class TestCLILoad(unittest.TestCase):
         timstamp, action, error, data = json.loads(response.decode('UTF-8'))
         self.assertEqual(action, 'update')
         self.assertEqual(error, None)
-        self.assertEqual(data, 'something-updated')
+        self.assertEqual(data, {'id': '34', 'name': 'something-updated'})
 
     def test_update_with_corrupted_resources(self):
         load_things_worker(self.ckan, 'datasets', {
@@ -192,7 +192,7 @@ class TestCLILoad(unittest.TestCase):
         timstamp, action, error, data = json.loads(response.decode('UTF-8'))
         self.assertEqual(action, 'update')
         self.assertEqual(error, None)
-        self.assertEqual(data, 'something-updated')
+        self.assertEqual(data, {'id': '34', 'name': 'something-updated'})
 
     def test_update_with_complete_resources(self):
         load_things_worker(self.ckan, 'datasets', {
@@ -210,7 +210,7 @@ class TestCLILoad(unittest.TestCase):
         timstamp, action, error, data = json.loads(response.decode('UTF-8'))
         self.assertEqual(action, 'update')
         self.assertEqual(error, None)
-        self.assertEqual(data, 'something-updated')
+        self.assertEqual(data, {'id': '34', 'name': 'something-updated'})
 
     def test_update_only(self):
         load_things_worker(self.ckan, 'datasets', {
@@ -226,7 +226,7 @@ class TestCLILoad(unittest.TestCase):
         timstamp, action, error, data = json.loads(response.decode('UTF-8'))
         self.assertEqual(action, 'update')
         self.assertEqual(error, None)
-        self.assertEqual(data, 'something-updated')
+        self.assertEqual(data, {'id': '34', 'name': 'something-updated'})
 
     def test_update_bad_option(self):
         load_things_worker(self.ckan, 'datasets', {
@@ -274,7 +274,7 @@ class TestCLILoad(unittest.TestCase):
         timstamp, action, error, data = json.loads(response.decode('UTF-8'))
         self.assertEqual(action, 'update')
         self.assertEqual(error, None)
-        self.assertEqual(data, 'group-updated')
+        self.assertEqual(data, {'id': 'ab', 'name': 'group-updated'})
 
     def test_update_organization_two(self):
         load_things_worker(self.ckan, 'organizations', {
@@ -294,11 +294,11 @@ class TestCLILoad(unittest.TestCase):
         timstamp, action, error, data = json.loads(r1.decode('UTF-8'))
         self.assertEqual(action, 'update')
         self.assertEqual(error, None)
-        self.assertEqual(data, 'org-updated')
+        self.assertEqual(data, {'id': 'cd', 'name': 'org-updated'})
         timstamp, action, error, data = json.loads(r2.decode('UTF-8'))
         self.assertEqual(action, 'create')
         self.assertEqual(error, None)
-        self.assertEqual(data, 'org-created')
+        self.assertEqual(data, {'id': 'some-generated-uuid', 'name': 'org-created'})
 
     def test_update_organization_with_users_unchanged(self):
         load_things_worker(self.ckan, 'organizations', {
@@ -314,7 +314,7 @@ class TestCLILoad(unittest.TestCase):
         timstamp, action, error, data = json.loads(response.decode('UTF-8'))
         self.assertEqual(action, 'update')
         self.assertEqual(error, None)
-        self.assertEqual(data, 'users-unchanged')
+        self.assertEqual(data, {'id': 'used', 'name': 'users-unchanged'})
 
     def test_update_organization_with_users_cleared(self):
         load_things_worker(self.ckan, 'organizations', {
@@ -330,7 +330,7 @@ class TestCLILoad(unittest.TestCase):
         timstamp, action, error, data = json.loads(response.decode('UTF-8'))
         self.assertEqual(action, 'update')
         self.assertEqual(error, None)
-        self.assertEqual(data, 'users-cleared')
+        self.assertEqual(data, {'id': 'unused', 'name': 'users-cleared'})
 
     def test_parent_load_two(self):
         load_things(self.ckan, 'datasets', {
@@ -455,7 +455,7 @@ class TestCLILoad(unittest.TestCase):
         self.assertEqual(error, None)
         self.assertEqual(data, {'id': 'some-generated-uuid', 'name': 'test_user'})
 
-    def test_create_user_with_api_token(self, mock_get):
+    def test_create_user_with_api_token(self):
         mock_user = unittest.mock.MagicMock()
         mock_user.name = 'test_user'
         mock_user.id = 'test_user'
