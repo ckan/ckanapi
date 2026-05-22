@@ -252,14 +252,14 @@ def load_things_worker(ckan, thing, arguments,
                 reply(act, 'NotFound', obj)
             else:
                 log_obj = {'id': r.get('id'), 'name': r.get('name')}
-                if arguments['--resource-views'] and resource_views:
+                if thing == 'datasets' and arguments['--resource-views'] and resource_views:
                     if created_views:
                         log_obj['created_resource_views'] = created_views
                     if updated_views:
                         log_obj['updated_resource_views'] = updated_views
                     if skipped_views:
                         log_obj['skipped_resource_views'] = skipped_views
-                if arguments['--datastore-fields'] and datastore_fields:
+                if thing == 'datasets' and arguments['--datastore-fields'] and datastore_fields:
                     if created_tables:
                         log_obj['created_datastore_tables'] = created_tables
                     if skipped_tables:
