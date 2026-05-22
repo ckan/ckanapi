@@ -246,5 +246,6 @@ def populate_res_views(ckan, res):
         return  # with localckan we'll get the real CKAN exception not a CKANAPIError subclass
     if not views:
         return # return if the resource views list is empty
-    res['resource_views'] = views
+    rem = ['resource_id', 'package_id']  # remove unneeded key/values
+    res['resource_views'] = [{k: val for k, val in v.items() if k not in rem} for v in views]
 

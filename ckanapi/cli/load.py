@@ -336,9 +336,10 @@ def _load_resource_views(ckan, resource_views, arguments):
     requests_kwargs = None
     if arguments['--insecure']:
         requests_kwargs = {'verify': False}
-    for _rid, views in resource_views.items():
+    for rid, views in resource_views.items():
         for view in views:
             existing = None
+            view['resource_id'] = rid
             if not arguments['--create-only']:
                 if view.get('id'):
                     try:
