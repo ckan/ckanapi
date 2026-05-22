@@ -235,7 +235,8 @@ def load_things_worker(ckan, thing, arguments,
             except NotFound:
                 reply(act, 'NotFound', obj)
             else:
-                reply(act, None, r.get('name',r.get('id')))
+                log_obj = {'id': r.get('id'), 'name': r.get('name')}
+                reply(act, None, log_obj)
 
 
 def _worker_command_line(thing, arguments):

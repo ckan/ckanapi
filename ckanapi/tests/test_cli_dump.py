@@ -56,7 +56,23 @@ class MockCKAN(object):
                             'resource_id': 'd902fafc-5717-4dd0-87f2-7a6fc96989b7',
                             'responsive': True,
                             'show_fields': ['_id']}]},
-            }[name][data_dict.get('id') or data_dict.get('resource_id')]
+                'user_list': {
+                    None: [
+                        'test_user',
+                    ],
+                },
+                'user_show': {
+                    'test_user': {
+                        'id': '123',
+                        'name': 'test_user',
+                    },
+                },
+                'api_token_list': {
+                    'test_user': {
+                        'token': 'this-is-a-token',
+                    },
+                },
+            }[name][data_dict.get('id') or data_dict.get('resource_id') or data_dict.get('user_id')]
         except KeyError:
             raise NotFound()
 
@@ -434,6 +450,82 @@ class TestCLIDump(unittest.TestCase):
         self.assertEqual(data_dict["include_drafts"], True)
         self.assertEqual(data_dict["include_deleted"], True)
 
+    def test_dump_users(self):
+        """
+        Dumping all users should use user_list with all_fields=False
+        """
+        dump_things(self.ckan, 'users', {
+                '--all': True,
+                '--quiet': False,
+                '--ckan-user': None,
+                '--config': None,
+                '--remote': None,
+                '--apikey': None,
+                '--worker': False,
+                '--log': None,
+                '--output': None,
+                '--datapackages': None,
+                '--gzip': False,
+                '--processes': '1',
+                '--get-request': False,
+                '--datastore-fields': False,
+                '--resource-views': False,
+                '--insecure': False,
+                '--include-users': False,
+                '--api-tokens': False,
+                '--include-private': False,
+                '--include-drafts': False,
+                '--include-deleted': False,
+            },
+            worker_pool=self._worker_pool_for_users,
+            stdout=self.stdout,
+            stderr=self.stderr)
+
+        response = self.stdout.getvalue()
+        self.assertEqual(response[-1:], b'\n')
+        data = json.loads(response.decode('UTF-8'))
+
+        self.assertEqual(data, {'id': '123', 'name': 'test_user'})
+
+
+    def test_dump_users_with_tokens(self):
+        """
+        Dumping all users w/ --api-tokens should use user_list
+        with all_fields=False and use
+        """
+        dump_things(self.ckan, 'users', {
+                '--all': True,
+                '--quiet': False,
+                '--ckan-user': None,
+                '--config': None,
+                '--remote': None,
+                '--apikey': None,
+                '--worker': False,
+                '--log': None,
+                '--output': None,
+                '--datapackages': None,
+                '--gzip': False,
+                '--processes': '1',
+                '--get-request': False,
+                '--datastore-fields': False,
+                '--resource-views': False,
+                '--insecure': False,
+                '--include-users': False,
+                '--api-tokens': True,
+                '--include-private': False,
+                '--include-drafts': False,
+                '--include-deleted': False,
+            },
+            worker_pool=self._worker_pool_for_users_with_tokens,
+            stdout=self.stdout,
+            stderr=self.stderr)
+
+        response = self.stdout.getvalue()
+        self.assertEqual(response[-1:], b'\n')
+        data = json.loads(response.decode('UTF-8'))
+
+        self.assertEqual(data, {'api_token_list': {'token': 'this-is-a-token'}, 'id': '123', 'name': 'test_user'})
+
     def _mock_worker_pool(self, cmd, processes, job_iter):
         self.worker_cmd = cmd
         self.worker_processes = processes
@@ -460,7 +552,6 @@ class TestCLIDump(unittest.TestCase):
         for i, v in enumerate(worker_stdout.getvalue().strip().split(b'\n')):
             yield [[], i, v]
 
-
     def _worker_pool_with_resource_views(self, cmd, proccesses, job_iter):
         worker_stdin = BytesIO(b''.join(v for i, v in job_iter))
         worker_stdout = BytesIO()
@@ -469,6 +560,28 @@ class TestCLIDump(unittest.TestCase):
             '--resource-views': True,
             '--insecure': False,
             '--include-users': False,},
+            stdin=worker_stdin,
+            stdout=worker_stdout)
+        for i, v in enumerate(worker_stdout.getvalue().strip().split(b'\n')):
+            yield [[], i, v]
+
+    def _worker_pool_for_users(self, cmd, proccesses, job_iter):
+        worker_stdin = BytesIO(b''.join(v for i, v in job_iter))
+        worker_stdout = BytesIO()
+        dump_things_worker(self.ckan, 'users', {
+            '--api-tokens': False,
+            '--insecure': False,},
+            stdin=worker_stdin,
+            stdout=worker_stdout)
+        for i, v in enumerate(worker_stdout.getvalue().strip().split(b'\n')):
+            yield [[], i, v]
+
+    def _worker_pool_for_users_with_tokens(self, cmd, proccesses, job_iter):
+        worker_stdin = BytesIO(b''.join(v for i, v in job_iter))
+        worker_stdout = BytesIO()
+        dump_things_worker(self.ckan, 'users', {
+            '--api-tokens': True,
+            '--insecure': False,},
             stdin=worker_stdin,
             stdout=worker_stdout)
         for i, v in enumerate(worker_stdout.getvalue().strip().split(b'\n')):

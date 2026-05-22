@@ -66,7 +66,6 @@ def dump_things(ckan, thing, arguments,
                 include_drafts=arguments['--include-drafts'] if '--include-drafts' in arguments else False,
                 include_deleted=arguments['--include-deleted'] if '--include-deleted' in arguments else False,
             )
-
         names = ckan.call_action(get_thing_list, params)
 
     else:
@@ -258,9 +257,7 @@ def populate_api_tokens(ckan, user):
     Update user dict in-place with api_token_list
     """
     try:
-        tokens = ckan.call_action('api_token_list', {
-            'user_id': user['name'],
-            'limit': 0})
+        tokens = ckan.call_action('api_token_list', {'user_id': user['name']})
     except CKANAPIError:
         return
     except NotFound:

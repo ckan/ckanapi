@@ -4,6 +4,7 @@ import json
 
 import unittest
 from io import BytesIO
+import mock
 
 class MockCKAN(object):
     def call_action(self, name, data_dict, requests_kwargs=None):
@@ -49,6 +50,12 @@ class MockCKAN(object):
                 'organization_create': {
                     None: {'name': 'org-created'},
                     },
+                'user_show': {
+                    'test_user': {'id': 'some-generated-uuid', 'name': 'test_user'},
+                },
+                'user_create': {
+                    None: {'id': 'some-generated-uuid', 'name': 'test_user'}
+                }
                 }[name][data_dict.get('id')]
         except KeyError:
             raise NotFound()
@@ -432,6 +439,43 @@ class TestCLILoad(unittest.TestCase):
         self.assertEqual(self.worker_cmd, [
             'ckanapi', 'load', 'datasets', '--worker'])
         self.assertEqual(self.worker_processes, 2)
+
+    def test_create_user(self):
+        load_things_worker(self.ckan, 'users', {
+                '--create-only': True,
+                '--update-only': False,
+                '--insecure': False,
+                '--api-tokens': False,
+                },
+            stdin=BytesIO(b'{"name":"test_user"}\n'),
+            stdout=self.stdout)
+        response = self.stdout.getvalue()
+        self.assertEqual(response[-1:], b'\n')
+        timstamp, action, error, data = json.loads(response.decode('UTF-8'))
+        self.assertEqual(action, 'create')
+        self.assertEqual(error, None)
+        self.assertEqual(data, {'id': 'some-generated-uuid', 'name': 'test_user'})
+
+    # @mock.patch("ckan.model.User.get")
+    # def test_create_user_with_api_token(self, mock_get):
+    #     mock_user = mock.MagicMock()
+    #     mock_user.name = 'test_user'
+    #     mock_user.id = 'test_user'
+    #     mock_get.return_value = mock_user
+    #     load_things_worker(self.ckan, 'users', {
+    #             '--create-only': True,
+    #             '--update-only': False,
+    #             '--insecure': False,
+    #             '--api-tokens': True,
+    #             },
+    #         stdin=BytesIO(b'{"name":"test_user","api_token_list":[{"user_id":"test_user","id":"this-is-a-token","name":"this-is-a-token","created_at":null,"last_access":null}]}\n'),
+    #         stdout=self.stdout)
+    #     response = self.stdout.getvalue()
+    #     self.assertEqual(response[-1:], b'\n')
+    #     timstamp, action, error, data = json.loads(response.decode('UTF-8'))
+    #     self.assertEqual(action, 'create')
+    #     self.assertEqual(error, None)
+    #     self.assertEqual(data, {'id': 'some-generated-uuid', 'name': 'test_user'})
 
     def _mock_worker_pool(self, cmd, processes, job_iter):
         self.worker_cmd = cmd
