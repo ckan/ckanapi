@@ -236,7 +236,7 @@ def load_things_worker(ckan, thing, arguments,
                 reply(act, 'NotFound', obj)
             else:
                 log_obj = {'id': r.get('id'), 'name': r.get('name')}
-                if arguments['--api-tokens'] and api_token_list and created_tokens:
+                if thing == 'users' and arguments['--api-tokens'] and api_token_list and created_tokens:
                     log_obj['created_tokens'] = created_tokens
                 reply(act, None, log_obj)
 
