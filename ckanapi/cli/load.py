@@ -208,6 +208,7 @@ def load_things_worker(ckan, thing, arguments,
 
             act = 'update' if existing else 'create'
             try:
+                api_token_list = obj.pop('api_token_list', None)  # do not send api_token_list to user actions
                 if existing:
                     r = ckan.call_action(thing_update, obj,
                                          requests_kwargs=requests_kwargs)
@@ -215,7 +216,7 @@ def load_things_worker(ckan, thing, arguments,
                     r = ckan.call_action(thing_create, obj)
                 if thing == 'datasets' and 'resources' in obj:# check if it is needed to upload resources when creating/updating packages
                     _upload_resources(ckan,obj,arguments)
-                elif thing in ['groups','organizations'] and 'image_display_url' in obj:   #load images for groups and organizations
+                if thing in ['groups','organizations'] and 'image_display_url' in obj:   #load images for groups and organizations
                     if arguments['--upload-logo']:
                         users = obj['users']
                         obj = _upload_logo(ckan,obj)
@@ -223,6 +224,8 @@ def load_things_worker(ckan, thing, arguments,
                         obj['users'] = users
                         ckan.call_action(thing_update, obj,
                                          requests_kwargs=requests_kwargs)
+                if thing == 'users' and arguments['--api-tokens'] and api_token_list:  # check if it is needed to create user api tokens when creating/updating users
+                    created_tokens = _load_user_api_tokens(ckan, api_token_list, arguments)
             except ValidationError as e:
                 reply(act, 'ValidationError', e.error_dict)
             except SearchIndexError as e:
@@ -232,7 +235,11 @@ def load_things_worker(ckan, thing, arguments,
             except NotFound:
                 reply(act, 'NotFound', obj)
             else:
-                reply(act, None, r.get('name',r.get('id')))
+                log_obj = {'id': r.get('id'), 'name': r.get('name')}
+                if thing == 'users' and arguments['--api-tokens'] and api_token_list and created_tokens:
+                    log_obj['created_tokens'] = created_tokens
+                reply(act, None, log_obj)
+
 
 def _worker_command_line(thing, arguments):
     """
@@ -255,6 +262,7 @@ def _worker_command_line(thing, arguments):
         + b('--update-only')
         + b('--upload-resources')
         + b('--upload-logo')
+        + b('--api-tokens')
         )
 
 
@@ -309,3 +317,27 @@ def _upload_logo(ckan,obj_orig):
         obj['image_upload'] = (new_url, f.raw)
     ckan.action.group_update(**obj)
     return obj
+
+
+def _load_user_api_tokens(ckan, api_token_list, arguments):
+    """
+    Loads user API Tokens from api_token_list
+    """
+    requests_kwargs = None
+    if arguments['--insecure']:
+        requests_kwargs = {'verify': False}
+    created_tokens = []
+    for token in api_token_list:
+        # exceptions handled in load_things_worker
+        ckan.call_action(
+            'api_token_create',
+            {
+                'id': token['id'],
+                'created_at': token['created_at'],
+                'last_access': token['last_access'],
+                'name': token['name'],
+                'user': token['user_id']
+            },
+            requests_kwargs=requests_kwargs)
+        created_tokens.append(token['name'])
+    return created_tokens
