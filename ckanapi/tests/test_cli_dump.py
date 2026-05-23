@@ -369,8 +369,6 @@ class TestCLIDump(unittest.TestCase):
                         'description': 'Test view',
                         'filterable': True,
                         'id': 'd902fafc-5717-4dd0-87f2-7a6fc96989d9',
-                        'package_id': 'dp',
-                        'resource_id': 'd902fafc-5717-4dd0-87f2-7a6fc96989b7',
                         'responsive': True,
                         'show_fields': ['_id']
                     }]

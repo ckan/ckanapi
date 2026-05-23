@@ -12,9 +12,13 @@ Usage:
           (ID_OR_NAME ... | [-I JSONL_INPUT] [-s START] [-m MAX])
           [-p PROCESSES] [-l LOG_FILE] [-qwz]
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [--insecure]]
-  ckanapi dump (datasets | groups | organizations | related)
+  ckanapi dump datasets
           (ID_OR_NAME ... | --all) ([-O JSONL_OUTPUT] | [-D DIRECTORY])
-          [-p PROCESSES] [-dqwzRU --include-private --include-drafts --include-deleted]
+          [-p PROCESSES] [-qwz --include-private --include-drafts --include-deleted --datastore-fields --resource-views]
+          [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g] [--insecure]]
+  ckanapi dump (groups | organizations | users | related)
+          (ID_OR_NAME ... | --all) ([-O JSONL_OUTPUT] | [-D DIRECTORY])
+          [-p PROCESSES] [-qwzU]
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g] [--insecure]]
   ckanapi dump users
           (ID_OR_NAME ... | --all) ([-O JSONL_OUTPUT] | [-D DIRECTORY])
@@ -22,7 +26,7 @@ Usage:
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g] [--insecure]]
   ckanapi load datasets
           [--upload-resources] [-I JSONL_INPUT] [-s START] [-m MAX]
-          [-p PROCESSES] [-l LOG_FILE] [-n | -o] [-qwz]
+          [-p PROCESSES] [-l LOG_FILE] [-n | -o] [-qwz --datastore-fields --resource-views]
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [--insecure]]
   ckanapi load (groups | organizations)
           [--upload-logo] [-I JSONL_INPUT] [-s START] [-m MAX]
@@ -51,7 +55,9 @@ Options:
   -c --config=CONFIG        CKAN configuration file for local actions,
                             defaults to $CKAN_INI or development.ini
   -d --datastore-fields     export datastore field information along with
-                            resource metadata as datastore_fields lists
+                            resource metadata as datastore_fields lists (dump).
+                            load datastore field information for resources (load).
+                            Requires existing Resource IDs in the JSONL.
   --include-private         include private datasets in the dump
   --include-drafts          include draft datasets in the dump
   --include-deleted         include deleted datasets in the dump
@@ -78,7 +84,9 @@ Options:
   -q --quiet                don't display progress messages
   -r --remote=URL           URL of CKAN server for remote actions
   -R --resource-views       export resource views information along with
-                            resource metadata as resource_views lists
+                            resource metadata as resource_views lists (dump).
+                            create/update resource views for resources (load).
+                            Requires existing Resource IDs in the JSONL.
   -s --start-record=START   start from record number START, where the first
                             record is number 1 [default: 1]
   -u --ckan-user=USER       perform actions as user with this name, uses the
