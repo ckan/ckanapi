@@ -209,14 +209,33 @@ def load_things_worker(ckan, thing, arguments,
             act = 'update' if existing else 'create'
             try:
                 api_token_list = obj.pop('api_token_list', None)  # do not send api_token_list to user actions
+                # do not send resource_views & datastore_fields to package actions
+                resource_views = {}
+                datastore_fields = {}
+                if thing == 'datasets' and obj.get('resources'):
+                    for r in obj['resources']:
+                        # NOTE: will only work with existing Resource IDs in the input,
+                        #       documented in the command help.
+                        if arguments['--resource-views']:
+                            resource_views[r['id']] = r.pop('resource_views', [])
+                        if arguments['--datastore-fields']:
+                            datastore_fields[r['id']] = r.pop('datastore_fields', [])
                 if existing:
                     r = ckan.call_action(thing_update, obj,
                                          requests_kwargs=requests_kwargs)
                 else:
-                    r = ckan.call_action(thing_create, obj)
-                if thing == 'datasets' and 'resources' in obj:# check if it is needed to upload resources when creating/updating packages
-                    _upload_resources(ckan,obj,arguments)
-                if thing in ['groups','organizations'] and 'image_display_url' in obj:   #load images for groups and organizations
+                    r = ckan.call_action(thing_create, obj,
+                                         requests_kwargs=requests_kwargs)
+                if thing == 'datasets' and 'resources' in obj:
+                    # NOTE: order is important as Resource uploads may be dependant on DS Fields (XLoader/DataPusher),
+                    #       and Resource Views may be dependant on DS and Upload.
+                    if arguments['--datastore-fields'] and datastore_fields:  # check if it is needed to update datastore resource fields when creating/updating packages
+                        created_tables, skipped_tables = _load_datastore_resource_fields(ckan, datastore_fields, arguments)
+                    if arguments['--upload-resources']:  # check if it is needed to upload resources when creating/updating packages
+                        _upload_resources(ckan, obj, arguments)
+                    if arguments['--resource-views'] and resource_views:  # check if it is needed to create resource views when creating/updating packages
+                        created_views, updated_views, skipped_views = _load_resource_views(ckan, resource_views, arguments)
+                if thing in ['groups','organizations'] and 'image_display_url' in obj:  # load images for groups and organizations
                     if arguments['--upload-logo']:
                         users = obj['users']
                         obj = _upload_logo(ckan,obj)
@@ -238,8 +257,19 @@ def load_things_worker(ckan, thing, arguments,
                 log_obj = {'id': r.get('id'), 'name': r.get('name')}
                 if thing == 'users' and arguments['--api-tokens'] and api_token_list and created_tokens:
                     log_obj['created_tokens'] = created_tokens
+                if thing == 'datasets' and arguments['--resource-views'] and resource_views:
+                    if created_views:
+                        log_obj['created_resource_views'] = created_views
+                    if updated_views:
+                        log_obj['updated_resource_views'] = updated_views
+                    if skipped_views:
+                        log_obj['skipped_resource_views'] = skipped_views
+                if thing == 'datasets' and arguments['--datastore-fields'] and datastore_fields:
+                    if created_tables:
+                        log_obj['created_datastore_tables'] = created_tables
+                    if skipped_tables:
+                        log_obj['skipped_datastore_tables'] = skipped_tables
                 reply(act, None, log_obj)
-
 
 def _worker_command_line(thing, arguments):
     """
@@ -263,6 +293,8 @@ def _worker_command_line(thing, arguments):
         + b('--upload-resources')
         + b('--upload-logo')
         + b('--api-tokens')
+        + b('--datastore-fields')
+        + b('--resource-views')
         )
 
 
@@ -282,10 +314,9 @@ def _copy_from_existing_for_update(obj, existing, thing):
         if 'users' not in obj and 'users' in existing:
             obj['users'] = existing['users']
 
-def _upload_resources(ckan,obj,arguments):
+
+def _upload_resources(ckan, obj, arguments):
     resources = obj['resources']
-    if not arguments['--upload-resources']:
-        return
     requests_kwargs = None
     if arguments['--insecure']:
         requests_kwargs = {'verify': False}
@@ -299,6 +330,90 @@ def _upload_resources(ckan,obj,arguments):
             {'id':resource['id']},
             files={'upload':(name, f.raw)},
             requests_kwargs=requests_kwargs)
+
+
+def _load_resource_views(ckan, resource_views, arguments):
+    """
+    Loads resource views
+    """
+    created = []
+    updated = []
+    skipped = []
+    requests_kwargs = None
+    if arguments['--insecure']:
+        requests_kwargs = {'verify': False}
+    for rid, views in resource_views.items():
+        for view in views:
+            existing = None
+            view['resource_id'] = rid
+            if not arguments['--create-only']:
+                if view.get('id'):
+                    try:
+                        existing = ckan.call_action('resource_view_show',
+                            {'id': view['id']},
+                            requests_kwargs=requests_kwargs)
+                    except NotFound:
+                        pass
+
+                if existing:
+                    _copy_from_existing_for_update(view, existing, 'resource_view')
+
+            if not existing and arguments['--update-only']:
+                skipped.append(view.get('id', view.get('view_type')))
+                continue
+
+            if existing:
+                # exceptions handled in load_things_worker
+                ckan.call_action('resource_view_update', view,
+                                requests_kwargs=requests_kwargs)
+                updated.append(view.get('id', view.get('view_type')))
+            else:
+                # exceptions handled in load_things_worker
+                ckan.call_action('resource_view_create', view,
+                                requests_kwargs=requests_kwargs)
+                created.append(view.get('id', view.get('view_type')))
+
+    return created, updated, skipped
+
+
+def _load_datastore_resource_fields(ckan, datastore_fields, arguments):
+    """
+    Load datastore tables for Resources
+    """
+    created = []
+    skipped = []
+    requests_kwargs = None
+    if arguments['--insecure']:
+        requests_kwargs = {'verify': False}
+    for rid, ds_fields in datastore_fields.items():
+        if not ds_fields:
+            continue
+        existing = None
+        try:
+            existing = ckan.call_action('datastore_search',
+                {'resource_id': rid, 'limit': 0},
+                requests_kwargs=requests_kwargs)
+        except NotFound:
+            pass
+
+        try:
+            ckan.call_action(
+                'datastore_create',
+                {
+                    'resource_id': rid,
+                    'fields': ds_fields,
+                    'force': True
+                },
+                requests_kwargs=requests_kwargs)
+            created.append(rid)
+        except ValidationError as e:
+            if not existing:
+                # exceptions handled in load_things_worker
+                # raise normal exception for non-existing tables
+                raise e
+            skipped.append('%s: %s' % (rid, e))
+
+    return created, skipped
 
 
 def _upload_logo(ckan,obj_orig):
