@@ -11,7 +11,9 @@ class TestAppCKAN(object):
     :param test_app: the paste.fixture.TestApp instance, stored as
                     self.test_app
     :param apikey: the API key to pass as an 'X-CKAN-API-Key' header
-                    when actions are called, stored as self.apikey
+                    when actions are called, stored as self.apikey.
+                    If a dictionary is passed, you may provide an 'apikey'
+                    and 'header' key to specify the key and header name
     """
     def __init__(self, test_app, apikey=None):
         self.test_app = test_app
