@@ -258,7 +258,29 @@ class TestResourceFilename(unittest.TestCase):
         filename = resource_filename(dres=datapackage_resource)
 
         assert filename == u'image-1.png'
+        
+class TestResourceFilename(unittest.TestCase):
+    def test_simple(self):
+        datapackage_resource = {
+            u'title': u'Image 1',
+            u'name': u'image-1',
+            u'format': u'PNG'
+        }
 
+        filename = resource_filename(dres=datapackage_resource)
+
+        assert filename == u'image-1.png'
+
+    def test_no_trailing_hyphen_before_extension(self):
+        datapackage_resource = {
+            u'title': u'S_ptarmigan_counts_readme.pdf',
+            u'name': u's-ptarmigan-counts-readme-pdf',
+            u'format': u'PDF'
+        }
+
+        filename = resource_filename(dres=datapackage_resource)
+
+        assert filename == u's-ptarmigan-counts-readme.pdf'
 
 class TestPopulateSchemaFromDatastore(unittest.TestCase):
     def test_simple(self):
