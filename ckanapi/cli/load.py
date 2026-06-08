@@ -220,10 +220,13 @@ def load_things_worker(ckan, thing, arguments,
                             resource_views[r['id']] = r.pop('resource_views', [])
                         if arguments['--datastore-fields']:
                             datastore_fields[r['id']] = r.pop('datastore_fields', [])
+                if thing in ('group', 'organization') and obj.get('users') and arguments['--append-users']:
+                    group_users = obj.pop('users', [])
                 if existing:
                     r = ckan.call_action(thing_update, obj,
                                          requests_kwargs=requests_kwargs)
                 else:
+                    # FIXME: add ignore_not_sysadmin to creator_user_id to ckan core....
                     r = ckan.call_action(thing_create, obj,
                                          requests_kwargs=requests_kwargs)
                 if thing == 'datasets' and 'resources' in obj:
@@ -235,14 +238,16 @@ def load_things_worker(ckan, thing, arguments,
                         _upload_resources(ckan, obj, arguments)
                     if arguments['--resource-views'] and resource_views:  # check if it is needed to create resource views when creating/updating packages
                         created_views, updated_views, skipped_views = _load_resource_views(ckan, resource_views, arguments)
-                if thing in ['groups','organizations'] and 'image_display_url' in obj:  # load images for groups and organizations
-                    if arguments['--upload-logo']:
+                if thing in ('groups', 'organizations'):
+                    if 'image_display_url' in obj and arguments['--upload-logo']:  # load images for groups and organizations
                         users = obj['users']
                         obj = _upload_logo(ckan,obj)
                         obj.pop('image_upload')
                         obj['users'] = users
                         ckan.call_action(thing_update, obj,
                                          requests_kwargs=requests_kwargs)
+                    if arguments['--append-users'] and group_users:  # check if it is needed to append group/org users
+                        set_members = _load_group_members(ckan, group_users, arguments, thing, r['id'])
                 if thing == 'users' and arguments['--api-tokens'] and api_token_list:  # check if it is needed to create user api tokens when creating/updating users
                     created_tokens = _load_user_api_tokens(ckan, api_token_list, arguments)
             except ValidationError as e:
@@ -269,6 +274,8 @@ def load_things_worker(ckan, thing, arguments,
                         log_obj['created_datastore_tables'] = created_tables
                     if skipped_tables:
                         log_obj['skipped_datastore_tables'] = skipped_tables
+                if thing in ('groups', 'organizations') and arguments['--append-users'] and group_users and set_members:
+                    log_obj['set_members'] = set_members
                 reply(act, None, log_obj)
 
 def _worker_command_line(thing, arguments):
@@ -295,6 +302,7 @@ def _worker_command_line(thing, arguments):
         + b('--api-tokens')
         + b('--datastore-fields')
         + b('--resource-views')
+        + b('--append-users')
         )
 
 
@@ -456,3 +464,27 @@ def _load_user_api_tokens(ckan, api_token_list, arguments):
             requests_kwargs=requests_kwargs)
         created_tokens.append(token['name'])
     return created_tokens
+
+
+def _load_group_members(ckan, user_list, arguments, thing, obj_id):
+    """
+    Appends users as members for Groups/Organizations
+    """
+    requests_kwargs = None
+    if arguments['--insecure']:
+        requests_kwargs = {'verify': False}
+    set_members = []
+    action = 'group_member_create' if thing == 'group' \
+        else 'organization_member_create'
+    for user in user_list:
+        # exceptions handled in load_things_worker
+        ckan.call_action(
+            action,
+            {
+                'id': obj_id,
+                'username': user['name'],
+                'role': user['capacity'],
+            },
+            requests_kwargs=requests_kwargs)
+        set_members.append('%s[%s]' % (user['name'], user['capacity']))
+    return set_members
