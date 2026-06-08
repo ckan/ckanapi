@@ -212,6 +212,7 @@ def load_things_worker(ckan, thing, arguments,
                 # do not send resource_views & datastore_fields to package actions
                 resource_views = {}
                 datastore_fields = {}
+                group_users = []
                 if thing == 'datasets' and obj.get('resources'):
                     for r in obj['resources']:
                         # NOTE: will only work with existing Resource IDs in the input,
@@ -220,8 +221,10 @@ def load_things_worker(ckan, thing, arguments,
                             resource_views[r['id']] = r.pop('resource_views', [])
                         if arguments['--datastore-fields']:
                             datastore_fields[r['id']] = r.pop('datastore_fields', [])
-                if thing in ('group', 'organization') and obj.get('users') and arguments['--append-users']:
+                if thing in ('groups', 'organizations') and obj.get('users'):
                     group_users = obj.pop('users', [])
+                    if not arguments['--append-users']:
+                        obj['users'] = group_users
                 if existing:
                     r = ckan.call_action(thing_update, obj,
                                          requests_kwargs=requests_kwargs)
@@ -274,8 +277,11 @@ def load_things_worker(ckan, thing, arguments,
                         log_obj['created_datastore_tables'] = created_tables
                     if skipped_tables:
                         log_obj['skipped_datastore_tables'] = skipped_tables
-                if thing in ('groups', 'organizations') and arguments['--append-users'] and group_users and set_members:
-                    log_obj['set_members'] = set_members
+                if thing in ('groups', 'organizations'):
+                    if arguments['--append-users'] and group_users and set_members:
+                        log_obj['set_members'] = set_members
+                    elif group_users:
+                        log_obj['set_members'] = ['%s[%s]' % (m['name'], m['capacity']) for m in group_users]
                 reply(act, None, log_obj)
 
 def _worker_command_line(thing, arguments):
