@@ -30,7 +30,7 @@ Usage:
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [--insecure]]
   ckanapi load (groups | organizations)
           [--upload-logo] [-I JSONL_INPUT] [-s START] [-m MAX]
-          [-p PROCESSES] [-l LOG_FILE] [-n | -o] [-qwzU]
+          [-p PROCESSES] [-l LOG_FILE] [-n | -o] [-qwz] [--include-users | --append-users]
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [--insecure]]
   ckanapi load users
           [-I JSONL_INPUT] [-s START] [-m MAX] [-p PROCESSES] [-l LOG_FILE]
@@ -91,7 +91,9 @@ Options:
                             record is number 1 [default: 1]
   -u --ckan-user=USER       perform actions as user with this name, uses the
                             site sysadmin user when not specified
-  -U --include-users        include users of a group/organization
+  -U --include-users        include users of a group/organization. Will fully replace
+                            any existing users during load.
+  -A --append-users         adds users to a group/organization instead of truncating them.
   --api-tokens              export API Token information along with
                             user metadata as api_token_list lists (dump).
                             create API Tokens for users (load).
