@@ -13,7 +13,7 @@ class MockCKAN(object):
             raise ValidationError({'name': 'That URL is already in use.'})
         if name == 'organization_update':
             if data_dict['id'] == 'used' and data_dict.get('users') != [
-                    'people']:
+                    {"capacity": "editor", "name": "test-user"}]:
                 raise ValidationError({'users': 'should be unchanged'})
             if data_dict['id'] == 'unused' and data_dict.get('users') != []:
                 raise ValidationError({'users': 'should be cleared'})
@@ -36,8 +36,8 @@ class MockCKAN(object):
                 },
                 'organization_show': {
                     'cd': {'id': 'cd', 'title': "Super Trouper"},
-                    'used': {'users': ['people']},
-                    'unused': {'users': ['people']},
+                    'used': {'users': [{"capacity": "editor", "name": "test-user"}]},
+                    'unused': {'users': [{"capacity": "editor", "name": "test-user"}]},
                     'mems': {'id': 'mems', 'name': 'mems',
                              "users": [{"capacity": "admin", "name": "test-user-admin"},
                                        {"capacity": "editor", "name": "test-user"}]},
