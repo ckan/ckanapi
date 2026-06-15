@@ -229,7 +229,6 @@ def load_things_worker(ckan, thing, arguments,
                     r = ckan.call_action(thing_update, obj,
                                          requests_kwargs=requests_kwargs)
                 else:
-                    # FIXME: add ignore_not_sysadmin to creator_user_id to ckan core....
                     r = ckan.call_action(thing_create, obj,
                                          requests_kwargs=requests_kwargs)
                 if thing == 'datasets' and 'resources' in obj:
