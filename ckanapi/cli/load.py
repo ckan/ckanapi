@@ -223,7 +223,7 @@ def load_things_worker(ckan, thing, arguments,
                             datastore_fields[r['id']] = r.pop('datastore_fields', [])
                 if thing in ('groups', 'organizations') and obj.get('users'):
                     group_users = obj.pop('users', [])
-                    if not arguments['--append-users']:
+                    if not arguments['--append-users'] and arguments['--include-users']:
                         obj['users'] = group_users
                 if existing:
                     r = ckan.call_action(thing_update, obj,
@@ -278,8 +278,8 @@ def load_things_worker(ckan, thing, arguments,
                         log_obj['skipped_datastore_tables'] = skipped_tables
                 if thing in ('groups', 'organizations'):
                     if arguments['--append-users'] and group_users and set_members:
-                        log_obj['set_members'] = set_members
-                    elif group_users:
+                        log_obj['added_members'] = set_members
+                    elif arguments['--include-users'] and group_users:
                         log_obj['set_members'] = ['%s[%s]' % (m['name'], m['capacity']) for m in group_users]
                 reply(act, None, log_obj)
 
@@ -307,6 +307,7 @@ def _worker_command_line(thing, arguments):
         + b('--api-tokens')
         + b('--datastore-fields')
         + b('--resource-views')
+        + b('--include-users')
         + b('--append-users')
         )
 

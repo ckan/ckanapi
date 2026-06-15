@@ -11,12 +11,6 @@ class MockCKAN(object):
             raise NotAuthorized('naughty user')
         if name == 'package_create' and data_dict.get('name') == '34':
             raise ValidationError({'name': 'That URL is already in use.'})
-        if name == 'organization_update':
-            if data_dict['id'] == 'used' and data_dict.get('users') != [
-                    {"capacity": "editor", "name": "test-user"}]:
-                raise ValidationError({'users': 'should be unchanged'})
-            if data_dict['id'] == 'unused' and data_dict.get('users') != []:
-                raise ValidationError({'users': 'should be cleared'})
         if name == 'resource_view_show' and data_dict['id'] == '123':
             raise NotFound('no resource view with ID 123')
         if name == 'datastore_search' and (data_dict['resource_id'] == '123' or data_dict['resource_id'] == '111'):
@@ -113,6 +107,7 @@ class TestCLILoad(unittest.TestCase):
                 '--insecure': False,
                 '--resource-views': False,
                 '--datastore-fields': False,
+                '--include-users': False,
                 '--append-users': False,
                 },
             stdin=BytesIO(b'{"name": "45","title":"Forty-five"}\n'),
@@ -132,6 +127,7 @@ class TestCLILoad(unittest.TestCase):
                 '--insecure': False,
                 '--resource-views': False,
                 '--datastore-fields': False,
+                '--include-users': False,
                 '--append-users': False,
                 },
             stdin=BytesIO(b'{"name": "45","title":"Forty-five","resources":[{"id":"123"}]}\n'),
@@ -151,6 +147,7 @@ class TestCLILoad(unittest.TestCase):
                 '--insecure': False,
                 '--resource-views': False,
                 '--datastore-fields': False,
+                '--include-users': False,
                 '--append-users': False,
                 },
             stdin=BytesIO(
@@ -195,6 +192,7 @@ class TestCLILoad(unittest.TestCase):
                 '--insecure': False,
                 '--resource-views': True,
                 '--datastore-fields': False,
+                '--include-users': False,
                 '--append-users': False,
                 },
             stdin=BytesIO(json.dumps(payload).encode()),
@@ -233,6 +231,7 @@ class TestCLILoad(unittest.TestCase):
                 '--insecure': False,
                 '--resource-views': False,
                 '--datastore-fields': True,
+                '--include-users': False,
                 '--append-users': False,
                 },
             stdin=BytesIO(json.dumps(payload).encode()),
@@ -271,6 +270,7 @@ class TestCLILoad(unittest.TestCase):
                 '--insecure': False,
                 '--resource-views': False,
                 '--datastore-fields': True,
+                '--include-users': False,
                 '--append-users': False,
                 },
             stdin=BytesIO(json.dumps(payload).encode()),
@@ -290,6 +290,7 @@ class TestCLILoad(unittest.TestCase):
                 '--insecure': False,
                 '--resource-views': False,
                 '--datastore-fields': False,
+                '--include-users': False,
                 '--append-users': False,
                 },
             stdin=BytesIO(b'{"name": "45","title":"Forty-five"}\n'),
@@ -309,6 +310,7 @@ class TestCLILoad(unittest.TestCase):
                 '--insecure': False,
                 '--resource-views': False,
                 '--datastore-fields': False,
+                '--include-users': False,
                 '--append-users': False,
                 },
             stdin=BytesIO(b'{}\n'),
@@ -327,6 +329,7 @@ class TestCLILoad(unittest.TestCase):
                 '--insecure': False,
                 '--resource-views': False,
                 '--datastore-fields': False,
+                '--include-users': False,
                 '--append-users': False,
                 },
             stdin=BytesIO(b'{"name": "45","title":"Forty-five"}\n'),
@@ -345,6 +348,7 @@ class TestCLILoad(unittest.TestCase):
                 '--insecure': False,
                 '--resource-views': False,
                 '--datastore-fields': False,
+                '--include-users': False,
                 '--append-users': False,
                 },
             stdin=BytesIO(b'{"name": "30ish","title":"3.4 times ten"}\n'),
@@ -364,6 +368,7 @@ class TestCLILoad(unittest.TestCase):
                 '--insecure': False,
                 '--resource-views': False,
                 '--datastore-fields': False,
+                '--include-users': False,
                 '--append-users': False,
                 },
             stdin=BytesIO(b'{"name": "30ish","title":"3.4 times ten","resources":[{"id":"123"}]}\n'),
@@ -383,6 +388,7 @@ class TestCLILoad(unittest.TestCase):
                 '--insecure': False,
                 '--resource-views': False,
                 '--datastore-fields': False,
+                '--include-users': False,
                 '--append-users': False,
                 },
             stdin=BytesIO(
@@ -427,6 +433,7 @@ class TestCLILoad(unittest.TestCase):
                 '--insecure': False,
                 '--resource-views': True,
                 '--datastore-fields': False,
+                '--include-users': False,
                 '--append-users': False,
                 },
             stdin=BytesIO(json.dumps(payload).encode()),
@@ -469,6 +476,7 @@ class TestCLILoad(unittest.TestCase):
                 '--insecure': False,
                 '--resource-views': True,
                 '--datastore-fields': False,
+                '--include-users': False,
                 '--append-users': False,
                 },
             stdin=BytesIO(json.dumps(payload).encode()),
@@ -507,6 +515,7 @@ class TestCLILoad(unittest.TestCase):
                 '--insecure': False,
                 '--resource-views': False,
                 '--datastore-fields': True,
+                '--include-users': False,
                 '--append-users': False,
                 },
             stdin=BytesIO(json.dumps(payload).encode()),
@@ -545,6 +554,7 @@ class TestCLILoad(unittest.TestCase):
                 '--insecure': False,
                 '--resource-views': False,
                 '--datastore-fields': True,
+                '--include-users': False,
                 '--append-users': False,
                 },
             stdin=BytesIO(json.dumps(payload).encode()),
@@ -583,6 +593,7 @@ class TestCLILoad(unittest.TestCase):
                     '--insecure': False,
                     '--resource-views': False,
                     '--datastore-fields': True,
+                    '--include-users': False,
                     '--append-users': False,
                     },
                 stdin=BytesIO(json.dumps(payload).encode()),
@@ -620,6 +631,7 @@ class TestCLILoad(unittest.TestCase):
                     '--insecure': False,
                     '--resource-views': True,
                     '--datastore-fields': False,
+                    '--include-users': False,
                     '--append-users': False,
                     },
                 stdin=BytesIO(json.dumps(payload).encode()),
@@ -634,6 +646,7 @@ class TestCLILoad(unittest.TestCase):
                 '--insecure': False,
                 '--resource-views': False,
                 '--datastore-fields': False,
+                '--include-users': False,
                 '--append-users': False,
                 },
             stdin=BytesIO(b'{"name": "34","title":"3.4 times ten"}\n'),
@@ -653,6 +666,7 @@ class TestCLILoad(unittest.TestCase):
                 '--insecure': False,
                 '--resource-views': False,
                 '--datastore-fields': False,
+                '--include-users': False,
                 '--append-users': False,
                 },
             stdin=BytesIO(b'{"name": "34","title":"3.4 times ten"}\n'),
@@ -672,6 +686,7 @@ class TestCLILoad(unittest.TestCase):
                 '--insecure': False,
                 '--resource-views': False,
                 '--datastore-fields': False,
+                '--include-users': False,
                 '--append-users': False,
                 },
             stdin=BytesIO(b'{"name": "seekrit", "title": "Things"}\n'),
@@ -691,6 +706,7 @@ class TestCLILoad(unittest.TestCase):
                 '--insecure': False,
                 '--resource-views': False,
                 '--datastore-fields': False,
+                '--include-users': False,
                 '--append-users': False,
                 },
             stdin=BytesIO(b'{"id": "ab","title":"a balloon"}\n'),
@@ -710,6 +726,7 @@ class TestCLILoad(unittest.TestCase):
                 '--insecure': False,
                 '--resource-views': False,
                 '--datastore-fields': False,
+                '--include-users': False,
                 '--append-users': False,
                 },
             stdin=BytesIO(
@@ -729,7 +746,7 @@ class TestCLILoad(unittest.TestCase):
         self.assertEqual(error, None)
         self.assertEqual(data, {'id': 'some-generated-uuid', 'name': 'org-created'})
 
-    def test_update_organization_with_users_unchanged(self):
+    def test_update_organization_with_no_users(self):
         load_things_worker(self.ckan, 'organizations', {
                 '--create-only': False,
                 '--update-only': False,
@@ -737,9 +754,10 @@ class TestCLILoad(unittest.TestCase):
                 '--insecure': False,
                 '--resource-views': False,
                 '--datastore-fields': False,
+                '--include-users': False,
                 '--append-users': False,
                 },
-            stdin=BytesIO(b'{"id": "used", "title": "here"}\n'),
+            stdin=BytesIO(b'{"id": "used", "title": "here", "users": [{"capacity": "editor", "name": "test-user-new"}]}\n'),
             stdout=self.stdout)
         response = self.stdout.getvalue()
         self.assertEqual(response[-1:], b'\n')
@@ -756,6 +774,7 @@ class TestCLILoad(unittest.TestCase):
                 '--insecure': False,
                 '--resource-views': False,
                 '--datastore-fields': False,
+                '--include-users': True,
                 '--append-users': False,
                 },
             stdin=BytesIO(b'{"id": "unused", "users": []}\n'),
@@ -775,6 +794,7 @@ class TestCLILoad(unittest.TestCase):
                 '--insecure': False,
                 '--resource-views': False,
                 '--datastore-fields': False,
+                '--include-users': True,
                 '--append-users': False,
                 },
             stdin=BytesIO(b'{"id": "mems", "name": "mems", "users": [{"capacity": "editor", "name": "test-user"}]}\n'),
@@ -796,6 +816,7 @@ class TestCLILoad(unittest.TestCase):
                 '--insecure': False,
                 '--resource-views': False,
                 '--datastore-fields': False,
+                '--include-users': False,
                 '--append-users': True,
                 },
             stdin=BytesIO(b'{"id": "mems", "name": "mems", "users": [{"capacity": "admin", "name": "test-user-admin"}]}\n'),
@@ -806,7 +827,7 @@ class TestCLILoad(unittest.TestCase):
         timstamp, action, error, data = json.loads(response.decode('UTF-8'))
         self.assertEqual(action, 'update')
         self.assertEqual(error, None)
-        self.assertEqual(data, {'id': 'mems', 'name': 'mems', "set_members": ["test-user-admin[admin]"]})
+        self.assertEqual(data, {'id': 'mems', 'name': 'mems', "added_members": ["test-user-admin[admin]"]})
 
     def test_parent_load_two(self):
         load_things(self.ckan, 'datasets', {
@@ -830,6 +851,7 @@ class TestCLILoad(unittest.TestCase):
                 '--api-tokens': False,
                 '--resource-views': False,
                 '--datastore-fields': False,
+                '--include-users': False,
                 '--append-users': False,
             },
             worker_pool=self._mock_worker_pool,
@@ -869,6 +891,7 @@ class TestCLILoad(unittest.TestCase):
                 '--api-tokens': False,
                 '--resource-views': False,
                 '--datastore-fields': False,
+                '--include-users': False,
                 '--append-users': False,
             },
             worker_pool=self._mock_worker_pool,
@@ -911,6 +934,7 @@ class TestCLILoad(unittest.TestCase):
                 '--api-tokens': False,
                 '--resource-views': False,
                 '--datastore-fields': False,
+                '--include-users': False,
                 '--append-users': False,
             },
             worker_pool=self._mock_worker_pool,
