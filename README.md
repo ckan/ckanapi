@@ -172,6 +172,9 @@ will not have the `PARALLEL_LIMIT` applied.
 record or split across multiple servers by specifying record
 start and max values.
 
+`dump` will only handle public and active datasets, use `search datasets` instead
+when you require private, draft or deleted datasets.
+
 #### 🔧 Dump datasets from CKAN into a local file with 4 processes
 
 ```
@@ -184,6 +187,14 @@ $ ckanapi dump datasets --all -O datasets.jsonl.gz -z -p 4 -r http://localhost
 $ ckanapi search datasets include_private=true -O datasets.jsonl.gz -z \
           -c /etc/ckan/production.ini
 ```
+
+#### 🔧 Export datasets including draft ones using search
+
+```
+$ ckanapi search datasets include_drafts=true -O datasets.jsonl.gz -z \
+          -c /etc/ckan/production.ini
+```
+
 
 `search` is faster than `dump` because it calls `package_search` to retrieve
 many records per call, paginating automatically.

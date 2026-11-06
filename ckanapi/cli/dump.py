@@ -48,7 +48,7 @@ def dump_things(ckan, thing, arguments,
     if arguments['--gzip']:
         jsonl_output = gzip.GzipFile(fileobj=jsonl_output)
     if arguments['--all']:
-        params = None
+        params = dict()
         get_thing_list = {
             'datasets': 'package_list',
             'groups': 'group_list',
@@ -59,12 +59,6 @@ def dump_things(ckan, thing, arguments,
         if get_thing_list == "user_list":
             params = dict(
                 all_fields=False
-            )
-        elif get_thing_list == "package_list":
-            params = dict(
-                include_private=arguments['--include-private'] if '--include-private' in arguments else False,
-                include_drafts=arguments['--include-drafts'] if '--include-drafts' in arguments else False,
-                include_deleted=arguments['--include-deleted'] if '--include-deleted' in arguments else False,
             )
         names = ckan.call_action(get_thing_list, params)
 

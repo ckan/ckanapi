@@ -14,7 +14,7 @@ Usage:
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [--insecure]]
   ckanapi dump datasets
           (ID_OR_NAME ... | --all) ([-O JSONL_OUTPUT] | [-D DIRECTORY])
-          [-p PROCESSES] [-qwz --include-private --include-drafts --include-deleted --datastore-fields --resource-views]
+          [-p PROCESSES] [-qwz --datastore-fields --resource-views]
           [[-c CONFIG] [-u USER] | -r SITE_URL [-a APIKEY] [-g] [--insecure]]
   ckanapi dump (groups | organizations | users | related)
           (ID_OR_NAME ... | --all) ([-O JSONL_OUTPUT] | [-D DIRECTORY])
@@ -58,9 +58,6 @@ Options:
                             resource metadata as datastore_fields lists (dump).
                             load datastore field information for resources (load).
                             Requires existing Resource IDs in the JSONL.
-  --include-private         include private datasets in the dump
-  --include-drafts          include draft datasets in the dump
-  --include-deleted         include deleted datasets in the dump
   -D --datapackages=DIR     download resources and output as datapackages
                             in DIR instead of metadata-only json lines
   -g --get-request          use GET instead of POST for API calls
